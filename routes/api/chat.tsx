@@ -288,7 +288,7 @@ interface DeepSeekChatCompletion {
 
 async function callDeepSeek(prompt: string, stream = false, language = "sl"): Promise<Response | string> {
   // Try to load from .env file first, then from environment
-  let apiKey = (globalThis as unknown as { Deno?: typeof Deno }).Deno?.env.get("DEEPSEEK_API_KEY");
+  let apiKey = Deno.env.get("DEEPSEEK_API_KEY");
   
   if (!apiKey) {
     try {
@@ -296,17 +296,20 @@ async function callDeepSeek(prompt: string, stream = false, language = "sl"): Pr
       const envLines = envContent.split('\n');
       for (const line of envLines) {
         if (line.startsWith('DEEPSEEK_API_KEY=')) {
-          apiKey = line.split('=')[1];
+          apiKey = line.substring('DEEPSEEK_API_KEY='.length).trim();
+          console.log('Loaded API key from .env file');
           break;
         }
       }
-    } catch (_error) {
-      console.log('No .env file found, using environment variables');
+    } catch (error) {
+      console.log('No .env file found:', error);
     }
   }
   if (!apiKey) {
+    console.error('DEEPSEEK_API_KEY not found!');
     return "(DeepSeek ni konfiguriran. Nastavite DEEPSEEK_API_KEY v okolju strežnika.)\n" + explainMath(prompt);
   }
+  console.log('Using API key:', apiKey.substring(0, 10) + '...');
   
   // Map language codes to instructions
   const langMap: Record<string, string> = {
