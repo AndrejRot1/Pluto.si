@@ -265,6 +265,12 @@ export default function ChatComposer() {
           }}>
             Pošlji
           </button>
+          <button type="button" class="px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg text-sm shadow hover:bg-gray-300" onClick={() => {
+            const evt = new CustomEvent("pluto-clear");
+            globalThis.dispatchEvent(evt);
+          }}>
+            Izbriši
+          </button>
         </div>
       </div>
       {template && (

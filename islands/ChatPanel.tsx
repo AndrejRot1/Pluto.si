@@ -42,6 +42,10 @@ export default function ChatPanel() {
     }
   }
 
+  function handleClear() {
+    setMessages([]);
+  }
+
   return (
     <div class="flex-1 flex flex-col h-full">
       {/* Scrollable messages area */}
@@ -68,22 +72,30 @@ export default function ChatPanel() {
       </div>
       
       {/* Bridge: capture composer sends via custom event to avoid prop drilling after earlier API revert */}
-      <ComposerBridge onSend={handleSend} />
+      <ComposerBridge onSend={handleSend} onClear={handleClear} />
     </div>
   );
 }
 
 // Small helper to tap into composer value via a CustomEvent it dispatches
-function ComposerBridge(props: { onSend: (text: string) => void }) {
+function ComposerBridge(props: { onSend: (text: string) => void; onClear: () => void }) {
   useEffect(() => {
-    function onEvt(e: Event) {
+    function onSendEvt(e: Event) {
       const ce = e as CustomEvent<string>;
       console.log('Received pluto-send event:', ce.detail);
       props.onSend(ce.detail);
     }
-    globalThis.addEventListener("pluto-send", onEvt as EventListener);
-    return () => globalThis.removeEventListener("pluto-send", onEvt as EventListener);
-  }, [props.onSend]);
+    function onClearEvt() {
+      console.log('Received pluto-clear event');
+      props.onClear();
+    }
+    globalThis.addEventListener("pluto-send", onSendEvt as EventListener);
+    globalThis.addEventListener("pluto-clear", onClearEvt as EventListener);
+    return () => {
+      globalThis.removeEventListener("pluto-send", onSendEvt as EventListener);
+      globalThis.removeEventListener("pluto-clear", onClearEvt as EventListener);
+    };
+  }, [props.onSend, props.onClear]);
   return null;
 }
 

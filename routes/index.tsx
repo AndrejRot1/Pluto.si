@@ -31,22 +31,21 @@ export default define.page(function Home(props) {
               </label>
               
               {user ? (
-                <div class="flex items-center gap-3">
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
+                <details class="relative">
+                  <summary class="cursor-pointer list-none">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium hover:bg-blue-700 transition-colors">
                       {user.email?.[0]?.toUpperCase() || 'U'}
                     </div>
-                    <span class="text-sm text-gray-700 hidden sm:inline">
-                      {user.email}
-                    </span>
+                  </summary>
+                  <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                    <a 
+                      href="/auth/logout"
+                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      Odjava
+                    </a>
                   </div>
-                  <a 
-                    href="/auth/logout"
-                    class="text-sm text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors"
-                  >
-                    Odjava
-                  </a>
-                </div>
+                </details>
               ) : (
                 <>
                   <a 
