@@ -10,6 +10,8 @@ export default define.page(function App({ Component }) {
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
         <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" />
         <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" />
+        <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js" />
+        <script src="https://cdn.jsdelivr.net/npm/function-plot@1.24.0/dist/function-plot.js" />
       </head>
       <body>
         <Component />
