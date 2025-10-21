@@ -65,7 +65,12 @@ export default function LoginForm() {
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Geslo</label>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-sm font-medium text-gray-700">Geslo</label>
+              <a href="/auth/forgot-password" class="text-sm text-blue-600 hover:underline">
+                Pozabljeno geslo?
+              </a>
+            </div>
             <input
               type="password"
               value={password}

@@ -73,11 +73,21 @@ export default define.page(function Home(props) {
                     </div>
                   </summary>
                   <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                    <div class="px-4 py-2 border-b border-gray-200">
+                      <p class="text-xs text-gray-500">Prijavljen kot</p>
+                      <p class="text-sm font-medium text-gray-900 truncate">{user.email}</p>
+                    </div>
                     <a 
-                      href="/auth/logout"
+                      href="/settings"
                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                     >
-                      Odjava
+                      ⚙️ Nastavitve
+                    </a>
+                    <a 
+                      href="/auth/logout"
+                      class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
+                    >
+                      🚪 Odjava
                     </a>
                   </div>
                 </details>
