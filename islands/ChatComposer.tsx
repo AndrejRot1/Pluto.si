@@ -133,7 +133,17 @@ export default function ChatComposer() {
           setValue(target.value);
           autoResize();
         }}
-        placeholder="Vnesite vprašanje..."
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // Prevent new line
+            const text = value.trim();
+            if (!text) return;
+            const evt = new CustomEvent("pluto-send", { detail: text });
+            globalThis.dispatchEvent(evt);
+            setValue("");
+          }
+        }}
+        placeholder="Vnesite vprašanje... (Enter za pošiljanje, Shift+Enter za novo vrstico)"
       />
       {/* No previews: files are represented only as symbolic tags in text */}
       <div class="flex items-center justify-between gap-2 px-2 pb-1">
