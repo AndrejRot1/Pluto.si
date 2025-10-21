@@ -7,13 +7,14 @@ export default function Messages(props: { items: ChatMessage[] }) {
     // trigger KaTeX auto-render when messages change
     const renderMath = () => {
       const w = globalThis as unknown as { 
-        renderMathInElement?: (el: Element, opts: { delimiters: { left: string; right: string; display: boolean }[] }) => void;
+        renderMathInElement?: (el: Element, opts: { delimiters: { left: string; right: string; display: boolean }[]; throwOnError?: boolean }) => void;
         functionPlot?: (opts: { target: Element; width: number; height: number; grid: boolean; data: Array<{ fn: string; color: string }> }) => void;
       };
       
       if (w.renderMathInElement) {
         const messagesEl = document.getElementById("messages");
         if (messagesEl) {
+          console.log('Rendering math in messages...');
           w.renderMathInElement(messagesEl, {
             delimiters: [
               { left: "$$", right: "$$", display: true },
@@ -21,8 +22,12 @@ export default function Messages(props: { items: ChatMessage[] }) {
               { left: "\\(", right: "\\)", display: false },
               { left: "\\[", right: "\\]", display: true },
             ],
+            throwOnError: false
           });
+          console.log('Math rendering completed');
         }
+      } else {
+        console.log('KaTeX renderMathInElement not available yet');
       }
       
       // Render graphs
@@ -60,9 +65,11 @@ export default function Messages(props: { items: ChatMessage[] }) {
     setTimeout(renderMath, 1000);
   }, [props.items]);
 
-  // Parse content and extract graphs
+  // Parse content and extract graphs and math
   function parseContent(content: string) {
-    const parts: Array<{ type: 'text' | 'graph', content: string }> = [];
+    const parts: Array<{ type: 'text' | 'graph' | 'math', content: string }> = [];
+    
+    // First extract graphs
     const graphRegex = /\[GRAPH:([^\]]+)\]/g;
     let lastIndex = 0;
     let match;
@@ -70,7 +77,9 @@ export default function Messages(props: { items: ChatMessage[] }) {
     while ((match = graphRegex.exec(content)) !== null) {
       // Add text before graph
       if (match.index > lastIndex) {
-        parts.push({ type: 'text', content: content.substring(lastIndex, match.index) });
+        const textPart = content.substring(lastIndex, match.index);
+        // Parse math in this text part
+        parseMath(textPart, parts);
       }
       // Add graph
       parts.push({ type: 'graph', content: match[1] });
@@ -79,10 +88,40 @@ export default function Messages(props: { items: ChatMessage[] }) {
     
     // Add remaining text
     if (lastIndex < content.length) {
-      parts.push({ type: 'text', content: content.substring(lastIndex) });
+      const textPart = content.substring(lastIndex);
+      parseMath(textPart, parts);
+    } else if (lastIndex === 0) {
+      // No graphs found, just parse math
+      parseMath(content, parts);
     }
     
     return parts.length > 0 ? parts : [{ type: 'text', content }];
+  }
+  
+  // Helper to parse math expressions
+  function parseMath(text: string, parts: Array<{ type: 'text' | 'graph' | 'math', content: string }>) {
+    // Check for $ delimited math
+    const mathRegex = /\$([^\$]+)\$/g;
+    let lastIdx = 0;
+    let m;
+    
+    while ((m = mathRegex.exec(text)) !== null) {
+      // Add text before math
+      if (m.index > lastIdx) {
+        parts.push({ type: 'text', content: text.substring(lastIdx, m.index) });
+      }
+      // Add math (keep the $ delimiters)
+      parts.push({ type: 'math', content: `$${m[1]}$` });
+      lastIdx = m.index + m[0].length;
+    }
+    
+    // Add remaining text
+    if (lastIdx < text.length) {
+      parts.push({ type: 'text', content: text.substring(lastIdx) });
+    } else if (lastIdx === 0) {
+      // No math found
+      parts.push({ type: 'text', content: text });
+    }
   }
 
   return (
@@ -100,9 +139,13 @@ export default function Messages(props: { items: ChatMessage[] }) {
                     style="height: min(400px, 50vh);"
                   />
                 );
+              } else if (part.type === 'math') {
+                return (
+                  <span key={idx} class="math-inline">{part.content}</span>
+                );
               } else {
                 return (
-                  <div key={idx} class="whitespace-pre-wrap">{part.content}</div>
+                  <span key={idx} class="whitespace-pre-wrap">{part.content}</span>
                 );
               }
             })}

@@ -6,15 +6,29 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Demo messages for preview
-const demoMessages = [
-  {
-    role: 'user',
-    content: 'Reši enačbo: 3x + 5 = 20'
-  },
-  {
-    role: 'assistant',
-    content: `**Reševanje linearne enačbe**
+// Full intro text that will be typed
+const introText = `Pozdravljeni! 👋
+
+Pluto.si je vaš osebni matematični asistent, zasnovan za učence in dijake, ki želijo **izboljšati svoje razumevanje matematike** in dosegati **boljše rezultate**.
+
+**Kaj vam ponujamo:**
+
+✓ **Korak-po-korak razlage** – Vsak problem rešujemo sistematično, da razumete *zakaj* in ne samo *kako*.
+
+✓ **Podpora za vsa področja** – Od osnovne algebre do integralov in diferenciala.
+
+✓ **Interaktivna tipkovnica** – Enostavno vstavljanje matematičnih simbolov in formul.
+
+✓ **Vizualizacije grafov** – Prikaz funkcij za boljše razumevanje.
+
+✓ **Večjezična podpora** – Slovenščina, angleščina in italijanščina.
+
+**Oglejmo si primer:**`;
+
+// Demo problem after intro
+const demoProblem = 'Reši enačbo: 3x + 5 = 20';
+
+const demoSolution = `**Reševanje linearne enačbe**
 
 **Korak 1:** Odštejemo 5 z obeh strani
 \\[
@@ -34,35 +48,71 @@ x = 5
 
 **Rešitev:** x = 5
 
-**Preverjanje:** 3(5) + 5 = 15 + 5 = 20 ✓`
-  }
-];
+**Preverjanje:** 3(5) + 5 = 15 + 5 = 20 ✓
+
+---
+
+**Pripravljeni začeti?** Registrirajte se za 3-dnevni brezplačni preskus in odkrijte, kako lahko matematika postane enostavnejša! 🚀`;
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showDemo, setShowDemo] = useState(false);
+  const [typedIntro, setTypedIntro] = useState('');
+  const [showProblem, setShowProblem] = useState(false);
+  const [typedSolution, setTypedSolution] = useState('');
+  const [isTyping, setIsTyping] = useState(true);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   useEffect(() => {
-    console.log('RegisterForm mounted, registrationSuccess:', registrationSuccess);
+    if (registrationSuccess) return;
     
-    // Show demo message after 1 second
-    setTimeout(() => {
-      console.log('Showing demo');
-      setShowDemo(true);
-    }, 1000);
+    setIsTyping(true);
     
-    // Render math after demo shows
+    // Typing effect for intro text - use chunks for smoother animation
+    let introIndex = 0;
+    const introInterval = setInterval(() => {
+      if (introIndex < introText.length) {
+        setTypedIntro(introText.substring(0, introIndex + 5)); // +5 chars per frame (faster!)
+        introIndex += 5;
+      } else {
+        clearInterval(introInterval);
+        setTypedIntro(introText); // Ensure complete text
+        // Show problem after intro is done
+        setTimeout(() => {
+          setShowProblem(true);
+          // Start typing solution
+          setTimeout(() => {
+            let solIndex = 0;
+            const solInterval = setInterval(() => {
+              if (solIndex < demoSolution.length) {
+                setTypedSolution(demoSolution.substring(0, solIndex + 8)); // +8 chars per frame (very fast!)
+                solIndex += 8;
+              } else {
+                clearInterval(solInterval);
+                setTypedSolution(demoSolution); // Ensure complete text
+                setIsTyping(false); // Done typing, now can render math
+              }
+            }, 25); // Very smooth and fast
+          }, 200);
+        }, 400);
+      }
+    }, 35); // Faster interval
+    
+    return () => clearInterval(introInterval);
+  }, [registrationSuccess]);
+  
+  // Render math ONLY when typing is done (to avoid blocking)
+  useEffect(() => {
+    if (isTyping) return; // Don't render while typing!
+    
     setTimeout(() => {
-      const w = globalThis as unknown as { renderMathInElement?: (el: Element, opts: any) => void };
-      console.log('KaTeX available:', !!w.renderMathInElement);
+      const w = globalThis as unknown as { renderMathInElement?: (el: Element, opts: Record<string, unknown>) => void };
       if (w.renderMathInElement) {
         const demoEl = document.getElementById('demo-chat');
-        console.log('Demo element found:', !!demoEl);
         if (demoEl) {
+          console.log('Rendering KaTeX after typing completed');
           w.renderMathInElement(demoEl, {
             delimiters: [
               { left: "$$", right: "$$", display: true },
@@ -70,12 +120,12 @@ export default function RegisterForm() {
               { left: "\\[", right: "\\]", display: true },
               { left: "\\(", right: "\\)", display: false },
             ],
+            throwOnError: false
           });
-          console.log('KaTeX rendered on demo chat');
         }
       }
-    }, 1500);
-  }, []);
+    }, 200);
+  }, [isTyping]); // Only trigger when typing state changes
 
   async function handleRegister(e: Event) {
     e.preventDefault();
@@ -120,10 +170,10 @@ export default function RegisterForm() {
   return (
     <div class="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
       {/* Left side - Registration form */}
-      <div class={`flex items-center justify-center px-4 py-12 transition-all duration-500 ${
+      <div class={`px-4 py-12 transition-all duration-500 ${
         registrationSuccess ? 'w-full' : 'w-full lg:w-1/2'
       }`}>
-        <div class="max-w-md w-full">
+        <div class="max-w-md w-full mx-auto">
           <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Začni s Pluto.si</h1>
             <p class="text-gray-600">
@@ -201,31 +251,44 @@ export default function RegisterForm() {
 
       {/* Right side - Demo chat */}
       {!registrationSuccess && (
-        <div class="hidden lg:flex w-full lg:w-1/2 bg-white border-l border-gray-200 flex-col">
-        <div class="border-b border-gray-200 px-6 py-4">
-          <h2 class="text-lg font-semibold text-gray-800">Primer reševanja</h2>
-          <p class="text-sm text-gray-500">Poglej, kako Pluto.si rešuje matematične probleme</p>
+        <div class="hidden lg:flex w-full lg:w-1/2 bg-gradient-to-br from-gray-50 to-blue-50 border-l border-gray-200 flex-col" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;">
+        <div class="border-b border-gray-200 px-6 py-4 bg-white/80 backdrop-blur">
+          <h2 class="text-xl font-semibold text-gray-800">Dobrodošli v Pluto.si 🚀</h2>
+          <p class="text-sm text-gray-600 mt-1">Vaš osebni matematični asistent</p>
         </div>
         
         <div id="demo-chat" class="flex-1 overflow-y-auto p-6 space-y-4">
-          {/* User message */}
-          <div class="bg-white border border-gray-200 rounded-lg p-4 max-w-lg">
-            <p class="text-gray-800">{demoMessages[0].content}</p>
-          </div>
-          
-          {/* Assistant message - always show, animate with CSS */}
-          <div class={`bg-gray-50 border border-gray-200 rounded-lg p-4 transition-all duration-500 ${
-            showDemo ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-          }`}>
-            <div class="prose prose-sm max-w-none whitespace-pre-wrap">
-              {demoMessages[1].content}
+          {/* Intro message with typing effect */}
+          {typedIntro && (
+            <div class="bg-white/90 backdrop-blur rounded-xl p-5 shadow-sm border border-gray-200">
+              <div class="whitespace-pre-wrap text-gray-800 leading-relaxed" style="font-size: 15px; line-height: 1.6;">
+                {typedIntro}
+                {typedIntro.length < introText.length && <span class="inline-block w-2 h-5 bg-gray-800 ml-1 animate-pulse"></span>}
+              </div>
             </div>
-          </div>
+          )}
+          
+          {/* Problem */}
+          {showProblem && (
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 max-w-md ml-auto">
+              <p class="text-gray-800 font-medium" style="font-size: 15px;">{demoProblem}</p>
+            </div>
+          )}
+          
+          {/* Solution with typing effect */}
+          {typedSolution && (
+            <div class="bg-white/90 backdrop-blur rounded-xl p-5 shadow-sm border border-gray-200">
+              <div class="prose prose-sm max-w-none whitespace-pre-wrap text-gray-800" style="font-size: 15px; line-height: 1.7;">
+                {typedSolution}
+                {typedSolution.length < demoSolution.length && <span class="inline-block w-2 h-5 bg-gray-800 ml-1 animate-pulse"></span>}
+              </div>
+            </div>
+          )}
         </div>
         
-        <div class="border-t border-gray-200 px-6 py-4 bg-gray-50">
-          <p class="text-sm text-gray-600 text-center">
-            💡 Registriraj se za neomejene rešitve in razlage
+        <div class="border-t border-gray-200 px-6 py-4 bg-white/80 backdrop-blur">
+          <p class="text-sm text-gray-700 text-center font-medium">
+            ✨ Pripravljeni začeti? Registrirajte se zdaj! 
           </p>
         </div>
         </div>

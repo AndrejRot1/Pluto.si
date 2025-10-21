@@ -45,10 +45,11 @@ export default function ChatPanel() {
       return text;
     }
     
-    // Check if text contains LaTeX commands
-    const hasLatex = /\\(int|frac|sqrt|sum|prod|lim|sin|cos|tan|ln|log|pi|infty|to|leq|geq|neq|left|right|begin|end|text|partial|nabla)/.test(text);
+    // Check if text contains LaTeX commands or math notation
+    const hasLatexCommand = /\\(int|frac|sqrt|sum|prod|lim|sin|cos|tan|ln|log|pi|infty|to|leq|geq|neq|left|right|begin|end|text|partial|nabla|times|div|pm)/.test(text);
+    const hasMathNotation = /[\^_{}]/.test(text) && /[a-zA-Z0-9]/.test(text);
     
-    if (hasLatex) {
+    if (hasLatexCommand || hasMathNotation) {
       // Wrap inline LaTeX with $...$
       return `$${text}$`;
     }
@@ -60,6 +61,8 @@ export default function ChatPanel() {
     const trimmed = text.trim();
     if (!trimmed) return;
     const wrappedContent = wrapLatex(trimmed);
+    console.log('Original text:', trimmed);
+    console.log('Wrapped content:', wrappedContent);
     const userMsg: ChatMessage = { id: Date.now(), role: "user", content: wrappedContent };
     setMessages((m) => [...m, userMsg]);
     setSending(true);
@@ -124,12 +127,12 @@ export default function ChatPanel() {
         </div>
       </div>
       
-      {/* Fixed input area */}
-      <div class="bg-white p-4 flex-shrink-0">
-        <div class="max-w-3xl mx-auto">
-          <ChatComposer />
+        {/* Fixed input area */}
+        <div class="bg-white p-4 flex-shrink-0">
+          <div class="max-w-3xl mx-auto">
+            <ChatComposer />
+          </div>
         </div>
-      </div>
       
       {/* Bridge: capture composer sends via custom event to avoid prop drilling after earlier API revert */}
       <ComposerBridge onSend={handleSend} onClear={handleClear} />
