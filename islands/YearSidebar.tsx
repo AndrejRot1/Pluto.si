@@ -1,107 +1,138 @@
-import { useEffect, useState } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 
-interface YearGroup {
-  year: string;
-  topics: { title: string; items: string[] }[];
-  schoolType?: 'osnovna' | 'srednja';
+interface Topic {
+  title: { sl: string; en: string; it: string };
+  items: Array<{ sl: string; en: string; it: string }>;
 }
 
-const data: YearGroup[] = [
-  // Osnovna šola
-  {
-    year: "5. razred",
-    schoolType: 'osnovna',
-    topics: [
-      { title: "Naravna števila", items: ["Seštevanje", "Odštevanje", "Množenje", "Deljenje"] },
-      { title: "Geometrija", items: ["Koti", "Trikotniki", "Kvadrati", "Pravokotniki"] },
-      { title: "Ulomki", items: ["Osnovni ulomki", "Seštevanje ulomkov", "Množenje ulomkov"] },
-    ],
+const topics: Topic[] = [
+  { 
+    title: { sl: "Števila", en: "Numbers", it: "Numeri" },
+    items: [
+      { sl: "Naravna števila", en: "Natural numbers", it: "Numeri naturali" },
+      { sl: "Cela števila", en: "Integers", it: "Numeri interi" },
+      { sl: "Racionalna števila", en: "Rational numbers", it: "Numeri razionali" },
+      { sl: "Realna števila", en: "Real numbers", it: "Numeri reali" },
+      { sl: "Kompleksna števila", en: "Complex numbers", it: "Numeri complessi" }
+    ]
   },
-  {
-    year: "6. razred",
-    schoolType: 'osnovna',
-    topics: [
-      { title: "Decimalna števila", items: ["Decimalni zapis", "Seštevanje", "Množenje"] },
-      { title: "Geometrija", items: ["Obseg", "Površina", "Krogi", "Valji"] },
-      { title: "Procenti", items: ["Osnovni procenti", "Izračuni", "Aplikacije"] },
-    ],
+  { 
+    title: { sl: "Algebra", en: "Algebra", it: "Algebra" },
+    items: [
+      { sl: "Enačbe", en: "Equations", it: "Equazioni" },
+      { sl: "Neenačbe", en: "Inequalities", it: "Disequazioni" },
+      { sl: "Sistemi enačb", en: "Systems of equations", it: "Sistemi di equazioni" },
+      { sl: "Kvadratne enačbe", en: "Quadratic equations", it: "Equazioni quadratiche" },
+      { sl: "Polinomi", en: "Polynomials", it: "Polinomi" },
+      { sl: "Faktorizacija", en: "Factorization", it: "Fattorizzazione" }
+    ]
   },
-  {
-    year: "7. razred",
-    schoolType: 'osnovna',
-    topics: [
-      { title: "Algebra", items: ["Spremenljivke", "Enačbe", "Neenačbe"] },
-      { title: "Geometrija", items: ["Podobnost", "Pitagorov izrek", "Trigonometrija"] },
-      { title: "Statistika", items: ["Povprečje", "Mediana", "Grafi"] },
-    ],
+  { 
+    title: { sl: "Funkcije", en: "Functions", it: "Funzioni" },
+    items: [
+      { sl: "Linearne funkcije", en: "Linear functions", it: "Funzioni lineari" },
+      { sl: "Kvadratne funkcije", en: "Quadratic functions", it: "Funzioni quadratiche" },
+      { sl: "Eksponentne funkcije", en: "Exponential functions", it: "Funzioni esponenziali" },
+      { sl: "Logaritemske funkcije", en: "Logarithmic functions", it: "Funzioni logaritmiche" },
+      { sl: "Trigonometrične funkcije", en: "Trigonometric functions", it: "Funzioni trigonometriche" }
+    ]
   },
-  {
-    year: "8. razred",
-    schoolType: 'osnovna',
-    topics: [
-      { title: "Funkcije", items: ["Linearne funkcije", "Grafi", "Aplikacije"] },
-      { title: "Geometrija", items: ["Prostorska geometrija", "Volumen", "Površina"] },
-      { title: "Verjetnost", items: ["Osnovni koncepti", "Kombinatorika", "Aplikacije"] },
-    ],
+  { 
+    title: { sl: "Geometrija", en: "Geometry", it: "Geometria" },
+    items: [
+      { sl: "Trikotniki", en: "Triangles", it: "Triangoli" },
+      { sl: "Krogi", en: "Circles", it: "Cerchi" },
+      { sl: "Pitagorov izrek", en: "Pythagorean theorem", it: "Teorema di Pitagora" },
+      { sl: "Podobnost", en: "Similarity", it: "Similitudine" },
+      { sl: "Prostorska geometrija", en: "Spatial geometry", it: "Geometria spaziale" },
+      { sl: "Površina", en: "Area", it: "Area" },
+      { sl: "Volumen", en: "Volume", it: "Volume" }
+    ]
   },
-  {
-    year: "9. razred",
-    schoolType: 'osnovna',
-    topics: [
-      { title: "Algebra", items: ["Kvadratne enačbe", "Polinomi", "Faktorizacija"] },
-      { title: "Geometrija", items: ["Trigonometrija", "Vektorji", "Koordinatni sistem"] },
-      { title: "Analiza", items: ["Limite", "Zveznost", "Osnove odvodov"] },
-    ],
+  { 
+    title: { sl: "Trigonometrija", en: "Trigonometry", it: "Trigonometria" },
+    items: [
+      { sl: "Sinus", en: "Sine", it: "Seno" },
+      { sl: "Kosinus", en: "Cosine", it: "Coseno" },
+      { sl: "Tangens", en: "Tangent", it: "Tangente" },
+      { sl: "Kotne funkcije", en: "Angular functions", it: "Funzioni angolari" },
+      { sl: "Trigonometrične enačbe", en: "Trigonometric equations", it: "Equazioni trigonometriche" }
+    ]
   },
-  // Srednja šola
-  {
-    year: "1. letnik",
-    schoolType: 'srednja',
-    topics: [
-      { title: "Algebra", items: ["Naravna števila", "Enačbe", "Neenačbe"] },
-      { title: "Geometrija", items: ["Kotne funkcije", "Trikotniki"] },
-    ],
+  { 
+    title: { sl: "Analiza", en: "Analysis", it: "Analisi" },
+    items: [
+      { sl: "Limite", en: "Limits", it: "Limiti" },
+      { sl: "Zveznost", en: "Continuity", it: "Continuità" },
+      { sl: "Odvodi", en: "Derivatives", it: "Derivate" },
+      { sl: "Integrali", en: "Integrals", it: "Integrali" },
+      { sl: "Ekstremi", en: "Extrema", it: "Estremi" }
+    ]
   },
-  {
-    year: "2. letnik",
-    schoolType: 'srednja',
-    topics: [
-      { title: "Funkcije", items: ["Linearne", "Kvadratne"] },
-      { title: "Polinomi", items: ["Faktorizacija", "Ničle"] },
-    ],
+  { 
+    title: { sl: "Verjetnost in statistika", en: "Probability and statistics", it: "Probabilità e statistica" },
+    items: [
+      { sl: "Kombinatorika", en: "Combinatorics", it: "Combinatoria" },
+      { sl: "Verjetnostni račun", en: "Probability theory", it: "Teoria della probabilità" },
+      { sl: "Porazdelitve", en: "Distributions", it: "Distribuzioni" },
+      { sl: "Povprečje", en: "Average", it: "Media" },
+      { sl: "Mediana", en: "Median", it: "Mediana" }
+    ]
   },
-  {
-    year: "3. letnik",
-    schoolType: 'srednja',
-    topics: [
-      { title: "Analiza", items: ["Limite", "Zveznost"] },
-      { title: "Trigonometrija", items: ["Sinus", "Kosinus", "Tangens"] },
-    ],
-  },
-  {
-    year: "4. letnik",
-    schoolType: 'srednja',
-    topics: [
-      { title: "Odvodi", items: ["Pravila odvajanja", "Ekstremi"] },
-      { title: "Integrali", items: ["Nedoločeni", "Določeni"] },
-      { title: "Verjetnost", items: ["Kombinatorika", "Porazdelitve"] },
-    ],
+  { 
+    title: { sl: "Vektorji in matrike", en: "Vectors and matrices", it: "Vettori e matrici" },
+    items: [
+      { sl: "Vektorji", en: "Vectors", it: "Vettori" },
+      { sl: "Skalarni produkt", en: "Dot product", it: "Prodotto scalare" },
+      { sl: "Vektorski produkt", en: "Cross product", it: "Prodotto vettoriale" },
+      { sl: "Matrike", en: "Matrices", it: "Matrici" },
+      { sl: "Determinante", en: "Determinants", it: "Determinanti" }
+    ]
   },
 ];
 
+const translations = {
+  title: { sl: "Teme", en: "Topics", it: "Argomenti" }
+};
+
 export default function YearSidebar() {
-  async function handleTopicClick(topic: string, year: string) {
+  const [lang, setLang] = useState<'sl' | 'en' | 'it'>('sl');
+
+  useEffect(() => {
+    // Initialize from localStorage
+    const stored = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' || 'sl';
+    setLang(stored);
+
+    // Listen for language changes
+    const handleStorage = () => {
+      const newLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' || 'sl';
+      setLang(newLang);
+    };
+
+    window.addEventListener('storage', handleStorage);
+    
+    // Custom event for same-page updates
+    const handleLangChange = () => {
+      const newLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' || 'sl';
+      setLang(newLang);
+    };
+    globalThis.addEventListener('pluto-lang-change', handleLangChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      globalThis.removeEventListener('pluto-lang-change', handleLangChange);
+    };
+  }, []);
+
+  function handleTopicClick(topic: string) {
     try {
-      console.log('Loading topic:', topic, 'for year:', year);
+      console.log('Loading topic:', topic);
       
       // Send topic to AI for explanation
-      const prompt = `Razloži matematično temo "${topic}" za ${year}. Podaj:
+      const prompt = `Razloži matematično temo "${topic}". Podaj:
 1. Kratko definicijo teme
 2. Enostaven primer z rešitvijo
-3. Kako se tema povezuje z drugimi matematičnimi koncepti
-
-Tema: ${topic}
-Letnik: ${year}`;
+3. Kako se tema povezuje z drugimi matematičnimi koncepti`;
       
       const event = new CustomEvent("pluto-send", { detail: prompt });
       globalThis.dispatchEvent(event);
@@ -110,91 +141,31 @@ Letnik: ${year}`;
     }
   }
 
-  // Group data by school type
-  const osnovnaSola = data.filter(item => item.schoolType === 'osnovna');
-  const srednjaSola = data.filter(item => item.schoolType === 'srednja');
-
   return (
-    <aside class="w-72 bg-white border-r border-gray-200 p-3 overflow-y-auto h-screen flex-shrink-0">
-      <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">Matematične teme</h2>
+    <aside class="w-72 bg-white border-r border-gray-200 p-4 overflow-y-auto h-screen flex-shrink-0">
+      <h2 class="text-base font-semibold text-gray-800 mb-4">{translations.title[lang]}</h2>
       
-      {/* Osnovna šola */}
-      <div class="mb-6">
-        <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Osnovna šola</h3>
-        <div class="space-y-1">
-          {osnovnaSola.map((g) => (
-            <details class="group">
-              <summary class="cursor-pointer list-none flex items-center justify-between select-none py-2 px-2 hover:bg-gray-50 rounded-md transition-colors">
-                <span class="text-sm font-medium text-gray-700">{g.year}</span>
-                <span class="text-xs text-gray-400 group-open:rotate-90 transition-transform">›</span>
-              </summary>
-              <div class="mt-1 ml-2 space-y-1">
-                {g.topics.map((t) => (
-                  <div class="mb-2">
-                    <div class="text-xs font-medium text-gray-600 mb-1">{t.title}</div>
-                    <ul class="space-y-0.5">
-                      {t.items.map((label) => (
-                        <li>
-                          <button
-                            type="button"
-                            onClick={() => handleTopicClick(label, g.year)}
-                            class="block w-full text-left text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded px-2 py-1 transition-colors"
-                          >
-                            {label}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </details>
-          ))}
-        </div>
-      </div>
-
-      {/* Srednja šola */}
-      <div>
-        <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Srednja šola</h3>
-        <div class="space-y-1">
-          {srednjaSola.map((g) => (
-            <details class="group">
-              <summary class="cursor-pointer list-none flex items-center justify-between select-none py-2 px-2 hover:bg-gray-50 rounded-md transition-colors">
-                <span class="text-sm font-medium text-gray-700">{g.year}</span>
-                <span class="text-xs text-gray-400 group-open:rotate-90 transition-transform">›</span>
-              </summary>
-              <div class="mt-1 ml-2 space-y-1">
-                {g.topics.map((t) => (
-                  <div class="mb-2">
-                    <div class="text-xs font-medium text-gray-600 mb-1">{t.title}</div>
-                    <ul class="space-y-0.5">
-                      {t.items.map((label) => (
-                        <li>
-                          <button
-                            type="button"
-                            onClick={() => handleTopicClick(label, g.year)}
-                            class="block w-full text-left text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded px-2 py-1 transition-colors"
-                          >
-                            {label}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </details>
-          ))}
-        </div>
+      <div class="space-y-2">
+        {topics.map((category) => (
+          <details class="group">
+            <summary class="cursor-pointer list-none flex items-center justify-between select-none py-2.5 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+              <span class="text-sm font-medium text-gray-700">{category.title[lang]}</span>
+              <span class="text-xs text-gray-400 group-open:rotate-90 transition-transform">›</span>
+            </summary>
+            <div class="mt-1 ml-2 space-y-0.5">
+              {category.items.map((item) => (
+                <button
+                  type="button"
+                  onClick={() => handleTopicClick(item[lang])}
+                  class="block w-full text-left text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md px-3 py-2 transition-colors"
+                >
+                  {item[lang]}
+                </button>
+              ))}
+            </div>
+          </details>
+        ))}
       </div>
     </aside>
   );
-}
-
-function slugify(s: string) {
-  return s
-    .toLowerCase()
-    .normalize("NFD").replace(/[^\p{ASCII}]/gu, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
 }

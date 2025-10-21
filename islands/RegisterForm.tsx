@@ -118,10 +118,10 @@ export default function RegisterForm() {
   }
 
   return (
-    <div class="min-h-screen bg-gray-50 flex">
+    <div class="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
       {/* Left side - Registration form */}
       <div class={`flex items-center justify-center px-4 py-12 transition-all duration-500 ${
-        registrationSuccess ? 'w-full' : 'w-1/2'
+        registrationSuccess ? 'w-full' : 'w-full lg:w-1/2'
       }`}>
         <div class="max-w-md w-full">
           <div class="text-center mb-8">
@@ -201,7 +201,7 @@ export default function RegisterForm() {
 
       {/* Right side - Demo chat */}
       {!registrationSuccess && (
-        <div class="flex w-1/2 bg-white border-l border-gray-200 flex-col">
+        <div class="hidden lg:flex w-full lg:w-1/2 bg-white border-l border-gray-200 flex-col">
         <div class="border-b border-gray-200 px-6 py-4">
           <h2 class="text-lg font-semibold text-gray-800">Primer reševanja</h2>
           <p class="text-sm text-gray-500">Poglej, kako Pluto.si rešuje matematične probleme</p>

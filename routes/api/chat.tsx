@@ -2,9 +2,9 @@ import { define } from "../../utils.ts";
 import { izjaveInMnoziceExercises } from "../../data/exercises.ts";
 
 // Cache for HTML exercises
-let htmlExercisesCache: any[] | null = null;
+let htmlExercisesCache: Array<Record<string, unknown>> | null = null;
 
-async function loadHtmlExercises() {
+async function _loadHtmlExercises() {
   if (htmlExercisesCache) return htmlExercisesCache;
   
   try {
@@ -286,7 +286,7 @@ interface DeepSeekChatCompletion {
   choices: Array<{ index: number; finish_reason: string; message: { role: string; content: string } }>;
 }
 
-async function callDeepSeek(prompt: string, stream = false): Promise<Response | string> {
+async function callDeepSeek(prompt: string, stream = false, language = "sl"): Promise<Response | string> {
   // Try to load from .env file first, then from environment
   let apiKey = (globalThis as unknown as { Deno?: typeof Deno }).Deno?.env.get("DEEPSEEK_API_KEY");
   
@@ -300,19 +300,28 @@ async function callDeepSeek(prompt: string, stream = false): Promise<Response | 
           break;
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.log('No .env file found, using environment variables');
     }
   }
   if (!apiKey) {
     return "(DeepSeek ni konfiguriran. Nastavite DEEPSEEK_API_KEY v okolju strežnika.)\n" + explainMath(prompt);
   }
+  
+  // Map language codes to instructions
+  const langMap: Record<string, string> = {
+    sl: "Respond in Slovenian",
+    en: "Respond in English",
+    it: "Respond in Italian"
+  };
+  const langInstruction = langMap[language] || langMap.sl;
+  
   const endpoint = "https://api.deepseek.com/chat/completions";
   const messages: DeepSeekMessage[] = [
     {
       role: "system",
       content:
-        "You are a helpful math tutor. Answer ONLY math questions. If not math, politely refuse. Respond in Slovenian. Show clear step-by-step reasoning and final result where applicable.",
+        `You are a helpful math tutor. Answer ONLY math questions. If not math, politely refuse. ${langInstruction}. Show clear step-by-step reasoning and final result where applicable.`,
     },
     { role: "user", content: prompt },
   ];
@@ -429,17 +438,20 @@ export const handler = define.handlers({
       const text = (typeof parsed === "object" && parsed !== null && "text" in parsed)
         ? String((parsed as { text?: unknown }).text ?? "")
         : "";
+      const language = (typeof parsed === "object" && parsed !== null && "language" in parsed)
+        ? String((parsed as { language?: unknown }).language ?? "sl")
+        : "sl";
       if (!text.trim()) return json({ reply: "Prosim, vnesite vprašanje." });
       const looksMath = isLikelyMath(text);
       if (!looksMath) {
         // If DeepSeek is configured, defer the gate to model's system prompt (it will refuse non-math).
-        const maybe = await callDeepSeek(text);
+        const maybe = await callDeepSeek(text, false, language);
         if (typeof maybe === "string") return json({ reply: maybe });
         return json({ reply: "Lahko odgovarjam samo na matematična vprašanja." });
       }
       const wantsStream = /stream=1/.test(new URL(ctx.req.url).search);
       if (wantsStream) {
-        const ds = await callDeepSeek(text, true);
+        const ds = await callDeepSeek(text, true, language);
         if (ds instanceof Response && ds.ok) {
           // proxy the stream transparently
           return new Response(ds.body, { headers: { "content-type": ds.headers.get("content-type") ?? "text/event-stream" } });
@@ -447,7 +459,7 @@ export const handler = define.handlers({
         const fallback = typeof ds === "string" ? ds : explainMath(text);
         return json({ reply: fallback });
       } else {
-        const explanation = await callDeepSeek(text);
+        const explanation = await callDeepSeek(text, false, language);
         if (typeof explanation === "string") return json({ reply: explanation });
         return json({ reply: explainMath(text) });
       }

@@ -9,26 +9,44 @@ export default define.page(function Home(props) {
     <div class="h-screen bg-gray-50 flex">
       <Head>
         <title>Pluto.si • Pogovorni asistent za matematiko</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </Head>
       
-      {/* Fixed sidebar */}
-      <YearSidebar />
+      {/* Fixed sidebar - hidden on mobile */}
+      <div class="hidden lg:block">
+        <YearSidebar />
+      </div>
 
       {/* Main chat area */}
       <main class="flex-1 flex flex-col h-screen">
         {/* Fixed header */}
-        <header class="bg-white border-b border-gray-200 px-4 py-3 flex-shrink-0">
-          <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
-            <h1 class="text-xl font-semibold text-gray-800">Matematični asistent</h1>
-            <div class="flex items-center gap-3">
+        <header class="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex-shrink-0">
+          <div class="max-w-5xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+            <h1 class="text-base sm:text-xl font-semibold text-gray-800">Matematični asistent</h1>
+            <div class="flex items-center gap-2 sm:gap-3">
               <label class="text-sm text-gray-600 flex items-center gap-2">
                 <span class="hidden sm:inline">Language</span>
-                <select class="text-sm bg-white border border-gray-300 rounded-md px-2 py-1 hover:bg-gray-50">
+                <select 
+                  id="lang-select"
+                  class="text-sm bg-white border border-gray-300 rounded-md px-2 py-1 hover:bg-gray-50"
+                >
                   <option value="sl">Slovenščina</option>
                   <option value="en">English</option>
                   <option value="it">Italiano</option>
                 </select>
               </label>
+              <script dangerouslySetInnerHTML={{__html: `
+                (function() {
+                  const sel = document.getElementById('lang-select');
+                  const stored = localStorage.getItem('pluto-lang') || 'sl';
+                  sel.value = stored;
+                  sel.addEventListener('change', (e) => {
+                    localStorage.setItem('pluto-lang', e.target.value);
+                    // Trigger custom event for same-page updates
+                    globalThis.dispatchEvent(new CustomEvent('pluto-lang-change'));
+                  });
+                })();
+              `}} />
               
               {user ? (
                 <details class="relative">
@@ -50,15 +68,17 @@ export default define.page(function Home(props) {
                 <>
                   <a 
                     href="/auth/login"
-                    class="text-sm text-gray-700 hover:text-gray-900 px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors"
+                    class="text-xs sm:text-sm text-gray-700 hover:text-gray-900 px-2 sm:px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors"
                   >
-                    Prijava
+                    <span class="hidden sm:inline">Prijava</span>
+                    <span class="sm:hidden">🔑</span>
                   </a>
                   <a 
                     href="/auth/register"
-                    class="text-sm bg-blue-600 text-white px-4 py-1.5 rounded-md hover:bg-blue-700 transition-colors font-medium"
+                    class="text-xs sm:text-sm bg-blue-600 text-white px-2 sm:px-4 py-1.5 rounded-md hover:bg-blue-700 transition-colors font-medium"
                   >
-                    Registracija
+                    <span class="hidden sm:inline">Registracija</span>
+                    <span class="sm:hidden">✨</span>
                   </a>
                 </>
               )}

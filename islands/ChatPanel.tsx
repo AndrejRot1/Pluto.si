@@ -2,16 +2,41 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import ChatComposer from "./ChatComposer.tsx";
 import Messages, { type ChatMessage } from "./Messages.tsx";
 
+const thinkingText = {
+  sl: "Razmišljam...",
+  en: "Thinking...",
+  it: "Sto pensando..."
+};
+
 export default function ChatPanel() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [sending, setSending] = useState(false);
+  const [thinking, setThinking] = useState(false);
+  const [lang, setLang] = useState<'sl' | 'en' | 'it'>('sl');
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // scroll to bottom when messages update
+    // Initialize language from localStorage
+    const stored = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' || 'sl';
+    setLang(stored);
+
+    // Listen for language changes
+    const handleLangChange = () => {
+      const newLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' || 'sl';
+      setLang(newLang);
+    };
+    globalThis.addEventListener('pluto-lang-change', handleLangChange);
+
+    return () => {
+      globalThis.removeEventListener('pluto-lang-change', handleLangChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    // scroll to bottom when messages update or thinking state changes
     const el = scrollerRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages]);
+  }, [messages, thinking]);
 
   async function handleSend(text: string) {
     const trimmed = text.trim();
@@ -19,23 +44,29 @@ export default function ChatPanel() {
     const userMsg: ChatMessage = { id: Date.now(), role: "user", content: trimmed };
     setMessages((m) => [...m, userMsg]);
     setSending(true);
+    setThinking(true);
     try {
+      // Get language from localStorage
+      const language = localStorage.getItem('pluto-lang') || 'sl';
+      
       // Use non-streaming API for now to avoid issues
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: trimmed }),
+        body: JSON.stringify({ text: trimmed, language }),
       });
       
       if (res.ok) {
         const data = await res.json();
         const assistant: ChatMessage = { id: Date.now() + 1, role: "assistant", content: data.reply ?? "Oprostite, prišlo je do napake." };
+        setThinking(false);
         setMessages((m) => [...m, assistant]);
       } else {
         throw new Error(`HTTP ${res.status}`);
       }
     } catch (e) {
       console.error('Error in handleSend:', e);
+      setThinking(false);
       setMessages((m) => [...m, { id: Date.now() + 2, role: "assistant", content: "Prišlo je do napake pri obdelavi vprašanja." }]);
     } finally {
       setSending(false);
@@ -59,6 +90,16 @@ export default function ChatPanel() {
           ) : (
             <div class="px-4 py-4">
               <Messages items={messages} />
+              {thinking && (
+                <div class="bg-gray-50 rounded-xl p-4 mt-4 flex items-center gap-3">
+                  <div class="flex gap-1">
+                    <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                    <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                    <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                  </div>
+                  <span class="text-sm text-gray-600">{thinkingText[lang]}</span>
+                </div>
+              )}
             </div>
           )}
         </div>
