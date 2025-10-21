@@ -38,10 +38,29 @@ export default function ChatPanel() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, thinking]);
 
+  // Helper function to wrap LaTeX expressions in delimiters
+  function wrapLatex(text: string): string {
+    // If already has delimiters, return as-is
+    if (text.includes('$') || text.includes('\\[') || text.includes('\\(')) {
+      return text;
+    }
+    
+    // Check if text contains LaTeX commands
+    const hasLatex = /\\(int|frac|sqrt|sum|prod|lim|sin|cos|tan|ln|log|pi|infty|to|leq|geq|neq|left|right|begin|end|text|partial|nabla)/.test(text);
+    
+    if (hasLatex) {
+      // Wrap inline LaTeX with $...$
+      return `$${text}$`;
+    }
+    
+    return text;
+  }
+
   async function handleSend(text: string) {
     const trimmed = text.trim();
     if (!trimmed) return;
-    const userMsg: ChatMessage = { id: Date.now(), role: "user", content: trimmed };
+    const wrappedContent = wrapLatex(trimmed);
+    const userMsg: ChatMessage = { id: Date.now(), role: "user", content: wrappedContent };
     setMessages((m) => [...m, userMsg]);
     setSending(true);
     setThinking(true);

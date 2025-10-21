@@ -51,29 +51,29 @@ export default function ChatComposer() {
       id: "osnovno",
       label: "Osnovno",
       keys: [
-        { label: "π", insert: "π" },
-        { label: "∞", insert: "∞" },
-        { label: "→", insert: "→" },
-        { label: "≤", insert: "≤" },
-        { label: "≥", insert: "≥" },
-        { label: "≠", insert: "≠" },
-        { label: "√", insert: "√()", cursorOffset: 2 },
+        { label: "π", insert: "\\pi" },
+        { label: "∞", insert: "\\infty" },
+        { label: "→", insert: "\\to" },
+        { label: "≤", insert: "\\leq" },
+        { label: "≥", insert: "\\geq" },
+        { label: "≠", insert: "\\neq" },
+        { label: "√", insert: "\\sqrt{}", cursorOffset: 6 },
         { label: "x²", insert: "x^2" },
-        { label: "xⁿ", insert: "x^{}", cursorOffset: 3 },
-        { label: "ₙ", insert: "_{}", cursorOffset: 2 },
+        { label: "xⁿ", insert: "x^{n}" },
+        { label: "ₙ", insert: "_{n}" },
       ],
     },
     {
       id: "funkcije",
       label: "Funkcije",
       keys: [
-        { label: "sin", insert: "sin()", cursorOffset: 4 },
-        { label: "cos", insert: "cos()", cursorOffset: 4 },
-        { label: "tan", insert: "tan()", cursorOffset: 4 },
-        { label: "ln", insert: "ln()", cursorOffset: 3 },
-        { label: "log", insert: "log_{10}()", cursorOffset: 8 },
-        { label: "e^x", insert: "e^{}", cursorOffset: 2 },
-        { label: "|x|", insert: "| |", cursorOffset: 2 },
+        { label: "sin", insert: "\\sin()", cursorOffset: 5 },
+        { label: "cos", insert: "\\cos()", cursorOffset: 5 },
+        { label: "tan", insert: "\\tan()", cursorOffset: 5 },
+        { label: "ln", insert: "\\ln()", cursorOffset: 4 },
+        { label: "log", insert: "\\log_{10}()", cursorOffset: 11 },
+        { label: "e^x", insert: "e^{x}" },
+        { label: "|x|", insert: "\\left| \\right|", cursorOffset: 7 },
       ],
     },
     {
@@ -82,7 +82,7 @@ export default function ChatComposer() {
       keys: [
         { label: "∫ a→b", insert: "__TEMPLATE_INTEGRAL_DEF__" },
         { label: "∫ f(x) dx", insert: "__TEMPLATE_INTEGRAL_INDEF__" },
-        { label: "∫ u dv", insert: "∫ u dv" },
+        { label: "∫ u dv", insert: "\\int u \\, dv" },
       ],
     },
     {
@@ -97,30 +97,30 @@ export default function ChatComposer() {
       id: "limite",
       label: "Limite",
       keys: [
-        { label: "lim", insert: "lim_{x→}", cursorOffset: 6 },
-        { label: "x→∞", insert: "x→∞" },
-        { label: "x→0", insert: "x→0" },
-        { label: "x→a", insert: "x→a" },
+        { label: "lim", insert: "\\lim_{x \\to }", cursorOffset: 1 },
+        { label: "x→∞", insert: "x \\to \\infty" },
+        { label: "x→0", insert: "x \\to 0" },
+        { label: "x→a", insert: "x \\to a" },
       ],
     },
     {
       id: "vsote",
       label: "Vsote",
       keys: [
-        { label: "∑", insert: "∑()", cursorOffset: 2 },
-        { label: "∑_{i=1}^n", insert: "∑_{i=1}^{n} ()", cursorOffset: 14 },
-        { label: "∏", insert: "∏()", cursorOffset: 2 },
+        { label: "∑", insert: "\\sum ", cursorOffset: 5 },
+        { label: "∑_{i=1}^n", insert: "\\sum_{i=1}^{n} ", cursorOffset: 15 },
+        { label: "∏", insert: "\\prod ", cursorOffset: 6 },
       ],
     },
     {
       id: "odvodi",
       label: "Odvodi",
       keys: [
-        { label: "d/dx", insert: "d/dx ()", cursorOffset: 6 },
-        { label: "f′(x)", insert: "f′(x)" },
-        { label: "∂/∂x", insert: "∂/∂x ()", cursorOffset: 5 },
-        { label: "∇", insert: "∇" },
-        { label: "f′", insert: "f′" },
+        { label: "d/dx", insert: "\\frac{d}{dx} ", cursorOffset: 13 },
+        { label: "f′(x)", insert: "f'(x)" },
+        { label: "∂/∂x", insert: "\\frac{\\partial}{\\partial x} ", cursorOffset: 28 },
+        { label: "∇", insert: "\\nabla" },
+        { label: "f′", insert: "f'" },
       ],
     },
     {
@@ -310,17 +310,17 @@ function TemplateBar(props: {
   function build() {
     switch (props.template.type) {
       case "integral-def":
-        return `∫[${a}, ${b}] ${fx} d${dx}`;
+        return `\\int_{${a}}^{${b}} ${fx} \\, d${dx}`;
       case "integral-indef":
-        return `∫ ${fx} d${dx}`;
+        return `\\int ${fx} \\, d${dx}`;
       case "power":
-        return `${base}^${exp}`;
+        return `${base}^{${exp}}`;
       case "root":
-        return `√[${rootN}](${rootArg})`;
+        return `\\sqrt[${rootN}]{${rootArg}}`;
       case "fraction":
-        return `(${num}) / (${den})`;
+        return `\\frac{${num}}{${den}}`;
       case "piecewise":
-        return `{ ${pwExpr1} (če ${pwCond1}); ${pwExpr2} (če ${pwCond2}) }`;
+        return `\\begin{cases} ${pwExpr1} & \\text{če } ${pwCond1} \\\\ ${pwExpr2} & \\text{če } ${pwCond2} \\end{cases}`;
     }
   }
 
