@@ -445,13 +445,8 @@ export const handler = define.handlers({
         ? String((parsed as { language?: unknown }).language ?? "sl")
         : "sl";
       if (!text.trim()) return json({ reply: "Prosim, vnesite vprašanje." });
-      const looksMath = isLikelyMath(text);
-      if (!looksMath) {
-        // If DeepSeek is configured, defer the gate to model's system prompt (it will refuse non-math).
-        const maybe = await callDeepSeek(text, false, language);
-        if (typeof maybe === "string") return json({ reply: maybe });
-        return json({ reply: "Lahko odgovarjam samo na matematična vprašanja." });
-      }
+      
+      // Always send to DeepSeek, let it handle the math-only filtering
       const wantsStream = /stream=1/.test(new URL(ctx.req.url).search);
       if (wantsStream) {
         const ds = await callDeepSeek(text, true, language);
