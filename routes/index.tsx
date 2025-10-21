@@ -38,8 +38,25 @@ export default define.page(function Home(props) {
               <script dangerouslySetInnerHTML={{__html: `
                 (function() {
                   const sel = document.getElementById('lang-select');
-                  const stored = localStorage.getItem('pluto-lang') || 'sl';
-                  sel.value = stored;
+                  
+                  // Auto-detect language on first visit
+                  let defaultLang = localStorage.getItem('pluto-lang');
+                  if (!defaultLang) {
+                    // Use browser language preference
+                    const browserLang = navigator.language || navigator.userLanguage;
+                    if (browserLang.startsWith('sl')) {
+                      defaultLang = 'sl';
+                    } else if (browserLang.startsWith('it')) {
+                      defaultLang = 'it';
+                    } else if (browserLang.startsWith('en')) {
+                      defaultLang = 'en';
+                    } else {
+                      defaultLang = 'sl'; // Default to Slovenian
+                    }
+                    localStorage.setItem('pluto-lang', defaultLang);
+                  }
+                  
+                  sel.value = defaultLang;
                   sel.addEventListener('change', (e) => {
                     localStorage.setItem('pluto-lang', e.target.value);
                     // Trigger custom event for same-page updates
