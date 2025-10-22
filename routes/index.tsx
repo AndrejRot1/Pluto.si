@@ -39,6 +39,23 @@ export default define.page(function Home(props) {
                 (function() {
                   const sel = document.getElementById('lang-select');
                   
+                  const translations = {
+                    sl: { label: 'Prijavljen kot', settings: 'Nastavitve', logout: 'Odjava' },
+                    en: { label: 'Logged in as', settings: 'Settings', logout: 'Logout' },
+                    it: { label: 'Connesso come', settings: 'Impostazioni', logout: 'Disconnetti' }
+                  };
+                  
+                  function updateUserMenu() {
+                    const lang = localStorage.getItem('pluto-lang') || 'sl';
+                    const label = document.getElementById('user-menu-label');
+                    const settings = document.getElementById('user-menu-settings');
+                    const logout = document.getElementById('user-menu-logout');
+                    
+                    if (label) label.textContent = translations[lang].label;
+                    if (settings) settings.textContent = translations[lang].settings;
+                    if (logout) logout.textContent = translations[lang].logout;
+                  }
+                  
                   // Auto-detect language on first visit
                   let defaultLang = localStorage.getItem('pluto-lang');
                   if (!defaultLang) {
@@ -57,8 +74,11 @@ export default define.page(function Home(props) {
                   }
                   
                   sel.value = defaultLang;
+                  updateUserMenu();
+                  
                   sel.addEventListener('change', (e) => {
                     localStorage.setItem('pluto-lang', e.target.value);
+                    updateUserMenu();
                     // Trigger custom event for same-page updates
                     globalThis.dispatchEvent(new CustomEvent('pluto-lang-change'));
                   });
@@ -74,20 +94,20 @@ export default define.page(function Home(props) {
                   </summary>
                   <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
                     <div class="px-4 py-2 border-b border-gray-200">
-                      <p class="text-xs text-gray-500">Prijavljen kot</p>
+                      <p id="user-menu-label" class="text-xs text-gray-500">Prijavljen kot</p>
                       <p class="text-sm font-medium text-gray-900 truncate">{user.email}</p>
                     </div>
                     <a 
                       href="/settings"
                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                     >
-                      ⚙️ Nastavitve
+                      ⚙️ <span id="user-menu-settings">Nastavitve</span>
                     </a>
                     <a 
                       href="/auth/logout"
                       class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
                     >
-                      🚪 Odjava
+                      🚪 <span id="user-menu-logout">Odjava</span>
                     </a>
                   </div>
                 </details>
