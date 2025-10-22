@@ -11,9 +11,12 @@ const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY") || "";
 export const handler = define.handlers({
   async POST(ctx) {
     try {
+      console.log("🔵 Portal called");
+      
       // Get user from authorization header
       const authHeader = ctx.req.headers.get("Authorization");
       if (!authHeader) {
+        console.log("❌ No auth header");
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,
           headers: { "Content-Type": "application/json" },
@@ -24,11 +27,14 @@ export const handler = define.handlers({
       const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
       if (authError || !user) {
+        console.log("❌ Auth error:", authError);
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,
           headers: { "Content-Type": "application/json" },
         });
       }
+
+      console.log("✅ User authenticated:", user.email);
 
       // Get user's Stripe customer ID
       const { data: profile } = await supabaseAdmin
@@ -37,7 +43,10 @@ export const handler = define.handlers({
         .eq("id", user.id)
         .single();
 
+      console.log("🔵 Profile:", profile);
+
       if (!profile?.stripe_customer_id) {
+        console.log("❌ No customer ID found");
         return new Response(JSON.stringify({ error: "No Stripe customer found" }), {
           status: 404,
           headers: { "Content-Type": "application/json" },
@@ -46,6 +55,8 @@ export const handler = define.handlers({
 
       // Create Stripe billing portal session
       const origin = ctx.url.origin;
+      console.log("🔵 Creating portal for customer:", profile.stripe_customer_id);
+      
       const portalRes = await fetch("https://api.stripe.com/v1/billing_portal/sessions", {
         method: "POST",
         headers: {
@@ -59,14 +70,17 @@ export const handler = define.handlers({
       });
 
       const session = await portalRes.json();
+      console.log("🔵 Stripe response:", session);
 
       if (!portalRes.ok) {
-        console.error("Stripe error:", session);
-        return new Response(JSON.stringify({ error: "Failed to create portal session" }), {
+        console.error("❌ Stripe portal error:", session);
+        return new Response(JSON.stringify({ error: session.error?.message || "Failed to create portal session" }), {
           status: 500,
           headers: { "Content-Type": "application/json" },
         });
       }
+
+      console.log("✅ Portal created:", session.url);
 
       return new Response(JSON.stringify({ url: session.url }), {
         status: 200,
