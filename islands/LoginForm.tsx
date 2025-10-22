@@ -47,9 +47,14 @@ export default function LoginForm() {
   }
 
   return (
-    <div class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div class="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-        <h1 class="text-2xl font-bold text-center mb-6">Prijava</h1>
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center px-4 py-12">
+      <div class="max-w-md w-full">
+        <div class="text-center mb-8">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Dobrodošli nazaj</h1>
+          <p class="text-gray-600">Prijavite se v svoj račun</p>
+        </div>
+        
+        <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 p-8">
         
         <form onSubmit={handleLogin} class="space-y-4">
           <div>
@@ -90,18 +95,23 @@ export default function LoginForm() {
           </button>
         </form>
         
-        <p class="mt-4 text-center text-sm text-gray-600">
-          Nimate računa?{" "}
-          <a href="/auth/register" class="text-blue-600 hover:underline">
-            Registrirajte se
-          </a>
-        </p>
-        
         {message && (
-          <div class={`mt-4 text-center text-sm ${message.includes('Uspešna') ? 'text-green-600' : 'text-red-600'}`}>
+          <div class={`mt-5 text-center text-sm p-3 rounded-xl ${
+            message.includes('Uspešna') 
+              ? 'bg-green-50 text-green-700 border border-green-200' 
+              : 'bg-red-50 text-red-700 border border-red-200'
+          }`}>
             {message}
           </div>
         )}
+        
+        <p class="mt-6 text-center text-sm text-gray-600">
+          Nimate računa?{" "}
+          <a href="/auth/register" class="text-blue-600 hover:text-blue-700 font-semibold">
+            Registrirajte se →
+          </a>
+        </p>
+        </div>
       </div>
     </div>
   );

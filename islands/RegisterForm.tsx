@@ -59,60 +59,58 @@ export default function RegisterForm() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [typedIntro, setTypedIntro] = useState('');
   const [showProblem, setShowProblem] = useState(false);
   const [typedSolution, setTypedSolution] = useState('');
-  const [isTyping, setIsTyping] = useState(true);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [mathRendered, setMathRendered] = useState(false);
 
+  // Typing animation
   useEffect(() => {
     if (registrationSuccess) return;
     
-    setIsTyping(true);
-    
-    // Typing effect for intro text - use chunks for smoother animation
-    let introIndex = 0;
-    const introInterval = setInterval(() => {
-      if (introIndex < introText.length) {
-        setTypedIntro(introText.substring(0, introIndex + 5)); // +5 chars per frame (faster!)
-        introIndex += 5;
+    // Type intro
+    let i = 0;
+    const typeIntro = setInterval(() => {
+      if (i <= introText.length) {
+        setTypedIntro(introText.substring(0, i));
+        i += 3;
       } else {
-        clearInterval(introInterval);
-        setTypedIntro(introText); // Ensure complete text
-        // Show problem after intro is done
+        clearInterval(typeIntro);
+        // Show problem
         setTimeout(() => {
           setShowProblem(true);
-          // Start typing solution
+          // Type solution
           setTimeout(() => {
-            let solIndex = 0;
-            const solInterval = setInterval(() => {
-              if (solIndex < demoSolution.length) {
-                setTypedSolution(demoSolution.substring(0, solIndex + 8)); // +8 chars per frame (very fast!)
-                solIndex += 8;
+            let j = 0;
+            const typeSol = setInterval(() => {
+              if (j <= demoSolution.length) {
+                setTypedSolution(demoSolution.substring(0, j));
+                j += 5;
               } else {
-                clearInterval(solInterval);
-                setTypedSolution(demoSolution); // Ensure complete text
-                setIsTyping(false); // Done typing, now can render math
+                clearInterval(typeSol);
+                // Trigger math rendering
+                setMathRendered(true);
               }
-            }, 25); // Very smooth and fast
-          }, 200);
-        }, 400);
+            }, 20);
+          }, 300);
+        }, 500);
       }
-    }, 35); // Faster interval
+    }, 30);
     
-    return () => clearInterval(introInterval);
+    return () => clearInterval(typeIntro);
   }, [registrationSuccess]);
-  
-  // Render math ONLY when typing is done (to avoid blocking)
+
+  // Render math after typing
   useEffect(() => {
-    if (isTyping) return; // Don't render while typing!
+    if (!mathRendered) return;
     
     setTimeout(() => {
       const w = globalThis as unknown as { renderMathInElement?: (el: Element, opts: Record<string, unknown>) => void };
       if (w.renderMathInElement) {
         const demoEl = document.getElementById('demo-chat');
         if (demoEl) {
-          console.log('Rendering KaTeX after typing completed');
+          console.log('Rendering KaTeX');
           w.renderMathInElement(demoEl, {
             delimiters: [
               { left: "$$", right: "$$", display: true },
@@ -124,8 +122,8 @@ export default function RegisterForm() {
           });
         }
       }
-    }, 200);
-  }, [isTyping]); // Only trigger when typing state changes
+    }, 100);
+  }, [mathRendered]);
 
   async function handleRegister(e: Event) {
     e.preventDefault();
@@ -258,12 +256,12 @@ export default function RegisterForm() {
         </div>
         
         <div id="demo-chat" class="flex-1 overflow-y-auto p-6 space-y-4">
-          {/* Intro message with typing effect */}
+          {/* Intro message with typing */}
           {typedIntro && (
             <div class="bg-white/90 backdrop-blur rounded-xl p-5 shadow-sm border border-gray-200">
               <div class="whitespace-pre-wrap text-gray-800 leading-relaxed" style="font-size: 15px; line-height: 1.6;">
                 {typedIntro}
-                {typedIntro.length < introText.length && <span class="inline-block w-2 h-5 bg-gray-800 ml-1 animate-pulse"></span>}
+                {typedIntro.length < introText.length && <span class="inline-block w-0.5 h-5 bg-gray-800 ml-1 animate-pulse"></span>}
               </div>
             </div>
           )}
@@ -275,12 +273,12 @@ export default function RegisterForm() {
             </div>
           )}
           
-          {/* Solution with typing effect */}
+          {/* Solution with typing */}
           {typedSolution && (
             <div class="bg-white/90 backdrop-blur rounded-xl p-5 shadow-sm border border-gray-200">
               <div class="prose prose-sm max-w-none whitespace-pre-wrap text-gray-800" style="font-size: 15px; line-height: 1.7;">
                 {typedSolution}
-                {typedSolution.length < demoSolution.length && <span class="inline-block w-2 h-5 bg-gray-800 ml-1 animate-pulse"></span>}
+                {typedSolution.length < demoSolution.length && <span class="inline-block w-0.5 h-5 bg-gray-800 ml-1 animate-pulse"></span>}
               </div>
             </div>
           )}
