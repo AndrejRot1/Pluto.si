@@ -6,10 +6,10 @@ const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export const handler = define.handlers({
-  async POST(req) {
+  async POST(ctx) {
     try {
       // Get user from authorization header
-      const authHeader = req.headers.get("Authorization");
+      const authHeader = ctx.req.headers.get("Authorization");
       if (!authHeader) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,

@@ -9,14 +9,14 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET") || "";
 
 export const handler = define.handlers({
-  async POST(req) {
+  async POST(ctx) {
     try {
-      const signature = req.headers.get("stripe-signature");
+      const signature = ctx.req.headers.get("stripe-signature");
       if (!signature) {
         return new Response("No signature", { status: 400 });
       }
 
-      const body = await req.text();
+      const body = await ctx.req.text();
 
       // Verify webhook signature (simplified - in production use crypto.subtle)
       // For now, we trust the webhook (add proper verification later)

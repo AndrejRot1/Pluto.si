@@ -10,10 +10,11 @@ const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY") || "";
 const STRIPE_PRICE_ID = Deno.env.get("STRIPE_PRICE_ID") || ""; // e.g., price_1ABC...
 
 export const handler = define.handlers({
-  async POST(req) {
+  async POST(ctx) {
     try {
       // Get user from authorization header
-      const authHeader = req.headers.get("Authorization");
+      const authHeader = ctx.req.headers.get("Authorization");
+      
       if (!authHeader) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,
@@ -50,11 +51,21 @@ export const handler = define.handlers({
           },
           body: new URLSearchParams({
             email: user.email || profile?.email || "",
-            metadata: JSON.stringify({ supabase_user_id: user.id }),
+            "metadata[supabase_user_id]": user.id,
           }),
         });
 
         const customer = await createCustomerRes.json();
+        console.log("✅ Created Stripe customer:", customer);
+
+        if (!createCustomerRes.ok || !customer.id) {
+          console.error("❌ Failed to create customer:", customer);
+          return new Response(JSON.stringify({ error: "Failed to create Stripe customer" }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
         customerId = customer.id;
 
         // Save customer ID to profile
@@ -65,7 +76,10 @@ export const handler = define.handlers({
       }
 
       // Create Stripe Checkout Session
-      const origin = new URL(req.url).origin;
+      const origin = ctx.url.origin;
+      console.log("🔵 Creating checkout with customer ID:", customerId);
+      console.log("🔵 Price ID:", STRIPE_PRICE_ID);
+      
       const checkoutRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
         method: "POST",
         headers: {
@@ -73,7 +87,7 @@ export const handler = define.handlers({
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-          customer: customerId,
+          customer: customerId || "",
           mode: "subscription",
           "line_items[0][price]": STRIPE_PRICE_ID,
           "line_items[0][quantity]": "1",
@@ -86,12 +100,14 @@ export const handler = define.handlers({
       const session = await checkoutRes.json();
 
       if (!checkoutRes.ok) {
-        console.error("Stripe error:", session);
+        console.error("❌ Stripe checkout error:", session);
         return new Response(JSON.stringify({ error: "Failed to create checkout session" }), {
           status: 500,
           headers: { "Content-Type": "application/json" },
         });
       }
+
+      console.log("✅ Checkout session created:", session.url);
 
       return new Response(JSON.stringify({ url: session.url }), {
         status: 200,

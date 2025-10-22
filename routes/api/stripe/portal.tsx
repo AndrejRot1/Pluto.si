@@ -9,10 +9,10 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY") || "";
 
 export const handler = define.handlers({
-  async POST(req) {
+  async POST(ctx) {
     try {
       // Get user from authorization header
-      const authHeader = req.headers.get("Authorization");
+      const authHeader = ctx.req.headers.get("Authorization");
       if (!authHeader) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,
@@ -45,7 +45,7 @@ export const handler = define.handlers({
       }
 
       // Create Stripe billing portal session
-      const origin = new URL(req.url).origin;
+      const origin = ctx.url.origin;
       const portalRes = await fetch("https://api.stripe.com/v1/billing_portal/sessions", {
         method: "POST",
         headers: {

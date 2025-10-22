@@ -1,4 +1,8 @@
 import { useState } from "preact/hooks";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = 'https://vbmtvnqnpsbgnxasejcg.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZibXR2bnFucHNiZ254YXNlamNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5OTk2OTAsImV4cCI6MjA3NjU3NTY5MH0.qVtDmSgAaEwYVAi8LKSXZbfKt02HU3A_fV1QC0-bESs';
 
 export default function SettingsPanel(props: { 
   user: { email: string }, 
@@ -21,12 +25,12 @@ export default function SettingsPanel(props: {
     setMessage("");
 
     try {
-      // Get access token from cookies
-      const cookies = document.cookie.split("; ");
-      const accessToken = cookies.find((c) => c.startsWith("sb-access-token="))?.split("=")[1];
+      // Get session from Supabase
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-      if (!accessToken) {
-        setMessage("❌ Niste prijavljeni");
+      if (sessionError || !session) {
+        setMessage("❌ Niste prijavljeni - poskusite se ponovno prijaviti");
         setLoading(false);
         return;
       }
@@ -34,7 +38,7 @@ export default function SettingsPanel(props: {
       const response = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${accessToken}`,
+          "Authorization": `Bearer ${session.access_token}`,
         },
       });
 
@@ -62,10 +66,10 @@ export default function SettingsPanel(props: {
     setMessage("");
 
     try {
-      const cookies = document.cookie.split("; ");
-      const accessToken = cookies.find((c) => c.startsWith("sb-access-token="))?.split("=")[1];
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-      if (!accessToken) {
+      if (sessionError || !session) {
         setMessage("❌ Niste prijavljeni");
         setLoading(false);
         return;
@@ -74,7 +78,7 @@ export default function SettingsPanel(props: {
       const response = await fetch("/api/stripe/portal", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${accessToken}`,
+          "Authorization": `Bearer ${session.access_token}`,
         },
       });
 
@@ -106,10 +110,10 @@ export default function SettingsPanel(props: {
     setMessage("");
 
     try {
-      const cookies = document.cookie.split("; ");
-      const accessToken = cookies.find((c) => c.startsWith("sb-access-token="))?.split("=")[1];
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-      if (!accessToken) {
+      if (sessionError || !session) {
         setMessage("❌ Niste prijavljeni");
         setLoading(false);
         return;
@@ -118,7 +122,7 @@ export default function SettingsPanel(props: {
       const response = await fetch("/api/auth/delete-account", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${accessToken}`,
+          "Authorization": `Bearer ${session.access_token}`,
         },
       });
 
