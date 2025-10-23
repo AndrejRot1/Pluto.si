@@ -260,6 +260,136 @@ export default define.page(function LandingPage() {
                 ctaTitle: "Pronto a Eccellere in Matematica?",
                 ctaSubtitle: "Unisciti a migliaia di studenti che migliorano le loro abilità matematiche con il tutoraggio AI.",
                 ctaButton: "Inizia Ora"
+              },
+              de: {
+                login: "Anmelden",
+                register: "Jetzt registrieren",
+                heroTitle: "Mathematik mit KI meistern",
+                heroSubtitle: "Personalisiertes Mathe-Tutoring mit künstlicher Intelligenz. Progressive Schwierigkeit, Schritt-für-Schritt-Lösungen und sofortiges Feedback.",
+                heroCta: "Kostenlos lernen starten",
+                trialText: "3 Tage kostenlose Testversion • Keine Kreditkarte erforderlich",
+                featuresTitle: "Warum Pluto.si wählen?",
+                feature1Title: "Progressive Schwierigkeit",
+                feature1Desc: "Beginne einfach und steigere die Schwierigkeit allmählich. Unsere KI passt sich Ihrem Niveau mit 5 Schwierigkeitsstufen an.",
+                feature2Title: "Visuelles Lernen",
+                feature2Desc: "Interaktive Graphen, Schritt-für-Schritt-Lösungen mit LaTeX-Rendering und visuelle Erklärungen.",
+                feature3Title: "Mehrsprachige Unterstützung",
+                feature3Desc: "Lerne auf Slowenisch, Englisch oder Italienisch. Wechsle jederzeit die Sprache.",
+                feature4Title: "Umfassende Themen",
+                feature4Desc: "Von grundlegender Arithmetik bis zu fortgeschrittenem Calculus. Algebra, Geometrie, Funktionen, Ableitungen und mehr.",
+                feature5Title: "Sofortige Lösungen",
+                feature5Desc: "Erhalte sofort detaillierte Erklärungen. Sehe jeden Schritt des Lösungsprozesses mit klarer Begründung.",
+                feature6Title: "Mobilfreundlich",
+                feature6Desc: "Lerne überall und jederzeit. Vollständig responsives Design optimiert für Telefone, Tablets und Desktops.",
+                demoTitle: "Interaktive Demo ausprobieren",
+                demoDesc: "Sehen Sie Pluto.si in Aktion! Erlebe Schritt-für-Schritt-Problemlösung mit unserer interaktiven Demonstration.",
+                ctaTitle: "Bereit, in Mathe zu glänzen?",
+                ctaSubtitle: "Schließe dich Tausenden von Schülern an, die ihre Mathe-Fähigkeiten mit KI-gestütztem Tutoring verbessern.",
+                ctaButton: "Jetzt loslegen"
+              },
+              fr: {
+                login: "Connexion",
+                register: "S'inscrire maintenant",
+                heroTitle: "Maîtrisez les Mathématiques avec l'IA",
+                heroSubtitle: "Tutorat mathématique personnalisé propulsé par l'intelligence artificielle. Difficulté progressive, solutions étape par étape et feedback instantané.",
+                heroCta: "Commencer à apprendre gratuitement",
+                trialText: "Essai gratuit de 3 jours • Aucune carte de crédit requise",
+                featuresTitle: "Pourquoi choisir Pluto.si ?",
+                feature1Title: "Difficulté Progressive",
+                feature1Desc: "Commencez facilement et augmentez progressivement la difficulté. Notre IA s'adapte à votre niveau avec 5 niveaux de difficulté.",
+                feature2Title: "Apprentissage Visuel",
+                feature2Desc: "Graphiques interactifs, solutions étape par étape avec rendu LaTeX et explications visuelles.",
+                feature3Title: "Support Multilingue",
+                feature3Desc: "Apprenez en slovène, anglais ou italien. Changez de langue à tout moment.",
+                feature4Title: "Sujets Complets",
+                feature4Desc: "De l'arithmétique de base au calcul avancé. Algèbre, géométrie, fonctions, dérivées et plus encore.",
+                feature5Title: "Solutions Instantanées",
+                feature5Desc: "Obtenez des explications détaillées instantanément. Voyez chaque étape du processus de solution avec un raisonnement clair.",
+                feature6Title: "Compatible Mobile",
+                feature6Desc: "Apprenez n'importe où, n'importe quand. Design entièrement responsive optimisé pour téléphones, tablettes et ordinateurs.",
+                demoTitle: "Essayer la Démo Interactive",
+                demoDesc: "Voir Pluto.si en action ! Découvrez la résolution de problèmes étape par étape avec notre démonstration interactive.",
+                ctaTitle: "Prêt à exceller en mathématiques ?",
+                ctaSubtitle: "Rejoignez des milliers d'étudiants qui améliorent leurs compétences en mathématiques avec le tutorat alimenté par l'IA.",
+                ctaButton: "Commencer maintenant"
+              },
+              es: {
+                login: "Iniciar sesión",
+                register: "Registrarse ahora",
+                heroTitle: "Domina las Matemáticas con IA",
+                heroSubtitle: "Tutoría matemática personalizada impulsada por inteligencia artificial. Dificultad progresiva, soluciones paso a paso y retroalimentación instantánea.",
+                heroCta: "Comenzar a aprender gratis",
+                trialText: "Prueba gratuita de 3 días • No se requiere tarjeta de crédito",
+                featuresTitle: "¿Por qué elegir Pluto.si?",
+                feature1Title: "Dificultad Progresiva",
+                feature1Desc: "Comienza fácil y aumenta gradualmente la dificultad. Nuestra IA se adapta a tu nivel con 5 niveles de dificultad.",
+                feature2Title: "Aprendizaje Visual",
+                feature2Desc: "Gráficos interactivos, soluciones paso a paso con renderizado LaTeX y explicaciones visuales.",
+                feature3Title: "Soporte Multilingüe",
+                feature3Desc: "Aprende en esloveno, inglés o italiano. Cambia el idioma en cualquier momento.",
+                feature4Title: "Temas Completos",
+                feature4Desc: "Desde aritmética básica hasta cálculo avanzado. Álgebra, geometría, funciones, derivadas y más.",
+                feature5Title: "Soluciones Instantáneas",
+                feature5Desc: "Obtén explicaciones detalladas al instante. Ve cada paso del proceso de solución con razonamiento claro.",
+                feature6Title: "Compatible con Móviles",
+                feature6Desc: "Aprende en cualquier lugar, en cualquier momento. Diseño totalmente responsive optimizado para teléfonos, tabletas y computadoras.",
+                demoTitle: "Probar Demo Interactiva",
+                demoDesc: "¡Ve Pluto.si en acción! Experimenta la resolución de problemas paso a paso con nuestra demostración interactiva.",
+                ctaTitle: "¿Listo para sobresalir en matemáticas?",
+                ctaSubtitle: "Únete a miles de estudiantes que mejoran sus habilidades matemáticas con tutoría impulsada por IA.",
+                ctaButton: "Comenzar ahora"
+              },
+              pl: {
+                login: "Zaloguj się",
+                register: "Zarejestruj się teraz",
+                heroTitle: "Opanuj Matematykę z AI",
+                heroSubtitle: "Spersonalizowane korepetycje z matematyki napędzane sztuczną inteligencją. Progresywna trudność, rozwiązania krok po kroku i natychmiastowa opinia.",
+                heroCta: "Zacznij uczyć się za darmo",
+                trialText: "3-dniowy bezpłatny okres próbny • Karta kredytowa nie jest wymagana",
+                featuresTitle: "Dlaczego wybrać Pluto.si?",
+                feature1Title: "Progresywna Trudność",
+                feature1Desc: "Zacznij łatwo i stopniowo zwiększaj trudność. Nasza AI dostosowuje się do Twojego poziomu z 5 poziomami trudności.",
+                feature2Title: "Nauka Wizualna",
+                feature2Desc: "Interaktywne wykresy, rozwiązania krok po kroku z renderowaniem LaTeX i wyjaśnienia wizualne.",
+                feature3Title: "Wsparcie Wielojęzyczne",
+                feature3Desc: "Ucz się po słoweńsku, angielsku lub włosku. Zmień język w dowolnym momencie.",
+                feature4Title: "Kompleksowe Tematy",
+                feature4Desc: "Od podstawowej arytmetyki po zaawansowany rachunek. Algebra, geometria, funkcje, pochodne i więcej.",
+                feature5Title: "Natychmiastowe Rozwiązania",
+                feature5Desc: "Uzyskaj szczegółowe wyjaśnienia natychmiast. Zobacz każdy krok procesu rozwiązania z jasnym rozumowaniem.",
+                feature6Title: "Przyjazny dla Urządzeń Mobilnych",
+                feature6Desc: "Ucz się wszędzie i zawsze. W pełni responsywny design zoptymalizowany pod telefony, tablety i komputery.",
+                demoTitle: "Wypróbuj Interaktywne Demo",
+                demoDesc: "Zobacz Pluto.si w akcji! Doświadcz rozwiązywania problemów krok po kroku z naszą interaktywną demonstracją.",
+                ctaTitle: "Gotowy, aby osiągnąć sukces w matematyce?",
+                ctaSubtitle: "Dołącz do tysięcy studentów poprawiających swoje umiejętności matematyczne dzięki korepetycjom napędzanym przez AI.",
+                ctaButton: "Zacznij teraz"
+              },
+              ro: {
+                login: "Autentificare",
+                register: "Înregistrează-te acum",
+                heroTitle: "Stăpânește Matematica cu AI",
+                heroSubtitle: "Meditații matematice personalizate alimentate de inteligența artificială. Dificultate progresivă, soluții pas cu pas și feedback instant.",
+                heroCta: "Începe să înveți gratuit",
+                trialText: "Perioadă de probă gratuită de 3 zile • Nu este necesară cardul de credit",
+                featuresTitle: "De ce să alegi Pluto.si?",
+                feature1Title: "Dificultate Progresivă",
+                feature1Desc: "Începe ușor și crește gradual dificultatea. AI-ul nostru se adaptează la nivelul tău cu 5 niveluri de dificultate.",
+                feature2Title: "Învățare Vizuală",
+                feature2Desc: "Grafice interactive, soluții pas cu pas cu redare LaTeX și explicații vizuale.",
+                feature3Title: "Suport Multilingv",
+                feature3Desc: "Învață în slovenă, engleză sau italiană. Schimbă limba oricând.",
+                feature4Title: "Subiecte Complete",
+                feature4Desc: "De la aritmetică de bază la calcul avansat. Algebră, geometrie, funcții, derivate și multe altele.",
+                feature5Title: "Soluții Instantanee",
+                feature5Desc: "Obține explicații detaliate instantaneu. Vezi fiecare pas al procesului de soluționare cu raționament clar.",
+                feature6Title: "Prietenos cu Dispozitivele Mobile",
+                feature6Desc: "Învață oriunde, oricând. Design complet responsive optimizat pentru telefoane, tablete și desktop-uri.",
+                demoTitle: "Încearcă Demo Interactiv",
+                demoDesc: "Vezi Pluto.si în acțiune! Experimentează rezolvarea problemelor pas cu pas cu demonstrația noastră interactivă.",
+                ctaTitle: "Gata să excelezi la matematică?",
+                ctaSubtitle: "Alătură-te miilor de studenți care își îmbunătățesc abilitățile matematice cu meditații alimentate de AI.",
+                ctaButton: "Începe acum"
               }
             };
 
@@ -277,10 +407,21 @@ export default define.page(function LandingPage() {
                 const geoData = await geoResponse.json();
                 const countryCode = geoData.country_code; // e.g., "SI", "IT", "US"
                 
+                // Map country codes to languages
                 if (countryCode === 'SI') {
                   detectedLang = 'sl';
                 } else if (countryCode === 'IT') {
                   detectedLang = 'it';
+                } else if (countryCode === 'DE' || countryCode === 'AT' || countryCode === 'CH') {
+                  detectedLang = 'de';
+                } else if (countryCode === 'FR' || countryCode === 'BE' || countryCode === 'LU') {
+                  detectedLang = 'fr';
+                } else if (countryCode === 'ES') {
+                  detectedLang = 'es';
+                } else if (countryCode === 'PL') {
+                  detectedLang = 'pl';
+                } else if (countryCode === 'RO') {
+                  detectedLang = 'ro';
                 } else {
                   detectedLang = 'en';
                 }
@@ -297,6 +438,16 @@ export default define.page(function LandingPage() {
                 detectedLang = 'sl';
               } else if (browserLang.startsWith('it')) {
                 detectedLang = 'it';
+              } else if (browserLang.startsWith('de')) {
+                detectedLang = 'de';
+              } else if (browserLang.startsWith('fr')) {
+                detectedLang = 'fr';
+              } else if (browserLang.startsWith('es')) {
+                detectedLang = 'es';
+              } else if (browserLang.startsWith('pl')) {
+                detectedLang = 'pl';
+              } else if (browserLang.startsWith('ro')) {
+                detectedLang = 'ro';
               }
             }
 

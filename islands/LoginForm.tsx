@@ -11,6 +11,25 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [lang, setLang] = useState<'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro'>('en');
+
+  useEffect(() => {
+    const savedLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro' || 'en';
+    setLang(savedLang);
+  }, []);
+
+  const translations = {
+    sl: { title: 'Dobrodošli nazaj', subtitle: 'Prijavite se v svoj račun', email: 'Email', password: 'Geslo', forgotPassword: 'Pozabljeno geslo?', loginButton: 'Prijava', loggingIn: 'Prijavljanje...', successMessage: '✅ Uspešna prijava! Preusmerjanje...', noAccount: 'Nimate računa?', register: 'Registrirajte se →' },
+    en: { title: 'Welcome back', subtitle: 'Log in to your account', email: 'Email', password: 'Password', forgotPassword: 'Forgot password?', loginButton: 'Log in', loggingIn: 'Logging in...', successMessage: '✅ Login successful! Redirecting...', noAccount: 'No account?', register: 'Register →' },
+    it: { title: 'Bentornato', subtitle: 'Accedi al tuo account', email: 'Email', password: 'Password', forgotPassword: 'Password dimenticata?', loginButton: 'Accedi', loggingIn: 'Accesso...', successMessage: '✅ Accesso riuscito! Reindirizzamento...', noAccount: 'Nessun account?', register: 'Registrati →' },
+    de: { title: 'Willkommen zurück', subtitle: 'Melden Sie sich in Ihrem Konto an', email: 'E-Mail', password: 'Passwort', forgotPassword: 'Passwort vergessen?', loginButton: 'Anmelden', loggingIn: 'Anmelden...', successMessage: '✅ Anmeldung erfolgreich! Weiterleitung...', noAccount: 'Kein Konto?', register: 'Registrieren →' },
+    fr: { title: 'Bon retour', subtitle: 'Connectez-vous à votre compte', email: 'Email', password: 'Mot de passe', forgotPassword: 'Mot de passe oublié ?', loginButton: 'Se connecter', loggingIn: 'Connexion...', successMessage: '✅ Connexion réussie ! Redirection...', noAccount: 'Pas de compte ?', register: 'S\'inscrire →' },
+    es: { title: 'Bienvenido de nuevo', subtitle: 'Inicia sesión en tu cuenta', email: 'Correo', password: 'Contraseña', forgotPassword: '¿Olvidaste tu contraseña?', loginButton: 'Iniciar sesión', loggingIn: 'Iniciando sesión...', successMessage: '✅ ¡Inicio de sesión exitoso! Redirigiendo...', noAccount: '¿No tienes cuenta?', register: 'Registrarse →' },
+    pl: { title: 'Witamy ponownie', subtitle: 'Zaloguj się do swojego konta', email: 'Email', password: 'Hasło', forgotPassword: 'Zapomniałeś hasła?', loginButton: 'Zaloguj się', loggingIn: 'Logowanie...', successMessage: '✅ Logowanie udane! Przekierowanie...', noAccount: 'Nie masz konta?', register: 'Zarejestruj się →' },
+    ro: { title: 'Bine ai revenit', subtitle: 'Conectează-te la contul tău', email: 'Email', password: 'Parolă', forgotPassword: 'Ai uitat parola?', loginButton: 'Conectare', loggingIn: 'Conectare...', successMessage: '✅ Conectare reușită! Redirecționare...', noAccount: 'Nu ai cont?', register: 'Înregistrează-te →' }
+  };
+
+  const t = translations[lang];
 
   async function handleLogin(e: Event) {
     e.preventDefault();
@@ -32,7 +51,7 @@ export default function LoginForm() {
         setMessage(data.error || 'Login failed');
         setLoading(false);
       } else {
-        setMessage('✅ Uspešna prijava! Preusmerjanje...');
+        setMessage(t.successMessage);
         
         // Cookies are set by server via Set-Cookie header
         // Redirect to main app
@@ -50,30 +69,30 @@ export default function LoginForm() {
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center px-4 py-12">
       <div class="max-w-md w-full">
         <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Dobrodošli nazaj</h1>
-          <p class="text-gray-600">Prijavite se v svoj račun</p>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
+          <p class="text-gray-600">{t.subtitle}</p>
         </div>
         
         <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 p-8">
         
         <form onSubmit={handleLogin} class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{t.email}</label>
             <input
               type="email"
               value={email}
               onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="vas@email.com"
+              placeholder="email@example.com"
             />
           </div>
           
           <div>
             <div class="flex justify-between items-center mb-1">
-              <label class="block text-sm font-medium text-gray-700">Geslo</label>
+              <label class="block text-sm font-medium text-gray-700">{t.password}</label>
               <a href="/auth/forgot-password" class="text-sm text-blue-600 hover:underline">
-                Pozabljeno geslo?
+                {t.forgotPassword}
               </a>
             </div>
             <input
@@ -91,13 +110,13 @@ export default function LoginForm() {
             disabled={loading}
             class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 font-medium min-h-[48px]"
           >
-            {loading ? 'Prijavljanje...' : 'Prijava'}
+            {loading ? t.loggingIn : t.loginButton}
           </button>
         </form>
         
         {message && (
           <div class={`mt-5 text-center text-sm p-3 rounded-xl ${
-            message.includes('Uspešna') 
+            message.includes('✅') 
               ? 'bg-green-50 text-green-700 border border-green-200' 
               : 'bg-red-50 text-red-700 border border-red-200'
           }`}>
@@ -106,9 +125,9 @@ export default function LoginForm() {
         )}
         
         <p class="mt-6 text-center text-sm text-gray-600">
-          Nimate računa?{" "}
+          {t.noAccount}{" "}
           <a href="/auth/register" class="text-blue-600 hover:text-blue-700 font-semibold">
-            Registrirajte se →
+            {t.register}
           </a>
         </p>
         </div>

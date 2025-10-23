@@ -1,4 +1,4 @@
-import { useRef, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 
 type KeyboardKey = { label: string; insert: string; cursorOffset?: number };
 type KeyboardCategory = { id: string; label: string; keys: KeyboardKey[] };
@@ -9,6 +9,7 @@ export default function ChatComposer() {
   const [expanded, setExpanded] = useState(true);
   const [activeCat, setActiveCat] = useState<string>("osnovno");
   const [isDragging, setIsDragging] = useState(false);
+  const [lang, setLang] = useState<'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro'>('sl');
   const [template, setTemplate] = useState<
     | { type: "integral-def" | "integral-indef" }
     | { type: "power" }
@@ -17,6 +18,21 @@ export default function ChatComposer() {
     | { type: "piecewise" }
     | null
   >(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro' || 'sl';
+    setLang(stored);
+
+    const handleLangChange = () => {
+      const newLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro' || 'sl';
+      setLang(newLang);
+    };
+    globalThis.addEventListener('pluto-lang-change', handleLangChange);
+
+    return () => {
+      globalThis.removeEventListener('pluto-lang-change', handleLangChange);
+    };
+  }, []);
 
   function insertAtCaret(text: string, cursorOffset?: number) {
     const textarea = textareaRef.current;
@@ -46,10 +62,23 @@ export default function ChatComposer() {
     textarea.style.height = Math.min(textarea.scrollHeight, 220) + "px";
   }
 
+  const translations = {
+    sl: { basic: "Osnovno", functions: "Funkcije", integrals: "Integrali", templates: "Vstavljanje", hide: "Skrij", show: "Pokaži", placeholder: "Vnesite vprašanje... (Enter za pošiljanje, Shift+Enter za novo vrstico)", send: "Pošlji", clear: "Izbriši", attachment: "priponka" },
+    en: { basic: "Basic", functions: "Functions", integrals: "Integrals", templates: "Insert", hide: "Hide", show: "Show", placeholder: "Enter question... (Enter to send, Shift+Enter for new line)", send: "Send", clear: "Clear", attachment: "attachment" },
+    it: { basic: "Base", functions: "Funzioni", integrals: "Integrali", templates: "Inserisci", hide: "Nascondi", show: "Mostra", placeholder: "Inserisci domanda... (Invio per inviare, Shift+Invio per nuova riga)", send: "Invia", clear: "Cancella", attachment: "allegato" },
+    de: { basic: "Grundlagen", functions: "Funktionen", integrals: "Integrale", templates: "Einfügen", hide: "Verbergen", show: "Anzeigen", placeholder: "Frage eingeben... (Enter zum Senden, Shift+Enter für neue Zeile)", send: "Senden", clear: "Löschen", attachment: "Anhang" },
+    fr: { basic: "Base", functions: "Fonctions", integrals: "Intégrales", templates: "Insérer", hide: "Masquer", show: "Afficher", placeholder: "Entrer question... (Entrée pour envoyer, Maj+Entrée pour nouvelle ligne)", send: "Envoyer", clear: "Effacer", attachment: "pièce jointe" },
+    es: { basic: "Básico", functions: "Funciones", integrals: "Integrales", templates: "Insertar", hide: "Ocultar", show: "Mostrar", placeholder: "Ingrese pregunta... (Enter para enviar, Shift+Enter para nueva línea)", send: "Enviar", clear: "Borrar", attachment: "adjunto" },
+    pl: { basic: "Podstawy", functions: "Funkcje", integrals: "Całki", templates: "Wstaw", hide: "Ukryj", show: "Pokaż", placeholder: "Wprowadź pytanie... (Enter aby wysłać, Shift+Enter dla nowej linii)", send: "Wyślij", clear: "Wyczyść", attachment: "załącznik" },
+    ro: { basic: "Bază", functions: "Funcții", integrals: "Integrale", templates: "Inserează", hide: "Ascunde", show: "Arată", placeholder: "Introduceți întrebarea... (Enter pentru a trimite, Shift+Enter pentru linie nouă)", send: "Trimite", clear: "Șterge", attachment: "atașament" }
+  };
+
+  const t = translations[lang];
+
   const categories: KeyboardCategory[] = [
     {
       id: "osnovno",
-      label: "Osnovno",
+      label: t.basic,
       keys: [
         { label: "π", insert: "\\pi" },
         { label: "∞", insert: "\\infty" },
@@ -64,7 +93,7 @@ export default function ChatComposer() {
     },
     {
       id: "funkcije",
-      label: "Funkcije",
+      label: t.functions,
       keys: [
         { label: "sin", insert: "\\sin()", cursorOffset: 5 },
         { label: "cos", insert: "\\cos()", cursorOffset: 5 },
@@ -77,7 +106,7 @@ export default function ChatComposer() {
     },
     {
       id: "integrali",
-      label: "Integrali",
+      label: t.integrals,
       keys: [
         { label: "∫ a→b", insert: "__TEMPLATE_INTEGRAL_DEF__" },
         { label: "∫ f(x) dx", insert: "__TEMPLATE_INTEGRAL_INDEF__" },
@@ -86,7 +115,7 @@ export default function ChatComposer() {
     },
     {
       id: "vstavljanje",
-      label: "Vstavljanje",
+      label: t.templates,
       keys: [
         { label: "x^n", insert: "__TEMPLATE_POWER__" },
         { label: "a/b", insert: "__TEMPLATE_FRACTION__" },
@@ -118,7 +147,7 @@ export default function ChatComposer() {
         }
         if (dt.files && dt.files.length > 0) {
           const list = Array.from(dt.files).slice(0, 4);
-          const labels = list.map((f) => `[priponka: ${f.name}]`).join(" ");
+          const labels = list.map((f) => `[${t.attachment}: ${f.name}]`).join(" ");
           insertAtCaret(labels + (labels ? " " : ""));
         }
       }}
@@ -143,7 +172,7 @@ export default function ChatComposer() {
             setValue("");
           }
         }}
-        placeholder="Vnesite vprašanje... (Enter za pošiljanje, Shift+Enter za novo vrstico)"
+        placeholder={t.placeholder}
       />
       {/* No previews: files are represented only as symbolic tags in text */}
       <div class="flex items-center justify-between gap-2 px-2 pb-1">
@@ -169,7 +198,7 @@ export default function ChatComposer() {
               onClick={() => setExpanded((v) => !v)}
               aria-pressed={expanded}
             >
-              {expanded ? "Skrij" : "Pokaži"}
+              {expanded ? t.hide : t.show}
             </button>
           </div>
           {expanded && (
@@ -218,11 +247,11 @@ export default function ChatComposer() {
           <button
             type="button"
             class="p-2 rounded-lg hover:bg-gray-100 min-h-[44px] min-w-[44px]"
-            aria-label="Vstavi priponko"
-            title="Vstavi priponko"
+            aria-label={t.attachment}
+            title={t.attachment}
             onClick={() => {
-              const name = globalThis.prompt?.("Ime priponke (npr. slika.jpg)") || "priponka";
-              insertAtCaret(`[priponka: ${name}] `);
+              const name = globalThis.prompt?.("Filename (e.g., image.jpg)") || "file";
+              insertAtCaret(`[${t.attachment}: ${name}] `);
             }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-700">
@@ -236,14 +265,14 @@ export default function ChatComposer() {
             globalThis.dispatchEvent(evt);
             setValue("");
           }}>
-            <span class="hidden sm:inline">Pošlji</span>
+            <span class="hidden sm:inline">{t.send}</span>
             <span class="sm:hidden">↑</span>
           </button>
           <button type="button" class="px-3 sm:px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm shadow hover:bg-gray-300 min-h-[44px]" onClick={() => {
             const evt = new CustomEvent("pluto-clear");
             globalThis.dispatchEvent(evt);
           }}>
-            <span class="hidden sm:inline">Izbriši</span>
+            <span class="hidden sm:inline">{t.clear}</span>
             <span class="sm:hidden">🗑️</span>
           </button>
         </div>

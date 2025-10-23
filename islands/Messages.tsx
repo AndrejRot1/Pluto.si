@@ -11,16 +11,16 @@ export type ChatMessage = {
 
 export default function Messages(props: { items: ChatMessage[] }) {
   const [solutionShownFor, setSolutionShownFor] = useState<Set<number>>(new Set());
-  const [lang, setLang] = useState<'sl' | 'en' | 'it'>('sl');
+  const [lang, setLang] = useState<'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro'>('sl');
 
   useEffect(() => {
     // Initialize language from localStorage
-    const stored = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' || 'sl';
+    const stored = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro' || 'sl';
     setLang(stored);
 
     // Listen for language changes
     const handleLangChange = () => {
-      const newLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' || 'sl';
+      const newLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro' || 'sl';
       setLang(newLang);
     };
     globalThis.addEventListener('pluto-lang-change', handleLangChange);
@@ -174,7 +174,12 @@ export default function Messages(props: { items: ChatMessage[] }) {
     const triggers = {
       sl: ['Klikni \'Rešitev\'', 'za prikaz rešitve'],
       en: ['Click \'Solution\'', 'to show the solution'],
-      it: ['Clicca \'Soluzione\'', 'per mostrare la soluzione']
+      it: ['Clicca \'Soluzione\'', 'per mostrare la soluzione'],
+      de: ['Klicke \'Lösung\'', 'um die Lösung anzuzeigen'],
+      fr: ['Clique \'Solution\'', 'pour afficher la solution'],
+      es: ['Haz clic en \'Solución\'', 'para mostrar la solución'],
+      pl: ['Kliknij \'Rozwiązanie\'', 'aby pokazać rozwiązanie'],
+      ro: ['Click \'Soluție\'', 'pentru a afișa soluția']
     };
     
     return triggers[lang].some(trigger => content.includes(trigger));
@@ -187,7 +192,12 @@ export default function Messages(props: { items: ChatMessage[] }) {
     const prompts = {
       sl: `Pokaži podrobno rešitev za to nalogo:\n\n${exerciseContent}\n\nNavodila:\n- Podaj vse korake rešitve\n- Razloži vsak korak\n- Uporabi matematične zapise (LaTeX)\n- Na koncu podaj končen odgovor`,
       en: `Show a detailed solution for this exercise:\n\n${exerciseContent}\n\nInstructions:\n- Provide all solution steps\n- Explain each step\n- Use mathematical notation (LaTeX)\n- Provide the final answer at the end`,
-      it: `Mostra una soluzione dettagliata per questo esercizio:\n\n${exerciseContent}\n\nIstruzioni:\n- Fornisci tutti i passaggi della soluzione\n- Spiega ogni passaggio\n- Usa la notazione matematica (LaTeX)\n- Fornisci la risposta finale alla fine`
+      it: `Mostra una soluzione dettagliata per questo esercizio:\n\n${exerciseContent}\n\nIstruzioni:\n- Fornisci tutti i passaggi della soluzione\n- Spiega ogni passaggio\n- Usa la notazione matematica (LaTeX)\n- Fornisci la risposta finale alla fine`,
+      de: `Zeige eine detaillierte Lösung für diese Aufgabe:\n\n${exerciseContent}\n\nAnweisungen:\n- Gib alle Lösungsschritte an\n- Erkläre jeden Schritt\n- Verwende mathematische Notation (LaTeX)\n- Gib am Ende die endgültige Antwort`,
+      fr: `Montre une solution détaillée pour cet exercice:\n\n${exerciseContent}\n\nInstructions:\n- Fournis toutes les étapes de la solution\n- Explique chaque étape\n- Utilise la notation mathématique (LaTeX)\n- Fournis la réponse finale à la fin`,
+      es: `Muestra una solución detallada para este ejercicio:\n\n${exerciseContent}\n\nInstrucciones:\n- Proporciona todos los pasos de la solución\n- Explica cada paso\n- Usa notación matemática (LaTeX)\n- Proporciona la respuesta final al final`,
+      pl: `Pokaż szczegółowe rozwiązanie tego zadania:\n\n${exerciseContent}\n\nInstrukcje:\n- Podaj wszystkie kroki rozwiązania\n- Wyjaśnij każdy krok\n- Użyj notacji matematycznej (LaTeX)\n- Podaj ostateczną odpowiedź na końcu`,
+      ro: `Arată o soluție detaliată pentru acest exercițiu:\n\n${exerciseContent}\n\nInstrucțiuni:\n- Furnizează toți pașii soluției\n- Explică fiecare pas\n- Folosește notație matematică (LaTeX)\n- Furnizează răspunsul final la sfârșit`
     };
     
     try {
@@ -234,21 +244,31 @@ export default function Messages(props: { items: ChatMessage[] }) {
   const solutionButtonLabels = {
     sl: "Rešitev",
     en: "Solution",
-    it: "Soluzione"
+    it: "Soluzione",
+    de: "Lösung",
+    fr: "Solution",
+    es: "Solución",
+    pl: "Rozwiązanie",
+    ro: "Soluție"
   };
 
   const nextExerciseLabels = {
     sl: "Naslednja naloga",
     en: "Next exercise",
-    it: "Esercizio successivo"
+    it: "Esercizio successivo",
+    de: "Nächste Übung",
+    fr: "Exercice suivant",
+    es: "Siguiente ejercicio",
+    pl: "Następne zadanie",
+    ro: "Exercițiul următor"
   };
 
   const difficultyLabels = {
-    1: { sl: "Zelo enostavno", en: "Very Simple", it: "Molto Semplice", color: "bg-green-100 text-green-800" },
-    2: { sl: "Enostavno", en: "Simple", it: "Semplice", color: "bg-blue-100 text-blue-800" },
-    3: { sl: "Srednje", en: "Medium", it: "Medio", color: "bg-yellow-100 text-yellow-800" },
-    4: { sl: "Težko", en: "Difficult", it: "Difficile", color: "bg-orange-100 text-orange-800" },
-    5: { sl: "Zelo težko", en: "Very Difficult", it: "Molto Difficile", color: "bg-red-100 text-red-800" }
+    1: { sl: "Zelo enostavno", en: "Very Simple", it: "Molto Semplice", de: "Sehr einfach", fr: "Très simple", es: "Muy simple", pl: "Bardzo łatwe", ro: "Foarte simplu", color: "bg-green-100 text-green-800" },
+    2: { sl: "Enostavno", en: "Simple", it: "Semplice", de: "Einfach", fr: "Simple", es: "Simple", pl: "Łatwe", ro: "Simplu", color: "bg-blue-100 text-blue-800" },
+    3: { sl: "Srednje", en: "Medium", it: "Medio", de: "Mittel", fr: "Moyen", es: "Medio", pl: "Średni", ro: "Mediu", color: "bg-yellow-100 text-yellow-800" },
+    4: { sl: "Težko", en: "Difficult", it: "Difficile", de: "Schwierig", fr: "Difficile", es: "Difícil", pl: "Trudne", ro: "Dificil", color: "bg-orange-100 text-orange-800" },
+    5: { sl: "Zelo težko", en: "Very Difficult", it: "Molto Difficile", de: "Sehr schwierig", fr: "Très difficile", es: "Muy difícil", pl: "Bardzo trudne", ro: "Foarte dificil", color: "bg-red-100 text-red-800" }
   };
 
   return (

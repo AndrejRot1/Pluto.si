@@ -66,6 +66,11 @@ export default define.page(function Home(props) {
                   <option value="sl">Slovenščina</option>
                   <option value="en">English</option>
                   <option value="it">Italiano</option>
+                  <option value="de">Deutsch</option>
+                  <option value="fr">Français</option>
+                  <option value="es">Español</option>
+                  <option value="pl">Polski</option>
+                  <option value="ro">Română</option>
                 </select>
               </label>
               <script dangerouslySetInnerHTML={{__html: `
@@ -75,7 +80,12 @@ export default define.page(function Home(props) {
                   const translations = {
                     sl: { label: 'Prijavljen kot', settings: 'Nastavitve', logout: 'Odjava' },
                     en: { label: 'Logged in as', settings: 'Settings', logout: 'Logout' },
-                    it: { label: 'Connesso come', settings: 'Impostazioni', logout: 'Disconnetti' }
+                    it: { label: 'Connesso come', settings: 'Impostazioni', logout: 'Disconnetti' },
+                    de: { label: 'Angemeldet als', settings: 'Einstellungen', logout: 'Abmelden' },
+                    fr: { label: 'Connecté en tant que', settings: 'Paramètres', logout: 'Déconnexion' },
+                    es: { label: 'Conectado como', settings: 'Configuración', logout: 'Cerrar sesión' },
+                    pl: { label: 'Zalogowany jako', settings: 'Ustawienia', logout: 'Wyloguj' },
+                    ro: { label: 'Conectat ca', settings: 'Setări', logout: 'Deconectare' }
                   };
                   
                   function updateUserMenu() {
@@ -98,10 +108,20 @@ export default define.page(function Home(props) {
                       defaultLang = 'sl';
                     } else if (browserLang.startsWith('it')) {
                       defaultLang = 'it';
+                    } else if (browserLang.startsWith('de')) {
+                      defaultLang = 'de';
+                    } else if (browserLang.startsWith('fr')) {
+                      defaultLang = 'fr';
+                    } else if (browserLang.startsWith('es')) {
+                      defaultLang = 'es';
+                    } else if (browserLang.startsWith('pl')) {
+                      defaultLang = 'pl';
+                    } else if (browserLang.startsWith('ro')) {
+                      defaultLang = 'ro';
                     } else if (browserLang.startsWith('en')) {
                       defaultLang = 'en';
                     } else {
-                      defaultLang = 'sl'; // Default to Slovenian
+                      defaultLang = 'en'; // Default to English
                     }
                     localStorage.setItem('pluto-lang', defaultLang);
                   }

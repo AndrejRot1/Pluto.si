@@ -233,6 +233,236 @@ x = 5
 **Soluzione:** x = 5
 
 ✅ Possiamo verificare: 3(5) + 5 = 15 + 5 = 20 ✓\`
+            },
+            de: {
+              backLink: '← Zurück',
+              headerTitle: 'Willkommen bei Pluto.si 🚀',
+              headerSubtitle: 'Ihr persönlicher KI-Mathe-Tutor',
+              ctaText: '✨ Bereit zum Lernen?',
+              ctaButton: 'Jetzt registrieren - Kostenlose Testversion',
+              introText: \`Hallo! 👋
+
+Pluto.si ist Ihr persönlicher Mathematik-Assistent für Schüler und Studenten, die ihr **mathematisches Verständnis verbessern** und **bessere Ergebnisse erzielen** möchten.
+
+**Was wir bieten:**
+
+✓ **Schritt-für-Schritt-Erklärungen** – Wir lösen jedes Problem systematisch, damit Sie verstehen *warum*, nicht nur *wie*.
+
+✓ **Unterstützung für alle Themen** – Von grundlegender Algebra bis zu Integralen und Analysis.
+
+✓ **Interaktive Tastatur** – Einfache Eingabe mathematischer Symbole und Formeln.
+
+✓ **Grafische Visualisierungen** – Funktionen für besseres Verständnis anzeigen.
+
+✓ **Mehrsprachige Unterstützung** – Slowenisch, Englisch und Italienisch.
+
+**Schauen wir uns ein Beispiel an:**\`,
+              problem: 'Löse die Gleichung: 3x + 5 = 20',
+              solution: \`**Lösen einer linearen Gleichung**
+
+**Schritt 1:** Subtrahiere 5 von beiden Seiten
+\\\\[
+3x + 5 - 5 = 20 - 5
+\\\\]
+\\\\[
+3x = 15
+\\\\]
+
+**Schritt 2:** Dividiere durch 3
+\\\\[
+\\\\frac{3x}{3} = \\\\frac{15}{3}
+\\\\]
+\\\\[
+x = 5
+\\\\]
+
+**Lösung:** x = 5
+
+✅ Überprüfung: 3(5) + 5 = 15 + 5 = 20 ✓\`
+            },
+            fr: {
+              backLink: '← Retour',
+              headerTitle: 'Bienvenue sur Pluto.si 🚀',
+              headerSubtitle: 'Votre tuteur de mathématiques IA personnel',
+              ctaText: '✨ Prêt à commencer à apprendre ?',
+              ctaButton: 'S\\'inscrire maintenant - Essai gratuit',
+              introText: \`Bonjour ! 👋
+
+Pluto.si est votre assistant mathématique personnel, conçu pour les élèves et étudiants qui souhaitent **améliorer leur compréhension** et **obtenir de meilleurs résultats**.
+
+**Ce que nous offrons :**
+
+✓ **Explications étape par étape** – Nous résolvons chaque problème systématiquement pour que vous compreniez *pourquoi*, pas seulement *comment*.
+
+✓ **Support pour tous les sujets** – De l'algèbre de base aux intégrales et au calcul.
+
+✓ **Clavier interactif** – Saisie facile de symboles et formules mathématiques.
+
+✓ **Visualisations graphiques** – Afficher les fonctions pour une meilleure compréhension.
+
+✓ **Support multilingue** – Slovène, anglais et italien.
+
+**Voyons un exemple :**\`,
+              problem: 'Résoudre l\\'équation : 3x + 5 = 20',
+              solution: \`**Résolution d'une équation linéaire**
+
+**Étape 1 :** Soustraire 5 des deux côtés
+\\\\[
+3x + 5 - 5 = 20 - 5
+\\\\]
+\\\\[
+3x = 15
+\\\\]
+
+**Étape 2 :** Diviser par 3
+\\\\[
+\\\\frac{3x}{3} = \\\\frac{15}{3}
+\\\\]
+\\\\[
+x = 5
+\\\\]
+
+**Solution :** x = 5
+
+✅ Vérification : 3(5) + 5 = 15 + 5 = 20 ✓\`
+            },
+            es: {
+              backLink: '← Atrás',
+              headerTitle: 'Bienvenido a Pluto.si 🚀',
+              headerSubtitle: 'Tu tutor personal de matemáticas con IA',
+              ctaText: '✨ ¿Listo para empezar a aprender?',
+              ctaButton: 'Registrarse ahora - Prueba gratuita',
+              introText: \`¡Hola! 👋
+
+Pluto.si es tu asistente matemático personal, diseñado para estudiantes que desean **mejorar su comprensión** y **lograr mejores resultados**.
+
+**Lo que ofrecemos:**
+
+✓ **Explicaciones paso a paso** – Resolvemos cada problema sistemáticamente para que entiendas el *por qué*, no solo el *cómo*.
+
+✓ **Soporte para todos los temas** – Desde álgebra básica hasta integrales y cálculo.
+
+✓ **Teclado interactivo** – Entrada fácil de símbolos y fórmulas matemáticas.
+
+✓ **Visualizaciones gráficas** – Mostrar funciones para una mejor comprensión.
+
+✓ **Soporte multilingüe** – Esloveno, inglés e italiano.
+
+**Veamos un ejemplo:**\`,
+              problem: 'Resolver la ecuación: 3x + 5 = 20',
+              solution: \`**Resolución de una ecuación lineal**
+
+**Paso 1:** Restar 5 de ambos lados
+\\\\[
+3x + 5 - 5 = 20 - 5
+\\\\]
+\\\\[
+3x = 15
+\\\\]
+
+**Paso 2:** Dividir por 3
+\\\\[
+\\\\frac{3x}{3} = \\\\frac{15}{3}
+\\\\]
+\\\\[
+x = 5
+\\\\]
+
+**Solución:** x = 5
+
+✅ Verificación: 3(5) + 5 = 15 + 5 = 20 ✓\`
+            },
+            pl: {
+              backLink: '← Wstecz',
+              headerTitle: 'Witamy w Pluto.si 🚀',
+              headerSubtitle: 'Twój osobisty korepetytor matematyki AI',
+              ctaText: '✨ Gotowy, aby zacząć się uczyć?',
+              ctaButton: 'Zarejestruj się teraz - Bezpłatny okres próbny',
+              introText: \`Cześć! 👋
+
+Pluto.si to Twój osobisty asystent matematyczny, zaprojektowany dla uczniów i studentów, którzy chcą **poprawić swoje zrozumienie** i **osiągnąć lepsze wyniki**.
+
+**Co oferujemy:**
+
+✓ **Wyjaśnienia krok po kroku** – Rozwiązujemy każdy problem systematycznie, abyś rozumiał *dlaczego*, a nie tylko *jak*.
+
+✓ **Wsparcie dla wszystkich tematów** – Od podstawowej algebry do całek i rachunku.
+
+✓ **Interaktywna klawiatura** – Łatwe wprowadzanie symboli i formuł matematycznych.
+
+✓ **Wizualizacje graficzne** – Wyświetlanie funkcji dla lepszego zrozumienia.
+
+✓ **Wsparcie wielojęzyczne** – Słoweński, angielski i włoski.
+
+**Zobaczmy przykład:**\`,
+              problem: 'Rozwiąż równanie: 3x + 5 = 20',
+              solution: \`**Rozwiązywanie równania liniowego**
+
+**Krok 1:** Odejmij 5 z obu stron
+\\\\[
+3x + 5 - 5 = 20 - 5
+\\\\]
+\\\\[
+3x = 15
+\\\\]
+
+**Krok 2:** Podziel przez 3
+\\\\[
+\\\\frac{3x}{3} = \\\\frac{15}{3}
+\\\\]
+\\\\[
+x = 5
+\\\\]
+
+**Rozwiązanie:** x = 5
+
+✅ Sprawdzenie: 3(5) + 5 = 15 + 5 = 20 ✓\`
+            },
+            ro: {
+              backLink: '← Înapoi',
+              headerTitle: 'Bun venit la Pluto.si 🚀',
+              headerSubtitle: 'Tutorele tău personal de matematică cu AI',
+              ctaText: '✨ Gata să începi să înveți?',
+              ctaButton: 'Înregistrează-te acum - Perioadă de probă gratuită',
+              introText: \`Salut! 👋
+
+Pluto.si este asistentul tău personal de matematică, conceput pentru elevi și studenți care doresc să **îmbunătățească înțelegerea** și să **obțină rezultate mai bune**.
+
+**Ce oferim:**
+
+✓ **Explicații pas cu pas** – Rezolvăm fiecare problemă sistematic pentru ca tu să înțelegi *de ce*, nu doar *cum*.
+
+✓ **Suport pentru toate subiectele** – De la algebră de bază la integrale și calcul.
+
+✓ **Tastatură interactivă** – Introducere ușoară de simboluri și formule matematice.
+
+✓ **Vizualizări grafice** – Afișează funcții pentru o mai bună înțelegere.
+
+✓ **Suport multilingv** – Slovenă, engleză și italiană.
+
+**Să vedem un exemplu:**\`,
+              problem: 'Rezolvă ecuația: 3x + 5 = 20',
+              solution: \`**Rezolvarea unei ecuații liniare**
+
+**Pasul 1:** Scade 5 din ambele părți
+\\\\[
+3x + 5 - 5 = 20 - 5
+\\\\]
+\\\\[
+3x = 15
+\\\\]
+
+**Pasul 2:** Împarte la 3
+\\\\[
+\\\\frac{3x}{3} = \\\\frac{15}{3}
+\\\\]
+\\\\[
+x = 5
+\\\\]
+
+**Soluție:** x = 5
+
+✅ Verificare: 3(5) + 5 = 15 + 5 = 20 ✓\`
             }
           };
           

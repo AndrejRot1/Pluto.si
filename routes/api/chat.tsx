@@ -27,11 +27,22 @@ function json(data: unknown, init: ResponseInit = {}) {
 function _isLikelyMath(text: string): boolean {
   const lower = text.toLowerCase();
   // English
-  if (/\b(limit|integral|derivative|matrix|solve|equation|polynomial|vector|probability|statistics|function|algebra|geometry|prime\s+number|definition)\b/.test(lower)) return true;
+  if (/\b(limit|integral|derivative|matrix|solve|equation|polynomial|vector|probability|statistics|function|algebra|geometry|prime\s+number|definition|exercise|problem)\b/.test(lower)) return true;
   // Slovenian
-  if (/(limita|integral|odvod|matrika|reši|enačb|polinom|vektor|verjetnost|statistika|funkcija|algebra|geometrija|praštevil|prastevil|prastevilo|definicija|izberi|nalogo|naloge)/.test(lower)) return true;
+  if (/(limita|integral|odvod|matrika|reši|enačb|polinom|vektor|verjetnost|statistika|funkcija|algebra|geometrija|praštevil|prastevil|prastevilo|definicija|izberi|nalogo|naloge|generiraj|razloži)/.test(lower)) return true;
   // Italian
-  if (/(limite|integrale|derivata|matrice|risolvi|equazione|polinomio|vettore|probabilità|statistica|funzione|algebra|geometria|numero\s+primo|definizione)/.test(lower)) return true;
+  if (/(limite|integrale|derivata|matrice|risolvi|equazione|polinomio|vettore|probabilità|statistica|funzione|algebra|geometria|numero\s+primo|definizione|esercizio|genera|spiega)/.test(lower)) return true;
+  // German
+  if (/(grenzwert|integral|ableitung|matrix|lösung|gleichung|polynom|vektor|wahrscheinlichkeit|statistik|funktion|algebra|geometrie|primzahl|definition|übung|aufgabe|generiere|erkläre)/.test(lower)) return true;
+  // French
+  if (/(limite|intégrale|dérivée|matrice|résoudre|équation|polynôme|vecteur|probabilité|statistique|fonction|algèbre|géométrie|nombre\s+premier|définition|exercice|problème|génère|explique)/.test(lower)) return true;
+  // Spanish
+  if (/(límite|integral|derivada|matriz|resolver|ecuación|polinomio|vector|probabilidad|estadística|función|álgebra|geometría|número\s+primo|definición|ejercicio|problema|genera|explica)/.test(lower)) return true;
+  // Polish
+  if (/(granica|całka|pochodna|macierz|rozwiąż|równanie|wielomian|wektor|prawdopodobieństwo|statystyka|funkcja|algebra|geometria|liczba\s+pierwsza|definicja|zadanie|wygeneruj|wyjaśnij)/.test(lower)) return true;
+  // Romanian
+  if (/(limită|integrală|derivată|matrice|rezolvă|ecuație|polinom|vector|probabilitate|statistică|funcție|algebră|geometrie|număr\s+prim|definiție|exercițiu|problemă|generează|explică)/.test(lower)) return true;
+  // Math symbols
   if (/[∫∑√≤≥≠→^_π∞]/.test(text)) return true;
   if (/[=<>≤≥]/.test(text)) return true;
   if (/\b(lim|sin|cos|tan|log|ln|exp)\b/.test(lower)) return true;
@@ -315,9 +326,14 @@ async function callDeepSeek(prompt: string, stream = false, language = "sl"): Pr
   const langMap: Record<string, string> = {
     sl: "Respond in Slovenian",
     en: "Respond in English",
-    it: "Respond in Italian"
+    it: "Respond in Italian",
+    de: "Respond in German",
+    fr: "Respond in French",
+    es: "Respond in Spanish",
+    pl: "Respond in Polish",
+    ro: "Respond in Romanian"
   };
-  const langInstruction = langMap[language] || langMap.sl;
+  const langInstruction = langMap[language] || langMap.en;
   
   const endpoint = "https://api.deepseek.com/chat/completions";
   const messages: DeepSeekMessage[] = [

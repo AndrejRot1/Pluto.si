@@ -5,7 +5,12 @@ import Messages, { type ChatMessage } from "./Messages.tsx";
 const thinkingText = {
   sl: "Razmišljam...",
   en: "Thinking...",
-  it: "Sto pensando..."
+  it: "Sto pensando...",
+  de: "Denke nach...",
+  fr: "Je réfléchis...",
+  es: "Pensando...",
+  pl: "Myślę...",
+  ro: "Mă gândesc..."
 };
 
 export type ExtendedChatMessage = ChatMessage & {
@@ -18,17 +23,17 @@ export default function ChatPanel() {
   const [messages, setMessages] = useState<ExtendedChatMessage[]>([]);
   const [sending, setSending] = useState(false);
   const [thinking, setThinking] = useState(false);
-  const [lang, setLang] = useState<'sl' | 'en' | 'it'>('sl');
+  const [lang, setLang] = useState<'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro'>('sl');
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Initialize language from localStorage
-    const stored = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' || 'sl';
+    const stored = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro' || 'sl';
     setLang(stored);
 
     // Listen for language changes
     const handleLangChange = () => {
-      const newLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' || 'sl';
+      const newLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro' || 'sl';
       setLang(newLang);
     };
     globalThis.addEventListener('pluto-lang-change', handleLangChange);

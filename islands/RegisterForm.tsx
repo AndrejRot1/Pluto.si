@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = 'https://vbmtvnqnpsbgnxasejcg.supabase.co';
@@ -11,6 +11,25 @@ export default function RegisterForm() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [lang, setLang] = useState<'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro'>('en');
+
+  useEffect(() => {
+    const savedLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro' || 'en';
+    setLang(savedLang);
+  }, []);
+
+  const translations = {
+    sl: { title: 'Ustvari račun', subtitle: 'Začni svojo matematično pot', trialInfo: '✨ 3-dnevno brezplačno preizkusno obdobje', trialBenefits: '✓ Kreditna kartica ni potrebna\n✓ Koraki rešitev\n✓ Podpora za vse teme', email: 'Email', password: 'Geslo', minChars: 'Najmanj 6 znakov', startTrial: 'Začni brezplačno preizkusno obdobje', creating: 'Ustvarjanje računa...', haveAccount: 'Že imate račun?', login: 'Prijavite se', successMessage: 'Registracija uspešna! Preverite svoj email za potrditev računa.', errorMessage: 'Registracija ni uspela. Poskusite znova.' },
+    en: { title: 'Create Account', subtitle: 'Start your math learning journey', trialInfo: '✨ 3-day free trial', trialBenefits: '✓ No credit card required\n✓ Step-by-step solutions\n✓ Support for all math topics', email: 'Email', password: 'Password', minChars: 'Minimum 6 characters', startTrial: 'Start Free Trial', creating: 'Creating account...', haveAccount: 'Already have an account?', login: 'Log in', successMessage: 'Registration successful! Please check your email to confirm your account.', errorMessage: 'Registration failed. Please try again.' },
+    it: { title: 'Crea Account', subtitle: 'Inizia il tuo viaggio di apprendimento matematico', trialInfo: '✨ Prova gratuita di 3 giorni', trialBenefits: '✓ Nessuna carta di credito richiesta\n✓ Soluzioni passo-passo\n✓ Supporto per tutti gli argomenti', email: 'Email', password: 'Password', minChars: 'Minimo 6 caratteri', startTrial: 'Inizia Prova Gratuita', creating: 'Creazione account...', haveAccount: 'Hai già un account?', login: 'Accedi', successMessage: 'Registrazione riuscita! Controlla la tua email per confermare il tuo account.', errorMessage: 'Registrazione fallita. Riprova.' },
+    de: { title: 'Konto Erstellen', subtitle: 'Beginne deine Mathe-Lernreise', trialInfo: '✨ 3 Tage kostenlose Testversion', trialBenefits: '✓ Keine Kreditkarte erforderlich\n✓ Schritt-für-Schritt-Lösungen\n✓ Unterstützung für alle Themen', email: 'E-Mail', password: 'Passwort', minChars: 'Mindestens 6 Zeichen', startTrial: 'Kostenlose Testversion Starten', creating: 'Konto wird erstellt...', haveAccount: 'Bereits ein Konto?', login: 'Anmelden', successMessage: 'Registrierung erfolgreich! Bitte überprüfe deine E-Mail, um dein Konto zu bestätigen.', errorMessage: 'Registrierung fehlgeschlagen. Bitte versuche es erneut.' },
+    fr: { title: 'Créer un Compte', subtitle: "Commence ton voyage d'apprentissage des mathématiques", trialInfo: '✨ Essai gratuit de 3 jours', trialBenefits: '✓ Aucune carte de crédit requise\n✓ Solutions étape par étape\n✓ Support pour tous les sujets', email: 'Email', password: 'Mot de passe', minChars: 'Minimum 6 caractères', startTrial: "Commencer l'Essai Gratuit", creating: 'Création du compte...', haveAccount: 'Vous avez déjà un compte ?', login: 'Se connecter', successMessage: 'Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte.', errorMessage: 'Inscription échouée. Veuillez réessayer.' },
+    es: { title: 'Crear Cuenta', subtitle: 'Comienza tu viaje de aprendizaje matemático', trialInfo: '✨ Prueba gratuita de 3 días', trialBenefits: '✓ No se requiere tarjeta de crédito\n✓ Soluciones paso a paso\n✓ Soporte para todos los temas', email: 'Correo', password: 'Contraseña', minChars: 'Mínimo 6 caracteres', startTrial: 'Comenzar Prueba Gratuita', creating: 'Creando cuenta...', haveAccount: '¿Ya tienes una cuenta?', login: 'Iniciar sesión', successMessage: '¡Registro exitoso! Por favor revisa tu correo para confirmar tu cuenta.', errorMessage: 'Registro fallido. Por favor intenta de nuevo.' },
+    pl: { title: 'Utwórz Konto', subtitle: 'Rozpocznij swoją matematyczną podróż', trialInfo: '✨ 3-dniowy bezpłatny okres próbny', trialBenefits: '✓ Karta kredytowa nie jest wymagana\n✓ Rozwiązania krok po kroku\n✓ Wsparcie dla wszystkich tematów', email: 'Email', password: 'Hasło', minChars: 'Minimum 6 znaków', startTrial: 'Rozpocznij Bezpłatny Okres Próbny', creating: 'Tworzenie konta...', haveAccount: 'Masz już konto?', login: 'Zaloguj się', successMessage: 'Rejestracja udana! Sprawdź swoją pocztę, aby potwierdzić swoje konto.', errorMessage: 'Rejestracja nie powiodła się. Spróbuj ponownie.' },
+    ro: { title: 'Creează Cont', subtitle: 'Începe călătoria ta de învățare matematică', trialInfo: '✨ Perioadă de probă gratuită de 3 zile', trialBenefits: '✓ Nu este necesară cardul de credit\n✓ Soluții pas cu pas\n✓ Suport pentru toate subiectele', email: 'Email', password: 'Parolă', minChars: 'Minimum 6 caractere', startTrial: 'Începe Perioada de Probă Gratuită', creating: 'Creare cont...', haveAccount: 'Ai deja un cont?', login: 'Conectare', successMessage: 'Înregistrare reușită! Te rugăm să verifici email-ul pentru a-ți confirma contul.', errorMessage: 'Înregistrare eșuată. Te rugăm să încerci din nou.' }
+  };
+
+  const t = translations[lang];
 
   async function handleRegister(e: Event) {
     e.preventDefault();
@@ -29,11 +48,11 @@ export default function RegisterForm() {
       if (error) throw error;
 
       if (data?.user) {
-        setMessage('Registration successful! Please check your email to confirm your account.');
+        setMessage(t.successMessage);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setMessage('Registration failed. Please try again.');
+      setMessage(t.errorMessage);
       setLoading(false);
     }
   }
@@ -45,39 +64,37 @@ export default function RegisterForm() {
           <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
             <span class="text-3xl">🚀</span>
           </div>
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
           <p class="text-gray-600">
-            Start your math learning journey
+            {t.subtitle}
           </p>
         </div>
           
         <div class="bg-white rounded-lg shadow-md p-8">
           <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
             <p class="text-sm text-blue-800 font-medium mb-2">
-              ✨ 3-day free trial
+              {t.trialInfo}
             </p>
-            <p class="text-xs text-blue-700">
-              ✓ No credit card required<br/>
-              ✓ Step-by-step solutions<br/>
-              ✓ Support for all math topics
+            <p class="text-xs text-blue-700 whitespace-pre-line">
+              {t.trialBenefits}
             </p>
           </div>
           
           <form onSubmit={handleRegister} class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">{t.email}</label>
               <input
                 type="email"
                 value={email}
                 onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
                 required
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="you@email.com"
+                placeholder="email@example.com"
               />
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">{t.password}</label>
               <input
                 type="password"
                 value={password}
@@ -87,7 +104,7 @@ export default function RegisterForm() {
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="••••••••"
               />
-              <p class="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+              <p class="text-xs text-gray-500 mt-1">{t.minChars}</p>
             </div>
             
             <button
@@ -95,20 +112,20 @@ export default function RegisterForm() {
               disabled={loading}
               class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 font-medium text-base"
             >
-              {loading ? 'Creating account...' : 'Start Free Trial'}
+              {loading ? t.creating : t.startTrial}
             </button>
           </form>
           
           <p class="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{" "}
+            {t.haveAccount}{" "}
             <a href="/auth/login" class="text-blue-600 hover:underline font-medium">
-              Log in
+              {t.login}
             </a>
           </p>
           
           {message && (
             <div class={`mt-4 text-center text-sm p-3 rounded-md ${
-              message.includes('successful') 
+              message.includes('success') || message.includes('riusc') || message.includes('erfolgreich') || message.includes('réussie') || message.includes('exitoso') || message.includes('udana') || message.includes('reușită')
                 ? 'bg-green-50 text-green-700 border border-green-200' 
                 : 'bg-red-50 text-red-700 border border-red-200'
             }`}>
