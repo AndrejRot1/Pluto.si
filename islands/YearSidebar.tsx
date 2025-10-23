@@ -100,6 +100,7 @@ export default function YearSidebar() {
   const [activeTab, setActiveTab] = useState<'topics' | 'exercises'>('topics');
   const [currentTopic, setCurrentTopic] = useState<string | null>(null);
   const [difficultyLevel, setDifficultyLevel] = useState<number>(1);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
   useEffect(() => {
     // Initialize from localStorage
@@ -187,6 +188,9 @@ export default function YearSidebar() {
       }
       
       const currentDiff = resetDifficulty ? 1 : difficultyLevel;
+      
+      // Set local generating state
+      setIsGenerating(true);
       
       // Dispatch loading event
       const loadingEvent = new CustomEvent("pluto-exercise-loading", { detail: true });
@@ -298,12 +302,14 @@ Instrucțiuni:
       globalThis.dispatchEvent(responseEvent);
       
       // Clear loading state
+      setIsGenerating(false);
       const loadingOffEvent = new CustomEvent("pluto-exercise-loading", { detail: false });
       globalThis.dispatchEvent(loadingOffEvent);
     } catch (error) {
       console.error('Failed to generate exercise:', error);
       
       // Clear loading state on error
+      setIsGenerating(false);
       const loadingOffEvent = new CustomEvent("pluto-exercise-loading", { detail: false });
       globalThis.dispatchEvent(loadingOffEvent);
     }
@@ -336,6 +342,17 @@ Instrucțiuni:
     exercises: { sl: "Naloge", en: "Exercises", it: "Esercizi", de: "Übungen", fr: "Exercices", es: "Ejercicios", pl: "Zadania", ro: "Exerciții" }
   };
 
+  const generatingLabels = {
+    sl: "Generiram nalogo...",
+    en: "Generating exercise...",
+    it: "Generazione esercizio...",
+    de: "Übung wird generiert...",
+    fr: "Génération d'exercice...",
+    es: "Generando ejercicio...",
+    pl: "Generowanie zadania...",
+    ro: "Generare exercițiu..."
+  };
+
   return (
     <aside class="w-72 bg-white border-r border-gray-200 p-3 sm:p-4 overflow-y-auto h-screen flex-shrink-0">
       {/* Tab buttons */}
@@ -363,6 +380,20 @@ Instrucțiuni:
           {tabLabels.exercises[lang]}
         </button>
       </div>
+
+      {/* Loading indicator when generating exercise */}
+      {isGenerating && (
+        <div class="mb-3 sm:mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <div class="flex items-center gap-2">
+            <div class="flex gap-1">
+              <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+              <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+              <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+            </div>
+            <span class="text-xs sm:text-sm text-blue-700 font-medium">{generatingLabels[lang]}</span>
+          </div>
+        </div>
+      )}
 
       {/* Topics/Exercises list */}
       <div class="space-y-1.5 sm:space-y-2">
