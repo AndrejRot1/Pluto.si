@@ -154,15 +154,46 @@ export default function Messages(props: { items: ChatMessage[] }) {
   }
 
   // Request solution for the exercise
-  function handleSolutionClick(exerciseContent: string) {
+  async function handleSolutionClick(exerciseContent: string) {
     const prompts = {
       sl: `Pokaži podrobno rešitev za to nalogo:\n\n${exerciseContent}\n\nNavodila:\n- Podaj vse korake rešitve\n- Razloži vsak korak\n- Uporabi matematične zapise (LaTeX)\n- Na koncu podaj končen odgovor`,
       en: `Show a detailed solution for this exercise:\n\n${exerciseContent}\n\nInstructions:\n- Provide all solution steps\n- Explain each step\n- Use mathematical notation (LaTeX)\n- Provide the final answer at the end`,
       it: `Mostra una soluzione dettagliata per questo esercizio:\n\n${exerciseContent}\n\nIstruzioni:\n- Fornisci tutti i passaggi della soluzione\n- Spiega ogni passaggio\n- Usa la notazione matematica (LaTeX)\n- Fornisci la risposta finale alla fine`
     };
     
-    const event = new CustomEvent("pluto-send", { detail: prompts[lang] });
-    globalThis.dispatchEvent(event);
+    try {
+      // Show loading indicator
+      const loadingEvent = new CustomEvent("pluto-exercise-loading", { detail: true });
+      globalThis.dispatchEvent(loadingEvent);
+      
+      // Send directly to API without showing prompt
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          text: prompts[lang],
+          language: lang 
+        })
+      });
+      
+      const data = await response.json();
+      
+      // Dispatch event to add only AI response to chat
+      const responseEvent = new CustomEvent("pluto-exercise-response", { 
+        detail: { content: data.reply } 
+      });
+      globalThis.dispatchEvent(responseEvent);
+      
+      // Clear loading state
+      const loadingOffEvent = new CustomEvent("pluto-exercise-loading", { detail: false });
+      globalThis.dispatchEvent(loadingOffEvent);
+    } catch (error) {
+      console.error('Failed to get solution:', error);
+      
+      // Clear loading state on error
+      const loadingOffEvent = new CustomEvent("pluto-exercise-loading", { detail: false });
+      globalThis.dispatchEvent(loadingOffEvent);
+    }
   }
 
   const solutionButtonLabels = {
