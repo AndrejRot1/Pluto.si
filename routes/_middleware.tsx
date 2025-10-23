@@ -86,15 +86,31 @@ export const handler = define.middleware(async (ctx) => {
     };
     ctx.state.profile = profile;
 
-    // Check if trial has expired (only if not on settings page)
-    if (profile && ctx.url.pathname !== '/settings') {
+    // Check if trial has expired
+    if (profile) {
+      const now = new Date();
+      const trialEndsAt = profile.trial_ends_at ? new Date(profile.trial_ends_at) : null;
       const trialEnded = profile.subscription_status === 'trial' && 
-                         profile.trial_ends_at && 
-                         new Date(profile.trial_ends_at) < new Date();
+                         trialEndsAt && 
+                         trialEndsAt < now;
+      
+      // Auto-update status to 'expired' if trial has ended
+      if (trialEnded) {
+        console.log('Trial expired, updating status to expired');
+        await supabase
+          .from('profiles')
+          .update({ subscription_status: 'expired' })
+          .eq('id', user.id);
+        
+        // Update local profile object
+        profile.subscription_status = 'expired';
+        ctx.state.profile = profile;
+      }
       
       const isExpired = profile.subscription_status === 'expired';
 
-      if ((trialEnded || isExpired) && profile.subscription_status !== 'active') {
+      // Redirect to trial-expired page (except for settings page where they can upgrade)
+      if ((isExpired) && profile.subscription_status !== 'active' && ctx.url.pathname !== '/settings') {
         console.log('Trial expired, redirecting to trial-expired page');
         return new Response(null, {
           status: 302,

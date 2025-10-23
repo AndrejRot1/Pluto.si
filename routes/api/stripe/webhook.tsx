@@ -53,11 +53,20 @@ export const handler = define.handlers({
             });
 
           // Update profile subscription status
+          // Map Stripe status to our app status
+          let appStatus = "trial";
+          if (subscription.status === "active" || subscription.status === "trialing") {
+            appStatus = "active";
+          } else if (subscription.status === "canceled" || subscription.status === "past_due" || subscription.status === "incomplete") {
+            appStatus = "expired";
+          }
+          
           await supabaseAdmin
             .from("profiles")
             .update({
-              subscription_status: subscription.status === "active" ? "active" : "trial",
+              subscription_status: appStatus,
               stripe_subscription_id: subscription.id,
+              stripe_customer_id: subscription.customer,
             })
             .eq("id", userId);
 
@@ -73,16 +82,19 @@ export const handler = define.handlers({
             break;
           }
 
-          // Update subscription status
+          // Delete subscription record
           await supabaseAdmin
             .from("subscriptions")
-            .update({ status: "canceled" })
+            .delete()
             .eq("stripe_subscription_id", subscription.id);
 
-          // Update profile
+          // Update profile to expired
           await supabaseAdmin
             .from("profiles")
-            .update({ subscription_status: "expired" })
+            .update({
+              subscription_status: "expired",
+              stripe_subscription_id: null,
+            })
             .eq("id", userId);
 
           break;
