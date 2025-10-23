@@ -20,9 +20,9 @@ export default define.page(function ConfirmEmail() {
             document.cookie = \`sb-access-token=\${accessToken}; Path=/; Max-Age=3600; SameSite=Lax\`;
             document.cookie = \`sb-refresh-token=\${refreshToken}; Path=/; Max-Age=604800; SameSite=Lax\`;
             
-            // Show success and redirect
+            // Show success and redirect to main app
             setTimeout(() => {
-              window.location.href = '/';
+              window.location.href = '/app';
             }, 2000);
           } else {
             // Show error

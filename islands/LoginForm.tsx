@@ -35,9 +35,9 @@ export default function LoginForm() {
         setMessage('✅ Uspešna prijava! Preusmerjanje...');
         
         // Cookies are set by server via Set-Cookie header
-        // Redirect immediately
+        // Redirect to main app
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = '/app';
         }, 300);
       }
     } catch (error) {

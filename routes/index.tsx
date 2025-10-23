@@ -1,213 +1,339 @@
-import { Head } from "fresh/runtime";
 import { define } from "../utils.ts";
-import YearSidebar from "../islands/YearSidebar.tsx";
-import ChatPanel from "../islands/ChatPanel.tsx";
+import { Head } from "fresh/runtime";
 
-export default define.page(function Home(props) {
-  const user = props.state.user;
+export default define.page(function LandingPage() {
   return (
-    <div class="h-screen bg-gray-50 flex">
+    <>
       <Head>
-        <title>Pluto.si • Pogovorni asistent za matematiko</title>
+        <title>Pluto.si - AI Math Tutor</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="AI-powered math learning platform with progressive difficulty exercises" />
       </Head>
       
-      {/* Fixed sidebar - hidden on mobile */}
-      <div class="hidden lg:block">
-        <YearSidebar />
-      </div>
-
-      {/* Mobile sidebar drawer */}
-      <div id="mobile-sidebar" class="fixed inset-0 bg-black/50 z-50 lg:hidden hidden">
-        <div class="absolute left-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl transform transition-transform">
-          <div class="flex items-center justify-between p-4 border-b">
-            <h2 class="text-lg font-semibold text-gray-900">Teme</h2>
-            <button 
-              id="close-sidebar" 
-              class="p-2 hover:bg-gray-100 rounded-lg"
-              aria-label="Zapri"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div class="overflow-y-auto h-[calc(100%-4rem)]">
-            <YearSidebar />
-          </div>
-        </div>
-      </div>
-
-      {/* Main chat area */}
-      <main class="flex-1 flex flex-col h-screen">
-        {/* Fixed header */}
-        <header class="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex-shrink-0">
-          <div class="max-w-5xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+      <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        {/* Header with Login/Register */}
+        <header class="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-gray-200 z-50">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
             <div class="flex items-center gap-2">
-              {/* Hamburger menu - mobile only */}
-              <button 
-                id="open-sidebar"
-                class="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
-                aria-label="Odpri menu"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-              </button>
-              <h1 class="text-base sm:text-xl font-semibold text-gray-800">Matematični asistent</h1>
+              <span class="text-2xl">🚀</span>
+              <h1 class="text-xl font-bold text-gray-900">Pluto.si</h1>
             </div>
-            <div class="flex items-center gap-2 sm:gap-3">
-              <label class="text-sm text-gray-600 flex items-center gap-2">
-                <span class="hidden sm:inline">Language</span>
-                <select 
-                  id="lang-select"
-                  class="text-sm bg-white border border-gray-300 rounded-md px-2 py-1 hover:bg-gray-50"
-                >
-                  <option value="sl">Slovenščina</option>
-                  <option value="en">English</option>
-                  <option value="it">Italiano</option>
-                </select>
-              </label>
-              <script dangerouslySetInnerHTML={{__html: `
-                (function() {
-                  const sel = document.getElementById('lang-select');
-                  
-                  const translations = {
-                    sl: { label: 'Prijavljen kot', settings: 'Nastavitve', logout: 'Odjava' },
-                    en: { label: 'Logged in as', settings: 'Settings', logout: 'Logout' },
-                    it: { label: 'Connesso come', settings: 'Impostazioni', logout: 'Disconnetti' }
-                  };
-                  
-                  function updateUserMenu() {
-                    const lang = localStorage.getItem('pluto-lang') || 'sl';
-                    const label = document.getElementById('user-menu-label');
-                    const settings = document.getElementById('user-menu-settings');
-                    const logout = document.getElementById('user-menu-logout');
-                    
-                    if (label) label.textContent = translations[lang].label;
-                    if (settings) settings.textContent = translations[lang].settings;
-                    if (logout) logout.textContent = translations[lang].logout;
-                  }
-                  
-                  // Auto-detect language on first visit
-                  let defaultLang = localStorage.getItem('pluto-lang');
-                  if (!defaultLang) {
-                    // Use browser language preference
-                    const browserLang = navigator.language || navigator.userLanguage;
-                    if (browserLang.startsWith('sl')) {
-                      defaultLang = 'sl';
-                    } else if (browserLang.startsWith('it')) {
-                      defaultLang = 'it';
-                    } else if (browserLang.startsWith('en')) {
-                      defaultLang = 'en';
-                    } else {
-                      defaultLang = 'sl'; // Default to Slovenian
-                    }
-                    localStorage.setItem('pluto-lang', defaultLang);
-                  }
-                  
-                  sel.value = defaultLang;
-                  updateUserMenu();
-                  
-                  sel.addEventListener('change', (e) => {
-                    localStorage.setItem('pluto-lang', e.target.value);
-                    updateUserMenu();
-                    // Trigger custom event for same-page updates
-                    globalThis.dispatchEvent(new CustomEvent('pluto-lang-change'));
-                  });
-                })();
-              `}} />
-              
-              {user ? (
-                <details class="relative">
-                  <summary class="cursor-pointer list-none">
-                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium hover:bg-blue-700 transition-colors">
-                      {user.email?.[0]?.toUpperCase() || 'U'}
-                    </div>
-                  </summary>
-                  <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                    <div class="px-4 py-2 border-b border-gray-200">
-                      <p id="user-menu-label" class="text-xs text-gray-500">Prijavljen kot</p>
-                      <p class="text-sm font-medium text-gray-900 truncate">{user.email}</p>
-                    </div>
-                    <a 
-                      href="/settings"
-                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      ⚙️ <span id="user-menu-settings">Nastavitve</span>
-                    </a>
-                    <a 
-                      href="/auth/logout"
-                      class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
-                    >
-                      🚪 <span id="user-menu-logout">Odjava</span>
-                    </a>
-                  </div>
-                </details>
-              ) : (
-                <>
-                  <a 
-                    href="/auth/login"
-                    class="text-xs sm:text-sm text-gray-700 hover:text-gray-900 px-2 sm:px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors"
-                  >
-                    <span class="hidden sm:inline">Prijava</span>
-                    <span class="sm:hidden">🔑</span>
-                  </a>
-                  <a 
-                    href="/auth/register"
-                    class="text-xs sm:text-sm bg-blue-600 text-white px-2 sm:px-4 py-1.5 rounded-md hover:bg-blue-700 transition-colors font-medium"
-                  >
-                    <span class="hidden sm:inline">Registracija</span>
-                    <span class="sm:hidden">✨</span>
-                  </a>
-                </>
-              )}
+            <div class="flex items-center gap-3">
+              <a 
+                href="/auth/login" 
+                id="login-btn"
+                class="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
+              >
+                Login
+              </a>
+              <a 
+                href="/auth/register" 
+                id="register-btn"
+                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+              >
+                Register now
+              </a>
             </div>
           </div>
         </header>
-        
-        {/* Scrollable chat area */}
-        <ChatPanel />
-      </main>
 
-      {/* Mobile sidebar toggle script */}
-      <script dangerouslySetInnerHTML={{__html: `
-        (function() {
-          const sidebar = document.getElementById('mobile-sidebar');
-          const openBtn = document.getElementById('open-sidebar');
-          const closeBtn = document.getElementById('close-sidebar');
-          
-          if (openBtn && sidebar) {
-            openBtn.addEventListener('click', () => {
-              sidebar.classList.remove('hidden');
-            });
-          }
-          
-          if (closeBtn && sidebar) {
-            closeBtn.addEventListener('click', () => {
-              sidebar.classList.add('hidden');
-            });
-          }
-          
-          // Close on backdrop click
-          if (sidebar) {
-            sidebar.addEventListener('click', (e) => {
-              if (e.target === sidebar) {
-                sidebar.classList.add('hidden');
+        {/* Hero Section */}
+        <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+          <div class="max-w-7xl mx-auto text-center">
+            <h2 id="hero-title" class="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">
+              Master Mathematics with AI
+            </h2>
+            <p id="hero-subtitle" class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+              Personalized math tutoring powered by artificial intelligence. 
+              Progressive difficulty, step-by-step solutions, and instant feedback.
+            </p>
+            <a 
+              href="/auth/register" 
+              id="hero-cta"
+              class="inline-block px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-xl transition-colors shadow-lg hover:shadow-xl"
+            >
+              Start Learning Free
+            </a>
+            <p id="trial-text" class="text-sm text-gray-500 mt-4">
+              3-day free trial • No credit card required
+            </p>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+          <div class="max-w-7xl mx-auto">
+            <h3 id="features-title" class="text-3xl font-bold text-center text-gray-900 mb-12">
+              Why Choose Pluto.si?
+            </h3>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+              {/* Feature 1 */}
+              <div class="p-6 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors">
+                <div class="text-4xl mb-4">🎯</div>
+                <h4 id="feature1-title" class="text-xl font-semibold mb-3 text-gray-900">
+                  Progressive Difficulty
+                </h4>
+                <p id="feature1-desc" class="text-gray-600">
+                  Start easy and gradually increase difficulty. Our AI adapts to your skill level with 5 difficulty tiers.
+                </p>
+              </div>
+
+              {/* Feature 2 */}
+              <div class="p-6 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors">
+                <div class="text-4xl mb-4">📊</div>
+                <h4 id="feature2-title" class="text-xl font-semibold mb-3 text-gray-900">
+                  Visual Learning
+                </h4>
+                <p id="feature2-desc" class="text-gray-600">
+                  Interactive graphs, step-by-step solutions with LaTeX rendering, and visual explanations.
+                </p>
+              </div>
+
+              {/* Feature 3 */}
+              <div class="p-6 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors">
+                <div class="text-4xl mb-4">🌍</div>
+                <h4 id="feature3-title" class="text-xl font-semibold mb-3 text-gray-900">
+                  Multilingual Support
+                </h4>
+                <p id="feature3-desc" class="text-gray-600">
+                  Learn in Slovenian, English, or Italian. Switch languages anytime to match your preference.
+                </p>
+              </div>
+
+              {/* Feature 4 */}
+              <div class="p-6 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors">
+                <div class="text-4xl mb-4">🧮</div>
+                <h4 id="feature4-title" class="text-xl font-semibold mb-3 text-gray-900">
+                  Comprehensive Topics
+                </h4>
+                <p id="feature4-desc" class="text-gray-600">
+                  From basic arithmetic to advanced calculus. Algebra, geometry, functions, derivatives, and more.
+                </p>
+              </div>
+
+              {/* Feature 5 */}
+              <div class="p-6 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors">
+                <div class="text-4xl mb-4">💡</div>
+                <h4 id="feature5-title" class="text-xl font-semibold mb-3 text-gray-900">
+                  Instant Solutions
+                </h4>
+                <p id="feature5-desc" class="text-gray-600">
+                  Get detailed explanations instantly. See every step of the solution process with clear reasoning.
+                </p>
+              </div>
+
+              {/* Feature 6 */}
+              <div class="p-6 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors">
+                <div class="text-4xl mb-4">📱</div>
+                <h4 id="feature6-title" class="text-xl font-semibold mb-3 text-gray-900">
+                  Mobile Friendly
+                </h4>
+                <p id="feature6-desc" class="text-gray-600">
+                  Learn anywhere, anytime. Fully responsive design optimized for phones, tablets, and desktops.
+                </p>
+              </div>
+
+              {/* Feature 7 - Try Demo */}
+              <div class="p-6 rounded-xl border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-purple-50 hover:shadow-lg transition-all cursor-pointer md:col-span-3">
+                <a href="/demo" class="block">
+                  <div class="flex items-center justify-center gap-4">
+                    <div class="text-5xl">🎯</div>
+                    <div>
+                      <h4 id="demo-title" class="text-2xl font-bold mb-2 text-blue-900">
+                        Try Interactive Demo
+                      </h4>
+                      <p id="demo-desc" class="text-gray-700">
+                        See Pluto.si in action! Experience step-by-step problem solving with our interactive demonstration.
+                      </p>
+                    </div>
+                    <div class="text-blue-600 text-3xl">→</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-purple-600">
+          <div class="max-w-4xl mx-auto text-center">
+            <h3 id="cta-title" class="text-4xl font-bold text-white mb-6">
+              Ready to Excel in Math?
+            </h3>
+            <p id="cta-subtitle" class="text-xl text-blue-100 mb-8">
+              Join thousands of students improving their math skills with AI-powered tutoring.
+            </p>
+            <a 
+              href="/auth/register" 
+              id="cta-button"
+              class="inline-block px-8 py-4 bg-white text-blue-600 hover:bg-gray-100 text-lg font-semibold rounded-xl transition-colors shadow-lg"
+            >
+              Get Started Now
+            </a>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer class="py-8 px-4 sm:px-6 lg:px-8 bg-gray-900 text-gray-400 text-center">
+          <p>© 2025 Pluto.si - AI Math Tutor</p>
+        </footer>
+
+        {/* Language Detection & Translation Script */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (async function() {
+            const translations = {
+              sl: {
+                login: "Prijava",
+                register: "Registriraj se",
+                heroTitle: "Obvladaj matematiko z AI",
+                heroSubtitle: "Personalizirano matematično tutorstvo s pomočjo umetne inteligence. Progresivna težavnost, koraki rešitev in takojšnja povratna informacija.",
+                heroCta: "Začni se učiti brezplačno",
+                trialText: "3-dnevno brezplačno preizkusno obdobje • Kreditna kartica ni potrebna",
+                featuresTitle: "Zakaj izbrati Pluto.si?",
+                feature1Title: "Progresivna težavnost",
+                feature1Desc: "Začni enostavno in postopoma povečuj težavnost. Naš AI se prilagaja tvojemu nivoju znanja s 5 stopnjami težavnosti.",
+                feature2Title: "Vizualno učenje",
+                feature2Desc: "Interaktivni grafi, koraki rešitev z LaTeX renderingom in vizualne razlage.",
+                feature3Title: "Večjezična podpora",
+                feature3Desc: "Uči se v slovenščini, angleščini ali italijanščini. Spremeni jezik kadarkoli.",
+                feature4Title: "Obsežne teme",
+                feature4Desc: "Od osnovne aritmetike do naprednega računanja. Algebra, geometrija, funkcije, odvodi in več.",
+                feature5Title: "Takojšnje rešitve",
+                feature5Desc: "Pridobi podrobne razlage takoj. Vidi vsak korak rešitve z jasnim razmišljanjem.",
+                feature6Title: "Mobilno prijazen",
+                feature6Desc: "Uči se kjerkoli, kadarkoli. Popolnoma odziven dizajn optimiziran za telefone, tablice in namizne računalnike.",
+                demoTitle: "Preizkusi interaktivni demo",
+                demoDesc: "Poglej Pluto.si v akciji! Doživite reševanje problemov korak-po-korak z našo interaktivno demonstracijo.",
+                ctaTitle: "Pripravljen izstopati v matematiki?",
+                ctaSubtitle: "Pridruži se tisočim študentov, ki izboljšujejo svoje matematične veščine z AI tutorstvom.",
+                ctaButton: "Začni zdaj"
+              },
+              en: {
+                login: "Login",
+                register: "Register now",
+                heroTitle: "Master Mathematics with AI",
+                heroSubtitle: "Personalized math tutoring powered by artificial intelligence. Progressive difficulty, step-by-step solutions, and instant feedback.",
+                heroCta: "Start Learning Free",
+                trialText: "3-day free trial • No credit card required",
+                featuresTitle: "Why Choose Pluto.si?",
+                feature1Title: "Progressive Difficulty",
+                feature1Desc: "Start easy and gradually increase difficulty. Our AI adapts to your skill level with 5 difficulty tiers.",
+                feature2Title: "Visual Learning",
+                feature2Desc: "Interactive graphs, step-by-step solutions with LaTeX rendering, and visual explanations.",
+                feature3Title: "Multilingual Support",
+                feature3Desc: "Learn in Slovenian, English, or Italian. Switch languages anytime to match your preference.",
+                feature4Title: "Comprehensive Topics",
+                feature4Desc: "From basic arithmetic to advanced calculus. Algebra, geometry, functions, derivatives, and more.",
+                feature5Title: "Instant Solutions",
+                feature5Desc: "Get detailed explanations instantly. See every step of the solution process with clear reasoning.",
+                feature6Title: "Mobile Friendly",
+                feature6Desc: "Learn anywhere, anytime. Fully responsive design optimized for phones, tablets, and desktops.",
+                demoTitle: "Try Interactive Demo",
+                demoDesc: "See Pluto.si in action! Experience step-by-step problem solving with our interactive demonstration.",
+                ctaTitle: "Ready to Excel in Math?",
+                ctaSubtitle: "Join thousands of students improving their math skills with AI-powered tutoring.",
+                ctaButton: "Get Started Now"
+              },
+              it: {
+                login: "Accedi",
+                register: "Registrati ora",
+                heroTitle: "Padroneggia la Matematica con l'AI",
+                heroSubtitle: "Tutoraggio matematico personalizzato alimentato dall'intelligenza artificiale. Difficoltà progressiva, soluzioni passo-passo e feedback istantaneo.",
+                heroCta: "Inizia a Imparare Gratis",
+                trialText: "Prova gratuita di 3 giorni • Nessuna carta di credito richiesta",
+                featuresTitle: "Perché scegliere Pluto.si?",
+                feature1Title: "Difficoltà Progressiva",
+                feature1Desc: "Inizia facilmente e aumenta gradualmente la difficoltà. La nostra AI si adatta al tuo livello con 5 livelli di difficoltà.",
+                feature2Title: "Apprendimento Visivo",
+                feature2Desc: "Grafici interattivi, soluzioni passo-passo con rendering LaTeX e spiegazioni visive.",
+                feature3Title: "Supporto Multilingue",
+                feature3Desc: "Impara in sloveno, inglese o italiano. Cambia lingua in qualsiasi momento.",
+                feature4Title: "Argomenti Completi",
+                feature4Desc: "Dall'aritmetica di base al calcolo avanzato. Algebra, geometria, funzioni, derivate e altro.",
+                feature5Title: "Soluzioni Istantanee",
+                feature5Desc: "Ottieni spiegazioni dettagliate istantaneamente. Vedi ogni passaggio del processo di soluzione con ragionamento chiaro.",
+                feature6Title: "Mobile Friendly",
+                feature6Desc: "Impara ovunque, in qualsiasi momento. Design completamente responsive ottimizzato per telefoni, tablet e desktop.",
+                demoTitle: "Prova la Demo Interattiva",
+                demoDesc: "Vedi Pluto.si in azione! Sperimenta la risoluzione dei problemi passo-passo con la nostra dimostrazione interattiva.",
+                ctaTitle: "Pronto a Eccellere in Matematica?",
+                ctaSubtitle: "Unisciti a migliaia di studenti che migliorano le loro abilità matematiche con il tutoraggio AI.",
+                ctaButton: "Inizia Ora"
               }
-            });
-          }
-        })();
-      `}} />
-    </div>
+            };
+
+            // Detect language (IP-based geolocation + browser fallback)
+            let detectedLang = 'en'; // default
+            
+            // Try IP-based geolocation first
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 2000);
+              const geoResponse = await fetch('https://ipapi.co/json/', { signal: controller.signal });
+              clearTimeout(timeoutId);
+              
+              if (geoResponse.ok) {
+                const geoData = await geoResponse.json();
+                const countryCode = geoData.country_code; // e.g., "SI", "IT", "US"
+                
+                if (countryCode === 'SI') {
+                  detectedLang = 'sl';
+                } else if (countryCode === 'IT') {
+                  detectedLang = 'it';
+                } else {
+                  detectedLang = 'en';
+                }
+                console.log('Language detected by IP:', detectedLang, '(Country:', countryCode, ')');
+              } else {
+                throw new Error('Geolocation API failed');
+              }
+            } catch (error) {
+              // Fallback to browser language
+              console.log('IP geolocation failed, using browser language');
+              const browserLang = navigator.language || navigator.userLanguage;
+              
+              if (browserLang.startsWith('sl')) {
+                detectedLang = 'sl';
+              } else if (browserLang.startsWith('it')) {
+                detectedLang = 'it';
+              }
+            }
+
+            // Apply translations
+            const t = translations[detectedLang];
+            
+            document.getElementById('login-btn').textContent = t.login;
+            document.getElementById('register-btn').textContent = t.register;
+            document.getElementById('hero-title').textContent = t.heroTitle;
+            document.getElementById('hero-subtitle').textContent = t.heroSubtitle;
+            document.getElementById('hero-cta').textContent = t.heroCta;
+            document.getElementById('trial-text').textContent = t.trialText;
+            document.getElementById('features-title').textContent = t.featuresTitle;
+            document.getElementById('feature1-title').textContent = t.feature1Title;
+            document.getElementById('feature1-desc').textContent = t.feature1Desc;
+            document.getElementById('feature2-title').textContent = t.feature2Title;
+            document.getElementById('feature2-desc').textContent = t.feature2Desc;
+            document.getElementById('feature3-title').textContent = t.feature3Title;
+            document.getElementById('feature3-desc').textContent = t.feature3Desc;
+            document.getElementById('feature4-title').textContent = t.feature4Title;
+            document.getElementById('feature4-desc').textContent = t.feature4Desc;
+            document.getElementById('feature5-title').textContent = t.feature5Title;
+            document.getElementById('feature5-desc').textContent = t.feature5Desc;
+            document.getElementById('feature6-title').textContent = t.feature6Title;
+            document.getElementById('feature6-desc').textContent = t.feature6Desc;
+            document.getElementById('demo-title').textContent = t.demoTitle;
+            document.getElementById('demo-desc').textContent = t.demoDesc;
+            document.getElementById('cta-title').textContent = t.ctaTitle;
+            document.getElementById('cta-subtitle').textContent = t.ctaSubtitle;
+            document.getElementById('cta-button').textContent = t.ctaButton;
+
+            // Store detected language for app
+            localStorage.setItem('pluto-lang', detectedLang);
+          })();
+        ` }} />
+      </div>
+    </>
   );
 });
 
-function EmptyWelcome() {
-  return (
-    <div class="text-center text-gray-500 pt-16">
-      <p class="text-lg mb-2">Pozdravljeni v pomočniku za matematiko.</p>
-      <p class="text-sm">Na dnu je tipkovnica za matematične simbole in funkcije.</p>
-    </div>
-  );
-}

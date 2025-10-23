@@ -37,7 +37,7 @@ export default define.page(function Settings(props) {
             <h1 id="settings-title" class="text-2xl font-bold text-gray-900">⚙️ Nastavitve računa</h1>
             <a 
               id="back-link"
-              href="/" 
+              href="/app" 
               class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
             >
               ← Nazaj na chat
