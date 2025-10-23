@@ -33,6 +33,7 @@ export default define.page(function DemoPage() {
           <div class="max-w-4xl mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold text-gray-900">🚀 Pluto.si Demo</h1>
             <a 
+              id="back-link"
               href="/" 
               class="px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors"
             >
@@ -45,8 +46,8 @@ export default define.page(function DemoPage() {
         <div class="flex-1 flex items-center justify-center p-4">
           <div class="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden">
             <div class="border-b border-gray-200 px-6 py-4 bg-gradient-to-r from-blue-50 to-purple-50">
-              <h2 class="text-xl font-semibold text-gray-800">Welcome to Pluto.si 🚀</h2>
-              <p class="text-sm text-gray-600 mt-1">Your personal AI math tutor</p>
+              <h2 id="demo-header-title" class="text-xl font-semibold text-gray-800">Welcome to Pluto.si 🚀</h2>
+              <p id="demo-header-subtitle" class="text-sm text-gray-600 mt-1">Your personal AI math tutor</p>
             </div>
             
             <div id="demo-chat" class="p-6 space-y-4 max-h-[600px] overflow-y-auto">
@@ -75,10 +76,11 @@ export default define.page(function DemoPage() {
             </div>
             
             <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 text-center">
-              <p class="text-sm text-gray-700 mb-3">
+              <p id="cta-text" class="text-sm text-gray-700 mb-3">
                 ✨ Ready to start learning?
               </p>
               <a 
+                id="cta-button"
                 href="/auth/register" 
                 class="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
               >
@@ -90,7 +92,63 @@ export default define.page(function DemoPage() {
 
         {/* Demo Animation Script */}
         <script dangerouslySetInnerHTML={{ __html: `
-          const introText = \`Hello! 👋
+          // Get language from localStorage (set by landing page)
+          const lang = localStorage.getItem('pluto-lang') || 'en';
+          
+          const translations = {
+            sl: {
+              backLink: '← Nazaj',
+              headerTitle: 'Dobrodošli v Pluto.si 🚀',
+              headerSubtitle: 'Vaš osebni AI matematični tutor',
+              ctaText: '✨ Pripravljeni začeti učenje?',
+              ctaButton: 'Registriraj se zdaj - Brezplačno preizkusno obdobje',
+              introText: \`Pozdravljeni! 👋
+
+Pluto.si je vaš osebni matematični asistent, zasnovan za učence in dijake, ki želijo **izboljšati svoje razumevanje matematike** in dosegati **boljše rezultate**.
+
+**Kaj vam ponujamo:**
+
+✓ **Korak-po-korak razlage** – Vsak problem rešujemo sistematično, da razumete *zakaj* in ne samo *kako*.
+
+✓ **Podpora za vsa področja** – Od osnovne algebre do integralov in diferenciala.
+
+✓ **Interaktivna tipkovnica** – Enostavno vstavljanje matematičnih simbolov in formul.
+
+✓ **Vizualizacije grafov** – Prikaz funkcij za boljše razumevanje.
+
+✓ **Večjezična podpora** – Slovenščina, angleščina in italijanščina.
+
+**Oglejmo si primer:**\`,
+              problem: 'Reši enačbo: 3x + 5 = 20',
+              solution: \`**Reševanje linearne enačbe**
+
+**Korak 1:** Odštejemo 5 z obeh strani
+\\\\[
+3x + 5 - 5 = 20 - 5
+\\\\]
+\\\\[
+3x = 15
+\\\\]
+
+**Korak 2:** Delimo z 3
+\\\\[
+\\\\frac{3x}{3} = \\\\frac{15}{3}
+\\\\]
+\\\\[
+x = 5
+\\\\]
+
+**Rešitev:** x = 5
+
+✅ Preverimo: 3(5) + 5 = 15 + 5 = 20 ✓\`
+            },
+            en: {
+              backLink: '← Back',
+              headerTitle: 'Welcome to Pluto.si 🚀',
+              headerSubtitle: 'Your personal AI math tutor',
+              ctaText: '✨ Ready to start learning?',
+              ctaButton: 'Register Now - Free Trial',
+              introText: \`Hello! 👋
 
 Pluto.si is your personal mathematics assistant, designed to help you **improve your understanding** and **achieve better results**.
 
@@ -106,11 +164,9 @@ Pluto.si is your personal mathematics assistant, designed to help you **improve 
 
 ✓ **Multilingual support** – Slovenian, English, and Italian.
 
-**Let's see an example:**\`;
-
-          const demoProblem = 'Solve the equation: 3x + 5 = 20';
-
-          const demoSolution = \`**Solving a Linear Equation**
+**Let's see an example:**\`,
+              problem: 'Solve the equation: 3x + 5 = 20',
+              solution: \`**Solving a Linear Equation**
 
 **Step 1:** Subtract 5 from both sides
 \\\\[
@@ -130,7 +186,68 @@ x = 5
 
 **Solution:** x = 5
 
-✅ We can verify: 3(5) + 5 = 15 + 5 = 20 ✓\`;
+✅ We can verify: 3(5) + 5 = 15 + 5 = 20 ✓\`
+            },
+            it: {
+              backLink: '← Indietro',
+              headerTitle: 'Benvenuto a Pluto.si 🚀',
+              headerSubtitle: 'Il tuo tutor di matematica AI personale',
+              ctaText: '✨ Pronto per iniziare a imparare?',
+              ctaButton: 'Registrati Ora - Prova Gratuita',
+              introText: \`Ciao! 👋
+
+Pluto.si è il tuo assistente matematico personale, progettato per aiutarti a **migliorare la tua comprensione** e **ottenere risultati migliori**.
+
+**Cosa offriamo:**
+
+✓ **Spiegazioni passo-passo** – Risolviamo ogni problema sistematicamente così capisci il *perché*, non solo il *come*.
+
+✓ **Supporto per tutti gli argomenti** – Dall'algebra di base agli integrali e al calcolo.
+
+✓ **Tastiera interattiva** – Inserimento facile di simboli matematici e formule.
+
+✓ **Visualizzazioni grafiche** – Visualizza funzioni per una migliore comprensione.
+
+✓ **Supporto multilingue** – Sloveno, inglese e italiano.
+
+**Vediamo un esempio:**\`,
+              problem: 'Risolvi l\\'equazione: 3x + 5 = 20',
+              solution: \`**Risoluzione di un'Equazione Lineare**
+
+**Passo 1:** Sottraiamo 5 da entrambi i lati
+\\\\[
+3x + 5 - 5 = 20 - 5
+\\\\]
+\\\\[
+3x = 15
+\\\\]
+
+**Passo 2:** Dividiamo per 3
+\\\\[
+\\\\frac{3x}{3} = \\\\frac{15}{3}
+\\\\]
+\\\\[
+x = 5
+\\\\]
+
+**Soluzione:** x = 5
+
+✅ Possiamo verificare: 3(5) + 5 = 15 + 5 = 20 ✓\`
+            }
+          };
+          
+          const t = translations[lang];
+          
+          // Apply translations to static elements
+          document.getElementById('back-link').textContent = t.backLink;
+          document.getElementById('demo-header-title').textContent = t.headerTitle;
+          document.getElementById('demo-header-subtitle').textContent = t.headerSubtitle;
+          document.getElementById('cta-text').textContent = t.ctaText;
+          document.getElementById('cta-button').textContent = t.ctaButton;
+          
+          const introText = t.introText;
+          const demoProblem = t.problem;
+          const demoSolution = t.solution;
 
           let typedIntro = '';
           let typedSolution = '';
