@@ -7,6 +7,8 @@ export type ChatMessage = {
   topic?: string;
   difficulty?: number;
   isExercise?: boolean;
+  imageUrl?: string;
+  fileName?: string;
 };
 
 export default function Messages(props: { items: ChatMessage[] }) {
@@ -298,6 +300,21 @@ export default function Messages(props: { items: ChatMessage[] }) {
                   <span class="text-xs text-gray-500">
                     {m.topic}
                   </span>
+                )}
+              </div>
+            )}
+            
+            {/* Image preview for uploaded images */}
+            {m.imageUrl && (
+              <div class="mb-3">
+                <img 
+                  src={m.imageUrl} 
+                  alt={m.fileName || "Uploaded image"} 
+                  class="max-w-full h-auto rounded-lg border border-gray-200 shadow-sm"
+                  style="max-height: 400px; object-fit: contain;"
+                />
+                {m.fileName && (
+                  <p class="text-xs text-gray-500 mt-1">📎 {m.fileName}</p>
                 )}
               </div>
             )}

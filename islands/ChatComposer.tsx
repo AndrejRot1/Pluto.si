@@ -5,11 +5,13 @@ type KeyboardCategory = { id: string; label: string; keys: KeyboardKey[] };
 
 export default function ChatComposer() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
   const [expanded, setExpanded] = useState(true);
   const [activeCat, setActiveCat] = useState<string>("osnovno");
   const [isDragging, setIsDragging] = useState(false);
   const [lang, setLang] = useState<'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro'>('sl');
+  const [uploading, setUploading] = useState(false);
   const [template, setTemplate] = useState<
     | { type: "integral-def" | "integral-indef" }
     | { type: "power" }
@@ -60,6 +62,60 @@ export default function ChatComposer() {
     if (!textarea) return;
     textarea.style.height = "auto";
     textarea.style.height = Math.min(textarea.scrollHeight, 220) + "px";
+  }
+
+  async function handleImageDrop(files: File[]) {
+    const imageFiles = files.filter(f => f.type.startsWith('image/'));
+    if (imageFiles.length === 0) return;
+
+    setUploading(true);
+
+    for (const file of imageFiles) {
+      try {
+        // Convert image to base64 for preview
+        const reader = new FileReader();
+        const base64Promise = new Promise<string>((resolve) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+        const base64 = await base64Promise;
+
+        // Send image to OCR endpoint
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('language', lang);
+
+        const response = await fetch('/api/ocr', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('OCR failed');
+        }
+
+        const data = await response.json();
+        const extractedText = data.text || '';
+
+        console.log('OCR extracted:', extractedText);
+
+        // Dispatch custom event with image and extracted text
+        const event = new CustomEvent('pluto-image-upload', {
+          detail: {
+            imageUrl: base64,
+            text: extractedText,
+            fileName: file.name
+          }
+        });
+        globalThis.dispatchEvent(event);
+
+      } catch (error) {
+        console.error('Image processing error:', error);
+        alert('Failed to process image. Please try again.');
+      }
+    }
+
+    setUploading(false);
   }
 
   const translations = {
@@ -130,7 +186,7 @@ export default function ChatComposer() {
 
   return (
     <div
-      class={`rounded-xl p-2 bg-white/80 shadow ${isDragging ? "ring-2 ring-blue-400" : ""}`}
+      class={`relative rounded-xl p-2 bg-white/80 shadow ${isDragging ? "ring-2 ring-blue-400" : ""} ${uploading ? "opacity-50 pointer-events-none" : ""}`}
       onDragOver={(e) => {
         e.preventDefault();
         if (!isDragging) setIsDragging(true);
@@ -146,12 +202,23 @@ export default function ChatComposer() {
           insertAtCaret(text);
         }
         if (dt.files && dt.files.length > 0) {
-          const list = Array.from(dt.files).slice(0, 4);
-          const labels = list.map((f) => `[${t.attachment}: ${f.name}]`).join(" ");
-          insertAtCaret(labels + (labels ? " " : ""));
+          const files = Array.from(dt.files);
+          handleImageDrop(files);
         }
       }}
     >
+      {uploading && (
+        <div class="absolute inset-0 flex items-center justify-center bg-white/50 rounded-xl z-10">
+          <div class="flex items-center gap-2">
+            <div class="flex gap-1">
+              <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+              <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+              <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+            </div>
+            <span class="text-sm text-gray-700">Processing image...</span>
+          </div>
+        </div>
+      )}
       <textarea
         ref={textareaRef}
         class="w-full resize-none outline-none bg-transparent p-3 rounded text-sm leading-6 placeholder:text-gray-400"
@@ -244,14 +311,28 @@ export default function ChatComposer() {
           )}
         </div>
         <div class="flex items-center gap-1 sm:gap-2">
+          <input 
+            ref={fileInputRef}
+            type="file" 
+            accept="image/*" 
+            multiple
+            class="hidden"
+            onChange={(e) => {
+              const input = e.target as HTMLInputElement;
+              if (input.files && input.files.length > 0) {
+                const files = Array.from(input.files);
+                handleImageDrop(files);
+                input.value = ''; // Reset input
+              }
+            }}
+          />
           <button
             type="button"
             class="p-2 rounded-lg hover:bg-gray-100 min-h-[44px] min-w-[44px]"
             aria-label={t.attachment}
             title={t.attachment}
             onClick={() => {
-              const name = globalThis.prompt?.("Filename (e.g., image.jpg)") || "file";
-              insertAtCaret(`[${t.attachment}: ${name}] `);
+              fileInputRef.current?.click();
             }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-gray-700">

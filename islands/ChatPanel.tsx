@@ -17,6 +17,8 @@ export type ExtendedChatMessage = ChatMessage & {
   topic?: string;
   difficulty?: number;
   isExercise?: boolean;
+  imageUrl?: string;
+  fileName?: string;
 };
 
 export default function ChatPanel() {
@@ -128,6 +130,57 @@ export default function ChatPanel() {
     setThinking(isLoading);
   }
 
+  async function handleImageUpload(data: { imageUrl: string; text: string; fileName: string }) {
+    // Add user message with image
+    const userMsg: ExtendedChatMessage = {
+      id: Date.now(),
+      role: "user",
+      content: data.text || "Please solve this math problem from the image:",
+      imageUrl: data.imageUrl,
+      fileName: data.fileName
+    };
+    setMessages((m) => [...m, userMsg]);
+    setThinking(true);
+
+    // Send extracted text to DeepSeek
+    try {
+      const language = localStorage.getItem('pluto-lang') || 'sl';
+      const prompt = data.text 
+        ? `Solve this math problem: ${data.text}` 
+        : "Please analyze the math problem in the image and provide a solution.";
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: prompt, language }),
+      });
+
+      if (!res.ok) {
+        throw new Error("API error");
+      }
+
+      const resData = await res.json();
+      const assistantMsg: ExtendedChatMessage = { 
+        id: Date.now() + 1, 
+        role: "assistant", 
+        content: resData.reply 
+      };
+      setMessages((m) => [...m, assistantMsg]);
+      setThinking(false);
+    } catch (error) {
+      console.error("Error processing image:", error);
+      setThinking(false);
+      setMessages((m) => [
+        ...m,
+        { 
+          id: Date.now() + 1, 
+          role: "assistant", 
+          content: "Sorry, I couldn't process the image. Please try again." 
+        }
+      ]);
+    }
+  }
+
   return (
     <div class="flex-1 flex flex-col h-full">
       {/* Scrollable messages area */}
@@ -169,6 +222,7 @@ export default function ChatPanel() {
         onClear={handleClear} 
         onExerciseResponse={handleExerciseResponse}
         onExerciseLoading={handleExerciseLoading}
+        onImageUpload={handleImageUpload}
       />
     </div>
   );
@@ -180,6 +234,7 @@ function ComposerBridge(props: {
   onClear: () => void;
   onExerciseResponse?: (data: { content: string; topic?: string; difficulty?: number; isExercise?: boolean }) => void;
   onExerciseLoading?: (isLoading: boolean) => void;
+  onImageUpload?: (data: { imageUrl: string; text: string; fileName: string }) => void;
 }) {
   useEffect(() => {
     function onSendEvt(e: Event) {
@@ -205,17 +260,26 @@ function ComposerBridge(props: {
         props.onExerciseLoading(ce.detail);
       }
     }
+    function onImageUploadEvt(e: Event) {
+      const ce = e as CustomEvent<{ imageUrl: string; text: string; fileName: string }>;
+      console.log('Received pluto-image-upload event:', ce.detail);
+      if (props.onImageUpload) {
+        props.onImageUpload(ce.detail);
+      }
+    }
     globalThis.addEventListener("pluto-send", onSendEvt as EventListener);
     globalThis.addEventListener("pluto-clear", onClearEvt as EventListener);
     globalThis.addEventListener("pluto-exercise-response", onExerciseResponseEvt as EventListener);
     globalThis.addEventListener("pluto-exercise-loading", onExerciseLoadingEvt as EventListener);
+    globalThis.addEventListener("pluto-image-upload", onImageUploadEvt as EventListener);
     return () => {
       globalThis.removeEventListener("pluto-send", onSendEvt as EventListener);
       globalThis.removeEventListener("pluto-clear", onClearEvt as EventListener);
       globalThis.removeEventListener("pluto-exercise-response", onExerciseResponseEvt as EventListener);
       globalThis.removeEventListener("pluto-exercise-loading", onExerciseLoadingEvt as EventListener);
+      globalThis.removeEventListener("pluto-image-upload", onImageUploadEvt as EventListener);
     };
-  }, [props.onSend, props.onClear, props.onExerciseResponse, props.onExerciseLoading]);
+  }, [props.onSend, props.onClear, props.onExerciseResponse, props.onExerciseLoading, props.onImageUpload]);
   return null;
 }
 
