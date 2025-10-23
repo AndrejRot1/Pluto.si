@@ -9,7 +9,7 @@ export default define.page(function Home(props) {
     <div class="h-screen bg-gray-50 flex">
       <Head>
         <title>Pluto.si • Pogovorni asistent za matematiko</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       
       {/* Fixed sidebar - hidden on mobile */}

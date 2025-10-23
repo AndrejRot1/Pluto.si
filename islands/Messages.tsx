@@ -125,27 +125,27 @@ export default function Messages(props: { items: ChatMessage[] }) {
   }
 
   return (
-    <div id="messages" class="max-w-3xl mx-auto space-y-4">
+    <div id="messages" class="max-w-3xl mx-auto space-y-3 sm:space-y-4">
       {props.items.map((m) => (
-        <div class={m.role === "user" ? "bg-white/90 rounded-xl p-3" : "bg-gray-50 rounded-xl p-3"}>
-          <div class="prose prose-sm max-w-none">
+        <div class={m.role === "user" ? "bg-white/90 rounded-xl p-3 sm:p-4" : "bg-gray-50 rounded-xl p-3 sm:p-4"}>
+          <div class="prose prose-sm max-w-none text-sm sm:text-base">
             {parseContent(m.content).map((part, idx) => {
               if (part.type === 'graph') {
                 return (
                   <div 
                     key={idx}
-                    class="graph-container my-4 w-full max-w-full overflow-x-auto" 
+                    class="graph-container my-3 sm:my-4 w-full max-w-full overflow-x-auto" 
                     data-function={part.content}
-                    style="height: min(400px, 50vh);"
+                    style="height: min(300px, 40vh); max-height: 400px;"
                   />
                 );
               } else if (part.type === 'math') {
                 return (
-                  <span key={idx} class="math-inline">{part.content}</span>
+                  <span key={idx} class="math-inline text-sm sm:text-base">{part.content}</span>
                 );
               } else {
                 return (
-                  <span key={idx} class="whitespace-pre-wrap">{part.content}</span>
+                  <span key={idx} class="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{part.content}</span>
                 );
               }
             })}

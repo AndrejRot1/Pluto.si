@@ -153,7 +153,7 @@ export default function ChatComposer() {
               <button
                 type="button"
                 class={
-                  "px-3 py-1 text-xs rounded-full " +
+                  "px-2 sm:px-3 py-1 text-xs rounded-full whitespace-nowrap " +
                   (activeCat === c.id
                     ? "bg-gray-900 text-white"
                     : "text-gray-700 hover:bg-gray-100")
@@ -165,7 +165,7 @@ export default function ChatComposer() {
             ))}
             <button
               type="button"
-              class="ml-auto px-2 py-1 text-xs rounded-full hover:bg-gray-100"
+              class="ml-auto px-2 py-1 text-xs rounded-full hover:bg-gray-100 whitespace-nowrap"
               onClick={() => setExpanded((v) => !v)}
               aria-pressed={expanded}
             >
@@ -179,7 +179,7 @@ export default function ChatComposer() {
                 .keys.map((k) => (
                   <button
                     type="button"
-                    class="px-2 py-1 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 active:scale-[0.98] transition"
+                    class="px-2 py-1 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 active:scale-[0.98] transition min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center"
                     onClick={() => {
                       if (k.insert === "__TEMPLATE_INTEGRAL_DEF__") {
                         setTemplate({ type: "integral-def" });
@@ -214,10 +214,10 @@ export default function ChatComposer() {
             </div>
           )}
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1 sm:gap-2">
           <button
             type="button"
-            class="p-2 rounded-lg hover:bg-gray-100"
+            class="p-2 rounded-lg hover:bg-gray-100 min-h-[44px] min-w-[44px]"
             aria-label="Vstavi priponko"
             title="Vstavi priponko"
             onClick={() => {
@@ -229,20 +229,22 @@ export default function ChatComposer() {
               <path d="M16.5 6.75v7.5a4.5 4.5 0 1 1-9 0v-9a3 3 0 1 1 6 0v8.25a1.5 1.5 0 1 1-3 0V7.5h-1.5v6.75a3 3 0 1 0 6 0v-8.25a4.5 4.5 0 1 0-9 0v9a6 6 0 1 0 12 0v-7.5h-1.5z"/>
             </svg>
           </button>
-          <button type="button" class="px-3 py-1.5 bg-black text-white rounded-lg text-sm shadow hover:bg-gray-900" onClick={() => {
+          <button type="button" class="px-3 sm:px-4 py-2 bg-black text-white rounded-lg text-sm shadow hover:bg-gray-900 min-h-[44px] font-medium" onClick={() => {
             const text = value.trim();
             if (!text) return;
             const evt = new CustomEvent("pluto-send", { detail: text });
             globalThis.dispatchEvent(evt);
             setValue("");
           }}>
-            Pošlji
+            <span class="hidden sm:inline">Pošlji</span>
+            <span class="sm:hidden">↑</span>
           </button>
-          <button type="button" class="px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg text-sm shadow hover:bg-gray-300" onClick={() => {
+          <button type="button" class="px-3 sm:px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm shadow hover:bg-gray-300 min-h-[44px]" onClick={() => {
             const evt = new CustomEvent("pluto-clear");
             globalThis.dispatchEvent(evt);
           }}>
-            Izbriši
+            <span class="hidden sm:inline">Izbriši</span>
+            <span class="sm:hidden">🗑️</span>
           </button>
         </div>
       </div>

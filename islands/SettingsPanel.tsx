@@ -290,9 +290,9 @@ export default function SettingsPanel(props: {
   }
 
   return (
-    <div class="max-w-3xl mx-auto px-6 py-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* Account Info */}
-      <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 p-8 mb-6">
+      <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 p-4 sm:p-8 mb-4 sm:mb-6">
         <div class="flex items-center gap-3 mb-6">
           <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 flex items-center justify-center text-white text-xl font-bold shadow-lg">
             {user.email[0]?.toUpperCase() || 'U'}
@@ -346,7 +346,7 @@ export default function SettingsPanel(props: {
 
       {/* Subscription Management */}
       {!isActive && (
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl shadow-xl p-8 mb-6">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl shadow-xl p-4 sm:p-8 mb-4 sm:mb-6">
           <div class="flex items-center gap-2 mb-4">
             <span class="text-2xl">✨</span>
             <h2 class="text-lg font-bold text-gray-900">{t.upgradeTitle}</h2>
@@ -383,7 +383,7 @@ export default function SettingsPanel(props: {
       )}
 
       {isActive && (
-        <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 p-8 mb-6">
+        <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 p-4 sm:p-8 mb-4 sm:mb-6">
           <div class="flex items-center gap-2 mb-4">
             <span class="text-2xl">💳</span>
             <h2 class="text-lg font-bold text-gray-900">{t.manageSubscription}</h2>
@@ -408,7 +408,7 @@ export default function SettingsPanel(props: {
       )}
 
       {/* Change Password */}
-      <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 p-8 mb-6">
+      <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 p-4 sm:p-8 mb-4 sm:mb-6">
         <div class="flex items-center gap-2 mb-4">
           <span class="text-2xl">🔑</span>
           <h2 class="text-lg font-bold text-gray-900">{t.changePassword}</h2>
@@ -425,7 +425,7 @@ export default function SettingsPanel(props: {
       </div>
 
       {/* Logout */}
-      <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 p-8 mb-6">
+      <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 p-4 sm:p-8 mb-4 sm:mb-6">
         <div class="flex items-center gap-2 mb-4">
           <span class="text-2xl">🚪</span>
           <h2 class="text-lg font-bold text-gray-900">{t.logout}</h2>
@@ -442,7 +442,7 @@ export default function SettingsPanel(props: {
       </div>
 
       {/* Delete Account */}
-      <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-red-300 p-8">
+      <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-red-300 p-4 sm:p-8">
         <div class="flex items-center gap-2 mb-4">
           <span class="text-2xl">⚠️</span>
           <h2 class="text-lg font-bold text-gray-900">{t.dangerZone}</h2>

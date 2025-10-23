@@ -89,7 +89,7 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 font-medium min-h-[48px]"
           >
             {loading ? 'Prijavljanje...' : 'Prijava'}
           </button>

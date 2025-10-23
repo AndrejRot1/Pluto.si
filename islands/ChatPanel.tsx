@@ -105,21 +105,21 @@ export default function ChatPanel() {
       <div ref={scrollerRef} class="flex-1 overflow-y-auto bg-white">
         <div class="max-w-3xl mx-auto">
           {messages.length === 0 ? (
-            <div class="text-center text-gray-500 pt-16 px-4">
-              <p class="text-lg mb-2">Pozdravljeni v pomočniku za matematiko.</p>
-              <p class="text-sm">Na dnu je tipkovnica za matematične simbole in funkcije.</p>
+            <div class="text-center text-gray-500 pt-12 sm:pt-16 px-4">
+              <p class="text-base sm:text-lg mb-2">Pozdravljeni v pomočniku za matematiko.</p>
+              <p class="text-xs sm:text-sm">Na dnu je tipkovnica za matematične simbole in funkcije.</p>
             </div>
           ) : (
-            <div class="px-4 py-4">
+            <div class="px-3 sm:px-4 py-3 sm:py-4">
               <Messages items={messages} />
               {thinking && (
-                <div class="bg-gray-50 rounded-xl p-4 mt-4 flex items-center gap-3">
+                <div class="bg-gray-50 rounded-xl p-3 sm:p-4 mt-3 sm:mt-4 flex items-center gap-3">
                   <div class="flex gap-1">
                     <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
                     <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
                     <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
                   </div>
-                  <span class="text-sm text-gray-600">{thinkingText[lang]}</span>
+                  <span class="text-xs sm:text-sm text-gray-600">{thinkingText[lang]}</span>
                 </div>
               )}
             </div>
@@ -128,7 +128,7 @@ export default function ChatPanel() {
       </div>
       
         {/* Fixed input area */}
-        <div class="bg-white p-4 flex-shrink-0">
+        <div class="bg-white p-2 sm:p-4 flex-shrink-0">
           <div class="max-w-3xl mx-auto">
             <ChatComposer />
           </div>
