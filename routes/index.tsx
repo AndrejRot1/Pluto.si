@@ -17,12 +17,45 @@ export default define.page(function Home(props) {
         <YearSidebar />
       </div>
 
+      {/* Mobile sidebar drawer */}
+      <div id="mobile-sidebar" class="fixed inset-0 bg-black/50 z-50 lg:hidden hidden">
+        <div class="absolute left-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl transform transition-transform">
+          <div class="flex items-center justify-between p-4 border-b">
+            <h2 class="text-lg font-semibold text-gray-900">Teme</h2>
+            <button 
+              id="close-sidebar" 
+              class="p-2 hover:bg-gray-100 rounded-lg"
+              aria-label="Zapri"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="overflow-y-auto h-[calc(100%-4rem)]">
+            <YearSidebar />
+          </div>
+        </div>
+      </div>
+
       {/* Main chat area */}
       <main class="flex-1 flex flex-col h-screen">
         {/* Fixed header */}
         <header class="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex-shrink-0">
           <div class="max-w-5xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
-            <h1 class="text-base sm:text-xl font-semibold text-gray-800">Matematični asistent</h1>
+            <div class="flex items-center gap-2">
+              {/* Hamburger menu - mobile only */}
+              <button 
+                id="open-sidebar"
+                class="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+                aria-label="Odpri menu"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+              </button>
+              <h1 class="text-base sm:text-xl font-semibold text-gray-800">Matematični asistent</h1>
+            </div>
             <div class="flex items-center gap-2 sm:gap-3">
               <label class="text-sm text-gray-600 flex items-center gap-2">
                 <span class="hidden sm:inline">Language</span>
@@ -136,6 +169,36 @@ export default define.page(function Home(props) {
         {/* Scrollable chat area */}
         <ChatPanel />
       </main>
+
+      {/* Mobile sidebar toggle script */}
+      <script dangerouslySetInnerHTML={{__html: `
+        (function() {
+          const sidebar = document.getElementById('mobile-sidebar');
+          const openBtn = document.getElementById('open-sidebar');
+          const closeBtn = document.getElementById('close-sidebar');
+          
+          if (openBtn && sidebar) {
+            openBtn.addEventListener('click', () => {
+              sidebar.classList.remove('hidden');
+            });
+          }
+          
+          if (closeBtn && sidebar) {
+            closeBtn.addEventListener('click', () => {
+              sidebar.classList.add('hidden');
+            });
+          }
+          
+          // Close on backdrop click
+          if (sidebar) {
+            sidebar.addEventListener('click', (e) => {
+              if (e.target === sidebar) {
+                sidebar.classList.add('hidden');
+              }
+            });
+          }
+        })();
+      `}} />
     </div>
   );
 });
