@@ -128,10 +128,50 @@ Password: Test123!
 
 ## 📊 Cenovna nastavitev v Stripe
 
-Za **70% profit** z DeepSeek API:
+### Analiza stroškov (na uporabnika/mesec):
 
-### Priporočilo:
-**€9.99/mesec** - Unlimited dostop
+#### DeepSeek API stroški:
+- **Input tokens**: $0.27 per 1M tokens
+- **Output tokens**: $1.10 per 1M tokens
+- **Povprečen chat**: ~500 input + ~1000 output tokens
+- **Strošek na chat**: ~$0.00124 (0.124¢)
+
+#### Stripe fees (evropske kartice):
+- **EU kartice**: 1.5% + €0.25 per transakcija
+- **Non-EU kartice**: 2.9% + €0.25 per transakcija
+- **Povprečno**: ~2% + €0.25
+
+---
+
+### Izračun profita (z vsemi stroški):
+
+| Uporaba | Cena | DeepSeek | Stripe Fee | **Skupaj stroški** | **Profit** | **Profit %** |
+|---------|------|----------|------------|-------------------|-----------|--------------|
+| **500 chatov** | €4.99 | €0.60 | €0.35 | **€0.95** | **€4.04** | **81%** ✅ |
+| **2000 chatov** | €9.99 | €2.40 | €0.45 | **€2.85** | **€7.14** | **71%** ✅ |
+| **5000 chatov** | €14.99 | €6.00 | €0.55 | **€6.55** | **€8.44** | **56%** ✅ |
+| **∞ unlimited** | €19.99 | ~€8-12 | €0.65 | **€8.65-12.65** | **€7.34-11.34** | **37-57%** ⚠️ |
+
+**Stripe fee izračun:**
+- €9.99 × 2% = €0.20
+- €0.20 + €0.25 = **€0.45** per transakcijo
+
+---
+
+### ✅ Priporočilo: **€9.99/mesec** (Unlimited dostop)
+
+**Zakaj?**
+- 71% profit margin pri povprečni uporabi (2000 chatov)
+- Konkurenčno glede na ChatGPT Plus ($20/mesec)
+- Enostavno za uporabnika (brez limitov)
+- Prostor za skaliranje
+
+**Alternativa za začetek:** **€14.99/mesec**
+- 56% profit pri intenzivni uporabi (5000 chatov)
+- Premium pozicioniranje
+- Večja varnostna marža
+
+---
 
 ### Stripe Live Price Setup:
 
@@ -139,7 +179,7 @@ Za **70% profit** z DeepSeek API:
 2. **Name**: `Pluto.si Premium`
 3. **Description**: `Neomejen dostop do AI matematičnega asistenta`
 4. **Pricing**:
-   - **Price**: `€9.99`
+   - **Price**: `€9.99` (ali `€14.99` za premium)
    - **Billing period**: `Monthly`
    - **Recurring**
 5. **Save & Copy Price ID** (npr. `price_1ABC...`)
@@ -148,13 +188,18 @@ Za **70% profit** z DeepSeek API:
    STRIPE_PRICE_ID=price_1ABC...
    ```
 
-### Alternativni paketi:
+---
 
-| Paket | Cena | Chati/mesec | Profit margin |
-|-------|------|-------------|---------------|
-| Basic | €4.99 | 500 | 88% |
-| Pro | €9.99 | 2000 | 76% |
-| Unlimited | €19.99 | ∞ | 50-75% |
+### Stroškovna primerjava:
+
+| Cena | Pri 100 uporabnikih | Stroški (2000 chatov avg) | Profit |
+|------|---------------------|---------------------------|--------|
+| €4.99 | €499 | €95 | **€404/mesec** |
+| €9.99 | €999 | €285 | **€714/mesec** ✅ |
+| €14.99 | €1499 | €655 | **€844/mesec** |
+| €19.99 | €1999 | €865-1265 | **€734-1134/mesec** |
+
+**Optimalna cena:** **€9.99-14.99/mesec** za največji profit pri scaling.
 
 ---
 
