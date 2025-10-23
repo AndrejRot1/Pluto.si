@@ -1,8 +1,26 @@
-import { useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 
 export type ChatMessage = { id: number; role: "user" | "assistant"; content: string };
 
 export default function Messages(props: { items: ChatMessage[] }) {
+  const [lang, setLang] = useState<'sl' | 'en' | 'it'>('sl');
+
+  useEffect(() => {
+    // Initialize language from localStorage
+    const stored = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' || 'sl';
+    setLang(stored);
+
+    // Listen for language changes
+    const handleLangChange = () => {
+      const newLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' || 'sl';
+      setLang(newLang);
+    };
+    globalThis.addEventListener('pluto-lang-change', handleLangChange);
+
+    return () => {
+      globalThis.removeEventListener('pluto-lang-change', handleLangChange);
+    };
+  }, []);
   useEffect(() => {
     // trigger KaTeX auto-render when messages change
     const renderMath = () => {
@@ -124,34 +142,81 @@ export default function Messages(props: { items: ChatMessage[] }) {
     }
   }
 
+  // Check if message is an exercise (contains exercise trigger phrases)
+  function isExercise(content: string): boolean {
+    const triggers = {
+      sl: ['Klikni \'Rešitev\'', 'za prikaz rešitve'],
+      en: ['Click \'Solution\'', 'to show the solution'],
+      it: ['Clicca \'Soluzione\'', 'per mostrare la soluzione']
+    };
+    
+    return triggers[lang].some(trigger => content.includes(trigger));
+  }
+
+  // Request solution for the exercise
+  function handleSolutionClick(exerciseContent: string) {
+    const prompts = {
+      sl: `Pokaži podrobno rešitev za to nalogo:\n\n${exerciseContent}\n\nNavodila:\n- Podaj vse korake rešitve\n- Razloži vsak korak\n- Uporabi matematične zapise (LaTeX)\n- Na koncu podaj končen odgovor`,
+      en: `Show a detailed solution for this exercise:\n\n${exerciseContent}\n\nInstructions:\n- Provide all solution steps\n- Explain each step\n- Use mathematical notation (LaTeX)\n- Provide the final answer at the end`,
+      it: `Mostra una soluzione dettagliata per questo esercizio:\n\n${exerciseContent}\n\nIstruzioni:\n- Fornisci tutti i passaggi della soluzione\n- Spiega ogni passaggio\n- Usa la notazione matematica (LaTeX)\n- Fornisci la risposta finale alla fine`
+    };
+    
+    const event = new CustomEvent("pluto-send", { detail: prompts[lang] });
+    globalThis.dispatchEvent(event);
+  }
+
+  const solutionButtonLabels = {
+    sl: "Rešitev",
+    en: "Solution",
+    it: "Soluzione"
+  };
+
   return (
     <div id="messages" class="max-w-3xl mx-auto space-y-3 sm:space-y-4">
-      {props.items.map((m) => (
-        <div class={m.role === "user" ? "bg-white/90 rounded-xl p-3 sm:p-4" : "bg-gray-50 rounded-xl p-3 sm:p-4"}>
-          <div class="prose prose-sm max-w-none text-sm sm:text-base">
-            {parseContent(m.content).map((part, idx) => {
-              if (part.type === 'graph') {
-                return (
-                  <div 
-                    key={idx}
-                    class="graph-container my-3 sm:my-4 w-full max-w-full overflow-x-auto" 
-                    data-function={part.content}
-                    style="height: min(300px, 40vh); max-height: 400px;"
-                  />
-                );
-              } else if (part.type === 'math') {
-                return (
-                  <span key={idx} class="math-inline text-sm sm:text-base">{part.content}</span>
-                );
-              } else {
-                return (
-                  <span key={idx} class="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{part.content}</span>
-                );
-              }
-            })}
+      {props.items.map((m) => {
+        const showSolutionButton = m.role === "assistant" && isExercise(m.content);
+        
+        return (
+          <div class={m.role === "user" ? "bg-white/90 rounded-xl p-3 sm:p-4" : "bg-gray-50 rounded-xl p-3 sm:p-4"}>
+            <div class="prose prose-sm max-w-none text-sm sm:text-base">
+              {parseContent(m.content).map((part, idx) => {
+                if (part.type === 'graph') {
+                  return (
+                    <div 
+                      key={idx}
+                      class="graph-container my-3 sm:my-4 w-full max-w-full overflow-x-auto" 
+                      data-function={part.content}
+                      style="height: min(300px, 40vh); max-height: 400px;"
+                    />
+                  );
+                } else if (part.type === 'math') {
+                  return (
+                    <span key={idx} class="math-inline text-sm sm:text-base">{part.content}</span>
+                  );
+                } else {
+                  return (
+                    <span key={idx} class="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{part.content}</span>
+                  );
+                }
+              })}
+            </div>
+            
+            {/* Solution button for exercises */}
+            {showSolutionButton && (
+              <div class="mt-3 pt-3 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => handleSolutionClick(m.content)}
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  <span>✓</span>
+                  <span>{solutionButtonLabels[lang]}</span>
+                </button>
+              </div>
+            )}
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

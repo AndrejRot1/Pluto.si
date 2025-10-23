@@ -99,6 +99,21 @@ export default function ChatPanel() {
     setMessages([]);
   }
 
+  function handleExerciseResponse(content: string) {
+    // Add only AI response to messages (no user prompt shown)
+    const assistantMsg: ChatMessage = { 
+      id: Date.now(), 
+      role: "assistant", 
+      content 
+    };
+    setMessages((m) => [...m, assistantMsg]);
+    setThinking(false); // Stop thinking indicator
+  }
+
+  function handleExerciseLoading(isLoading: boolean) {
+    setThinking(isLoading);
+  }
+
   return (
     <div class="flex-1 flex flex-col h-full">
       {/* Scrollable messages area */}
@@ -135,13 +150,23 @@ export default function ChatPanel() {
         </div>
       
       {/* Bridge: capture composer sends via custom event to avoid prop drilling after earlier API revert */}
-      <ComposerBridge onSend={handleSend} onClear={handleClear} />
+      <ComposerBridge 
+        onSend={handleSend} 
+        onClear={handleClear} 
+        onExerciseResponse={handleExerciseResponse}
+        onExerciseLoading={handleExerciseLoading}
+      />
     </div>
   );
 }
 
 // Small helper to tap into composer value via a CustomEvent it dispatches
-function ComposerBridge(props: { onSend: (text: string) => void; onClear: () => void }) {
+function ComposerBridge(props: { 
+  onSend: (text: string) => void; 
+  onClear: () => void;
+  onExerciseResponse?: (content: string) => void;
+  onExerciseLoading?: (isLoading: boolean) => void;
+}) {
   useEffect(() => {
     function onSendEvt(e: Event) {
       const ce = e as CustomEvent<string>;
@@ -152,13 +177,31 @@ function ComposerBridge(props: { onSend: (text: string) => void; onClear: () => 
       console.log('Received pluto-clear event');
       props.onClear();
     }
+    function onExerciseResponseEvt(e: Event) {
+      const ce = e as CustomEvent<{ content: string }>;
+      console.log('Received pluto-exercise-response event:', ce.detail);
+      if (props.onExerciseResponse) {
+        props.onExerciseResponse(ce.detail.content);
+      }
+    }
+    function onExerciseLoadingEvt(e: Event) {
+      const ce = e as CustomEvent<boolean>;
+      console.log('Received pluto-exercise-loading event:', ce.detail);
+      if (props.onExerciseLoading) {
+        props.onExerciseLoading(ce.detail);
+      }
+    }
     globalThis.addEventListener("pluto-send", onSendEvt as EventListener);
     globalThis.addEventListener("pluto-clear", onClearEvt as EventListener);
+    globalThis.addEventListener("pluto-exercise-response", onExerciseResponseEvt as EventListener);
+    globalThis.addEventListener("pluto-exercise-loading", onExerciseLoadingEvt as EventListener);
     return () => {
       globalThis.removeEventListener("pluto-send", onSendEvt as EventListener);
       globalThis.removeEventListener("pluto-clear", onClearEvt as EventListener);
+      globalThis.removeEventListener("pluto-exercise-response", onExerciseResponseEvt as EventListener);
+      globalThis.removeEventListener("pluto-exercise-loading", onExerciseLoadingEvt as EventListener);
     };
-  }, [props.onSend, props.onClear]);
+  }, [props.onSend, props.onClear, props.onExerciseResponse, props.onExerciseLoading]);
   return null;
 }
 

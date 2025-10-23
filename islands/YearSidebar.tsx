@@ -97,6 +97,7 @@ const translations = {
 
 export default function YearSidebar() {
   const [lang, setLang] = useState<'sl' | 'en' | 'it'>('sl');
+  const [activeTab, setActiveTab] = useState<'topics' | 'exercises'>('topics');
 
   useEffect(() => {
     // Initialize from localStorage
@@ -141,10 +142,103 @@ export default function YearSidebar() {
     }
   }
 
+  async function handleExerciseClick(topic: string) {
+    try {
+      console.log('Generating exercise for:', topic);
+      
+      // Dispatch loading event
+      const loadingEvent = new CustomEvent("pluto-exercise-loading", { detail: true });
+      globalThis.dispatchEvent(loadingEvent);
+      
+      // Generate exercise for the topic (send directly to API, not via chat UI)
+      const prompts = {
+        sl: `Generiraj 1 enostavno nalogo iz teme "${topic}". 
+        
+Navodila:
+- Podaj samo nalogo (brez rešitve)
+- Nalogo postavi jasno in razumljivo
+- Primerna za vajo in utrjevanje znanja
+- Na koncu dodaj: "Klikni 'Rešitev' za prikaz rešitve."`,
+        en: `Generate 1 simple exercise on "${topic}". 
+
+Instructions:
+- Provide only the problem (without solution)
+- State the problem clearly and understandably
+- Suitable for practice and knowledge reinforcement
+- At the end add: "Click 'Solution' to show the solution."`,
+        it: `Genera 1 esercizio semplice su "${topic}". 
+
+Istruzioni:
+- Fornisci solo il problema (senza soluzione)
+- Esponi il problema in modo chiaro e comprensibile
+- Adatto per la pratica e il consolidamento delle conoscenze
+- Alla fine aggiungi: "Clicca 'Soluzione' per mostrare la soluzione."`
+      };
+      
+      // Send directly to API without showing in chat
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          text: prompts[lang],
+          language: lang 
+        })
+      });
+      
+      const data = await response.json();
+      
+      // Dispatch event to add only AI response to chat
+      const responseEvent = new CustomEvent("pluto-exercise-response", { 
+        detail: { content: data.reply } 
+      });
+      globalThis.dispatchEvent(responseEvent);
+      
+      // Clear loading state
+      const loadingOffEvent = new CustomEvent("pluto-exercise-loading", { detail: false });
+      globalThis.dispatchEvent(loadingOffEvent);
+    } catch (error) {
+      console.error('Failed to generate exercise:', error);
+      
+      // Clear loading state on error
+      const loadingOffEvent = new CustomEvent("pluto-exercise-loading", { detail: false });
+      globalThis.dispatchEvent(loadingOffEvent);
+    }
+  }
+
+  const tabLabels = {
+    topics: { sl: "Teme", en: "Topics", it: "Argomenti" },
+    exercises: { sl: "Naloge", en: "Exercises", it: "Esercizi" }
+  };
+
   return (
     <aside class="w-72 bg-white border-r border-gray-200 p-4 overflow-y-auto h-screen flex-shrink-0">
-      <h2 class="text-base font-semibold text-gray-800 mb-4">{translations.title[lang]}</h2>
+      {/* Tab buttons */}
+      <div class="flex gap-2 mb-4">
+        <button
+          type="button"
+          onClick={() => setActiveTab('topics')}
+          class={`flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-colors ${
+            activeTab === 'topics' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          {tabLabels.topics[lang]}
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('exercises')}
+          class={`flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-colors ${
+            activeTab === 'exercises' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          {tabLabels.exercises[lang]}
+        </button>
+      </div>
       
+      {/* Topics/Exercises list */}
       <div class="space-y-2">
         {topics.map((category) => (
           <details class="group">
@@ -156,10 +250,11 @@ export default function YearSidebar() {
               {category.items.map((item) => (
                 <button
                   type="button"
-                  onClick={() => handleTopicClick(item[lang])}
+                  onClick={() => activeTab === 'topics' ? handleTopicClick(item[lang]) : handleExerciseClick(item[lang])}
                   class="block w-full text-left text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md px-3 py-2 transition-colors"
                 >
                   {item[lang]}
+                  {activeTab === 'exercises' && <span class="ml-1 text-xs text-blue-600">📝</span>}
                 </button>
               ))}
             </div>
