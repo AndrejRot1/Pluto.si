@@ -153,11 +153,8 @@ export default function RegisterForm() {
         }, 1500);
       } else {
         // Email confirmation required
-        setRegistrationSuccess(true);
-        setMessage('✅ Uspešna registracija! Preverite email za potrditev.');
-        setTimeout(() => {
-          window.location.href = '/auth/login';
-        }, 3000);
+        setMessage('✅ Registracija uspešna! Preverite svoj email za potrditev računa.');
+        setLoading(false);
       }
     } catch (error) {
       setMessage('Napaka pri registraciji');

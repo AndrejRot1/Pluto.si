@@ -5,8 +5,9 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://vbmtvnqnpsbgnxasejc
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZibXR2bnFucHNiZ254YXNlamNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5OTk2OTAsImV4cCI6MjA3NjU3NTY5MH0.qVtDmSgAaEwYVAi8LKSXZbfKt02HU3A_fV1QC0-bESs';
 
 export const handler = define.middleware(async (ctx) => {
-  // Če je to auth stran, API ali trial-expired, dovoli dostop
-  if (ctx.url.pathname.startsWith('/auth/') || ctx.url.pathname.startsWith('/api/') || ctx.url.pathname === '/trial-expired') {
+  // Dovoli dostop do javnih strani (auth, api, trial-expired)
+  const publicPaths = ['/auth/', '/api/', '/trial-expired'];
+  if (publicPaths.some(path => ctx.url.pathname.startsWith(path) || ctx.url.pathname === path)) {
     return await ctx.next();
   }
   
