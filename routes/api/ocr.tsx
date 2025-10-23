@@ -14,25 +14,18 @@ export const handler = define.handlers({
         );
       }
 
-      console.log(`Processing image: ${file.name}, size: ${file.size} bytes`);
+      console.log(`Processing image: ${file.name}, size: ${file.size} bytes, type: ${file.type}`);
 
-      // Convert to base64
-      const arrayBuffer = await file.arrayBuffer();
-      const base64 = btoa(
-        new Uint8Array(arrayBuffer).reduce(
-          (data, byte) => data + String.fromCharCode(byte),
-          ''
-        )
-      );
-
-      // Use OCR.space free API
+      // Use OCR.space free API - send file directly
       const ocrFormData = new FormData();
-      ocrFormData.append("base64Image", `data:${file.type};base64,${base64}`);
+      ocrFormData.append("file", file);
       ocrFormData.append("language", "eng");
       ocrFormData.append("isOverlayRequired", "false");
       ocrFormData.append("detectOrientation", "true");
       ocrFormData.append("scale", "true");
       ocrFormData.append("OCREngine", "2"); // Engine 2 is better for math
+
+      console.log("Sending request to OCR.space API...");
 
       const ocrResponse = await fetch("https://api.ocr.space/parse/image", {
         method: "POST",
@@ -42,19 +35,32 @@ export const handler = define.handlers({
         body: ocrFormData,
       });
 
+      console.log("OCR API response status:", ocrResponse.status);
+
       if (!ocrResponse.ok) {
-        throw new Error(`OCR API error: ${ocrResponse.statusText}`);
+        const errorText = await ocrResponse.text();
+        console.error("OCR API error response:", errorText);
+        throw new Error(`OCR API error: ${ocrResponse.statusText} - ${errorText}`);
       }
 
       const ocrResult = await ocrResponse.json();
+      console.log("OCR API result:", JSON.stringify(ocrResult, null, 2));
 
       if (ocrResult.IsErroredOnProcessing) {
-        throw new Error(ocrResult.ErrorMessage?.[0] || "OCR processing failed");
+        const errorMsg = ocrResult.ErrorMessage?.[0] || "OCR processing failed";
+        console.error("OCR processing error:", errorMsg);
+        throw new Error(errorMsg);
       }
 
       const text = ocrResult.ParsedResults?.[0]?.ParsedText || "";
 
-      console.log("Extracted text:", text);
+      console.log("Extracted text length:", text.length);
+      console.log("Extracted text preview:", text.substring(0, 100));
+
+      // If no text extracted, return empty but don't fail
+      if (!text || text.trim().length === 0) {
+        console.warn("No text extracted from image, returning empty text");
+      }
 
       // Return extracted text
       return new Response(

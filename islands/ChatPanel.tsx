@@ -131,11 +131,13 @@ export default function ChatPanel() {
   }
 
   async function handleImageUpload(data: { imageUrl: string; text: string; fileName: string }) {
+    console.log('Image upload data:', { text: data.text, fileName: data.fileName, hasImage: !!data.imageUrl });
+    
     // Add user message with image
     const userMsg: ExtendedChatMessage = {
       id: Date.now(),
       role: "user",
-      content: data.text || "Please solve this math problem from the image:",
+      content: data.text || "Prosim reši to matematično nalogo iz slike:",
       imageUrl: data.imageUrl,
       fileName: data.fileName
     };
@@ -145,9 +147,23 @@ export default function ChatPanel() {
     // Send extracted text to DeepSeek
     try {
       const language = localStorage.getItem('pluto-lang') || 'sl';
-      const prompt = data.text 
-        ? `Solve this math problem: ${data.text}` 
-        : "Please analyze the math problem in the image and provide a solution.";
+      
+      // If no text extracted, ask user to describe the problem
+      if (!data.text || data.text.trim().length === 0) {
+        console.warn('No text extracted from OCR');
+        setThinking(false);
+        const errorMsg: ExtendedChatMessage = { 
+          id: Date.now() + 1, 
+          role: "assistant", 
+          content: language === 'sl' 
+            ? "Žal nisem mogel prebrati besedila iz slike. Prosim opiši nalogo z besedami ali poskusi z bolj čitljivo sliko." 
+            : "Sorry, I couldn't extract text from the image. Please describe the problem or try a clearer image." 
+        };
+        setMessages((m) => [...m, errorMsg]);
+        return;
+      }
+
+      const prompt = `Solve this math problem: ${data.text}`;
 
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -170,12 +186,15 @@ export default function ChatPanel() {
     } catch (error) {
       console.error("Error processing image:", error);
       setThinking(false);
+      const language = localStorage.getItem('pluto-lang') || 'sl';
       setMessages((m) => [
         ...m,
         { 
           id: Date.now() + 1, 
           role: "assistant", 
-          content: "Sorry, I couldn't process the image. Please try again." 
+          content: language === 'sl' 
+            ? "Žal je prišlo do napake pri obdelavi slike. Prosim poskusi znova." 
+            : "Sorry, I couldn't process the image. Please try again." 
         }
       ]);
     }
