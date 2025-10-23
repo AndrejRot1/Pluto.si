@@ -50,9 +50,10 @@ export default function RegisterForm() {
       if (data?.user) {
         setMessage(t.successMessage);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
-      setMessage(t.errorMessage);
+      const errorMsg = error?.message || t.errorMessage;
+      setMessage(`${t.errorMessage} (${errorMsg})`);
       setLoading(false);
     }
   }
