@@ -67,18 +67,32 @@ export default function Messages(props: { items: ChatMessage[] }) {
               const width = Math.min(containerWidth, 500);
               const height = Math.min(400, globalThis.innerHeight * 0.5);
               
-              w.functionPlot!({
+              console.log('Rendering graph for function:', funcStr);
+              
+              (w.functionPlot as any)({
                 target: container,
                 width: width,
                 height: height,
                 grid: true,
+                xAxis: { domain: [-10, 10] },
+                yAxis: { domain: [-10, 10] },
                 data: [{
                   fn: funcStr,
                   color: '#2563eb'
                 }]
               });
+              
+              console.log('Graph rendered successfully');
             } catch (e) {
-              console.error('Graph rendering error:', e);
+              console.error('Graph rendering error for function:', funcStr, e);
+              // Show error message in container
+              (container as HTMLElement).innerHTML = `
+                <div class="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                  <p><strong>Napaka pri risanju grafa:</strong></p>
+                  <p>Funkcija: ${funcStr}</p>
+                  <p class="text-xs mt-1">${e}</p>
+                </div>
+              `;
             }
           }
         });
@@ -95,8 +109,10 @@ export default function Messages(props: { items: ChatMessage[] }) {
   function parseContent(content: string) {
     const parts: Array<{ type: 'text' | 'graph' | 'math', content: string }> = [];
     
-    // First extract graphs
-    const graphRegex = /\[GRAPH:([^\]]+)\]/g;
+    // First extract graphs - support multiple formats
+    // Format 1: [GRAPH:f(x)]
+    // Format 2: Graf funkcije f(x) = ...
+    const graphRegex = /\[GRAPH:([^\]]+)\]|Graf(?:ikon)?\s+funkcije\s+(?:f\(x\)\s*=\s*)?([^\n.]+)/gi;
     let lastIndex = 0;
     let match;
     
@@ -107,8 +123,11 @@ export default function Messages(props: { items: ChatMessage[] }) {
         // Parse math in this text part
         parseMath(textPart, parts);
       }
-      // Add graph
-      parts.push({ type: 'graph', content: match[1] });
+      // Add graph (use whichever capture group matched)
+      const funcStr = match[1] || match[2];
+      if (funcStr) {
+        parts.push({ type: 'graph', content: funcStr.trim() });
+      }
       lastIndex = match.index + match[0].length;
     }
     

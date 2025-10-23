@@ -24,7 +24,7 @@ function json(data: unknown, init: ResponseInit = {}) {
   });
 }
 
-function isLikelyMath(text: string): boolean {
+function _isLikelyMath(text: string): boolean {
   const lower = text.toLowerCase();
   // English
   if (/\b(limit|integral|derivative|matrix|solve|equation|polynomial|vector|probability|statistics|function|algebra|geometry|prime\s+number|definition)\b/.test(lower)) return true;
@@ -332,8 +332,22 @@ For example:
 - [GRAPH:sin(x)] for sine wave
 - [GRAPH:2*x + 3] for linear function
 - [GRAPH:x^3 - 2*x] for cubic function
+- [GRAPH:1/x] for hyperbola
 
-Use standard JavaScript math notation (x^2, sqrt(x), sin(x), cos(x), log(x), etc.). Include graphs when visualizing the function helps understand the concept.`,
+IMPORTANT for graphs:
+- Use JavaScript math notation
+- Exponents: x^2, x^3 (not x²)
+- Multiplication: 2*x (not 2x)
+- Division: x/2
+- Square root: sqrt(x)
+- Functions: sin(x), cos(x), tan(x), log(x), abs(x)
+- Examples of CORRECT syntax:
+  ✓ [GRAPH:x^2 + 2*x + 1]
+  ✓ [GRAPH:sin(x) + cos(x)]
+  ✓ [GRAPH:sqrt(x)]
+  ✗ DON'T use: [GRAPH:x² + 2x + 1]
+
+Include graphs when visualizing the function helps understand the concept.`,
       },
     { role: "user", content: prompt },
   ];
