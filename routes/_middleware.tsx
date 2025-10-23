@@ -109,9 +109,10 @@ export const handler = define.middleware(async (ctx) => {
       }
       
       const isExpired = profile.subscription_status === 'expired';
+      const hasActiveSubscription = profile.subscription_status === 'active';
 
       // Redirect to trial-expired page (except for settings page where they can upgrade)
-      if ((isExpired) && profile.subscription_status !== 'active' && ctx.url.pathname !== '/settings') {
+      if (isExpired && !hasActiveSubscription && ctx.url.pathname !== '/settings') {
         console.log('Trial expired, redirecting to trial-expired page');
         return new Response(null, {
           status: 302,

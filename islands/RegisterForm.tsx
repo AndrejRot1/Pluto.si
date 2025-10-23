@@ -69,21 +69,26 @@ export default function RegisterForm() {
   useEffect(() => {
     if (registrationSuccess) return;
     
+    let typeIntro: number | undefined;
+    let typeSol: number | undefined;
+    let showProblemTimeout: number | undefined;
+    let typeSolTimeout: number | undefined;
+    
     // Type intro
     let i = 0;
-    const typeIntro = setInterval(() => {
+    typeIntro = setInterval(() => {
       if (i <= introText.length) {
         setTypedIntro(introText.substring(0, i));
         i += 3;
       } else {
         clearInterval(typeIntro);
         // Show problem
-        setTimeout(() => {
+        showProblemTimeout = setTimeout(() => {
           setShowProblem(true);
           // Type solution
-          setTimeout(() => {
+          typeSolTimeout = setTimeout(() => {
             let j = 0;
-            const typeSol = setInterval(() => {
+            typeSol = setInterval(() => {
               if (j <= demoSolution.length) {
                 setTypedSolution(demoSolution.substring(0, j));
                 j += 5;
@@ -98,7 +103,12 @@ export default function RegisterForm() {
       }
     }, 30);
     
-    return () => clearInterval(typeIntro);
+    return () => {
+      if (typeIntro) clearInterval(typeIntro);
+      if (typeSol) clearInterval(typeSol);
+      if (showProblemTimeout) clearTimeout(showProblemTimeout);
+      if (typeSolTimeout) clearTimeout(typeSolTimeout);
+    };
   }, [registrationSuccess]);
 
   // Render math after typing
