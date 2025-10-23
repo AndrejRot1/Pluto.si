@@ -238,7 +238,7 @@ export default function Messages(props: { items: ChatMessage[] }) {
                 <button
                   type="button"
                   onClick={() => handleSolutionClick(m.content)}
-                  class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                  class="inline-flex items-center gap-2 px-4 sm:px-4 py-2.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors min-h-[44px] sm:min-h-0"
                 >
                   <span>✓</span>
                   <span>{solutionButtonLabels[lang]}</span>

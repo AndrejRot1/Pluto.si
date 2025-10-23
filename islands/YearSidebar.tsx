@@ -211,13 +211,13 @@ Istruzioni:
   };
 
   return (
-    <aside class="w-72 bg-white border-r border-gray-200 p-4 overflow-y-auto h-screen flex-shrink-0">
+    <aside class="w-72 bg-white border-r border-gray-200 p-3 sm:p-4 overflow-y-auto h-screen flex-shrink-0">
       {/* Tab buttons */}
-      <div class="flex gap-2 mb-4">
+      <div class="flex gap-2 mb-3 sm:mb-4">
         <button
           type="button"
           onClick={() => setActiveTab('topics')}
-          class={`flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-colors ${
+          class={`flex-1 py-2.5 sm:py-2 px-3 text-sm font-medium rounded-lg transition-colors min-h-[44px] sm:min-h-0 ${
             activeTab === 'topics' 
               ? 'bg-blue-600 text-white' 
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -228,7 +228,7 @@ Istruzioni:
         <button
           type="button"
           onClick={() => setActiveTab('exercises')}
-          class={`flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-colors ${
+          class={`flex-1 py-2.5 sm:py-2 px-3 text-sm font-medium rounded-lg transition-colors min-h-[44px] sm:min-h-0 ${
             activeTab === 'exercises' 
               ? 'bg-blue-600 text-white' 
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -239,10 +239,10 @@ Istruzioni:
       </div>
       
       {/* Topics/Exercises list */}
-      <div class="space-y-2">
+      <div class="space-y-1.5 sm:space-y-2">
         {topics.map((category) => (
           <details class="group">
-            <summary class="cursor-pointer list-none flex items-center justify-between select-none py-2.5 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <summary class="cursor-pointer list-none flex items-center justify-between select-none py-3 sm:py-2.5 px-3 hover:bg-gray-50 rounded-lg transition-colors min-h-[44px] sm:min-h-0">
               <span class="text-sm font-medium text-gray-700">{category.title[lang]}</span>
               <span class="text-xs text-gray-400 group-open:rotate-90 transition-transform">›</span>
             </summary>
@@ -251,7 +251,7 @@ Istruzioni:
                 <button
                   type="button"
                   onClick={() => activeTab === 'topics' ? handleTopicClick(item[lang]) : handleExerciseClick(item[lang])}
-                  class="block w-full text-left text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md px-3 py-2 transition-colors"
+                  class="block w-full text-left text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md px-3 py-2.5 sm:py-2 transition-colors min-h-[44px] sm:min-h-0"
                 >
                   {item[lang]}
                   {activeTab === 'exercises' && <span class="ml-1 text-xs text-blue-600">📝</span>}
