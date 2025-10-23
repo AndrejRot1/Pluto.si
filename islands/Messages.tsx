@@ -243,6 +243,14 @@ export default function Messages(props: { items: ChatMessage[] }) {
     it: "Esercizio successivo"
   };
 
+  const difficultyLabels = {
+    1: { sl: "Zelo enostavno", en: "Very Simple", it: "Molto Semplice", color: "bg-green-100 text-green-800" },
+    2: { sl: "Enostavno", en: "Simple", it: "Semplice", color: "bg-blue-100 text-blue-800" },
+    3: { sl: "Srednje", en: "Medium", it: "Medio", color: "bg-yellow-100 text-yellow-800" },
+    4: { sl: "Težko", en: "Difficult", it: "Difficile", color: "bg-orange-100 text-orange-800" },
+    5: { sl: "Zelo težko", en: "Very Difficult", it: "Molto Difficile", color: "bg-red-100 text-red-800" }
+  };
+
   return (
     <div id="messages" class="max-w-3xl mx-auto space-y-3 sm:space-y-4">
       {props.items.map((m, index) => {
@@ -254,8 +262,26 @@ export default function Messages(props: { items: ChatMessage[] }) {
           (nextMessage && nextMessage.role === "assistant" && !isExercise(nextMessage.content));
         const showNextExerciseButton = m.isExercise && isSolutionShown && m.topic;
         
+        // Get difficulty badge info
+        const difficultyLevel = m.difficulty || 1;
+        const difficultyInfo = difficultyLabels[Math.min(difficultyLevel, 5) as 1 | 2 | 3 | 4 | 5];
+        
         return (
           <div class={m.role === "user" ? "bg-white/90 rounded-xl p-3 sm:p-4" : "bg-gray-50 rounded-xl p-3 sm:p-4"}>
+            {/* Difficulty badge for exercises */}
+            {m.isExercise && m.difficulty && (
+              <div class="mb-2 flex items-center gap-2">
+                <span class={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${difficultyInfo.color}`}>
+                  {difficultyInfo[lang]} {difficultyLevel}/5
+                </span>
+                {m.topic && (
+                  <span class="text-xs text-gray-500">
+                    {m.topic}
+                  </span>
+                )}
+              </div>
+            )}
+            
             <div class="prose prose-sm max-w-none text-sm sm:text-base">
               {parseContent(m.content).map((part, idx) => {
                 if (part.type === 'graph') {
