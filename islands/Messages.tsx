@@ -1,8 +1,16 @@
 import { useEffect, useState } from "preact/hooks";
 
-export type ChatMessage = { id: number; role: "user" | "assistant"; content: string };
+export type ChatMessage = { 
+  id: number; 
+  role: "user" | "assistant"; 
+  content: string;
+  topic?: string;
+  difficulty?: number;
+  isExercise?: boolean;
+};
 
 export default function Messages(props: { items: ChatMessage[] }) {
+  const [solutionShownFor, setSolutionShownFor] = useState<Set<number>>(new Set());
   const [lang, setLang] = useState<'sl' | 'en' | 'it'>('sl');
 
   useEffect(() => {
@@ -154,7 +162,9 @@ export default function Messages(props: { items: ChatMessage[] }) {
   }
 
   // Request solution for the exercise
-  async function handleSolutionClick(exerciseContent: string) {
+  async function handleSolutionClick(exerciseContent: string, messageId: number) {
+    // Mark that solution was requested for this message
+    setSolutionShownFor(prev => new Set(prev).add(messageId));
     const prompts = {
       sl: `Pokaži podrobno rešitev za to nalogo:\n\n${exerciseContent}\n\nNavodila:\n- Podaj vse korake rešitve\n- Razloži vsak korak\n- Uporabi matematične zapise (LaTeX)\n- Na koncu podaj končen odgovor`,
       en: `Show a detailed solution for this exercise:\n\n${exerciseContent}\n\nInstructions:\n- Provide all solution steps\n- Explain each step\n- Use mathematical notation (LaTeX)\n- Provide the final answer at the end`,
@@ -196,16 +206,34 @@ export default function Messages(props: { items: ChatMessage[] }) {
     }
   }
 
+  // Handle next exercise click
+  function handleNextExercise(topic: string) {
+    const event = new CustomEvent("pluto-next-exercise", { detail: { topic } });
+    globalThis.dispatchEvent(event);
+  }
+
   const solutionButtonLabels = {
     sl: "Rešitev",
     en: "Solution",
     it: "Soluzione"
   };
 
+  const nextExerciseLabels = {
+    sl: "Naslednja naloga",
+    en: "Next exercise",
+    it: "Esercizio successivo"
+  };
+
   return (
     <div id="messages" class="max-w-3xl mx-auto space-y-3 sm:space-y-4">
-      {props.items.map((m) => {
-        const showSolutionButton = m.role === "assistant" && isExercise(m.content);
+      {props.items.map((m, index) => {
+        const showSolutionButton = m.role === "assistant" && isExercise(m.content) && !solutionShownFor.has(m.id);
+        
+        // Check if next message is a solution (for showing "Next exercise" button)
+        const nextMessage = props.items[index + 1];
+        const isSolutionShown = solutionShownFor.has(m.id) || 
+          (nextMessage && nextMessage.role === "assistant" && !isExercise(nextMessage.content));
+        const showNextExerciseButton = m.isExercise && isSolutionShown && m.topic;
         
         return (
           <div class={m.role === "user" ? "bg-white/90 rounded-xl p-3 sm:p-4" : "bg-gray-50 rounded-xl p-3 sm:p-4"}>
@@ -237,11 +265,25 @@ export default function Messages(props: { items: ChatMessage[] }) {
               <div class="mt-3 pt-3 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={() => handleSolutionClick(m.content)}
+                  onClick={() => handleSolutionClick(m.content, m.id)}
                   class="inline-flex items-center gap-2 px-4 sm:px-4 py-2.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors min-h-[44px] sm:min-h-0"
                 >
                   <span>✓</span>
                   <span>{solutionButtonLabels[lang]}</span>
+                </button>
+              </div>
+            )}
+            
+            {/* Next exercise button - shown after solution */}
+            {showNextExerciseButton && (
+              <div class="mt-3 pt-3 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => handleNextExercise(m.topic!)}
+                  class="inline-flex items-center gap-2 px-4 sm:px-4 py-2.5 sm:py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors min-h-[44px] sm:min-h-0"
+                >
+                  <span>→</span>
+                  <span>{nextExerciseLabels[lang]}</span>
                 </button>
               </div>
             )}

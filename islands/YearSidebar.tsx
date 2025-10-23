@@ -98,6 +98,8 @@ const translations = {
 export default function YearSidebar() {
   const [lang, setLang] = useState<'sl' | 'en' | 'it'>('sl');
   const [activeTab, setActiveTab] = useState<'topics' | 'exercises'>('topics');
+  const [currentTopic, setCurrentTopic] = useState<string | null>(null);
+  const [difficultyLevel, setDifficultyLevel] = useState<number>(1);
 
   useEffect(() => {
     // Initialize from localStorage
@@ -142,35 +144,57 @@ export default function YearSidebar() {
     }
   }
 
-  async function handleExerciseClick(topic: string) {
+  async function handleExerciseClick(topic: string, resetDifficulty: boolean = true) {
     try {
-      console.log('Generating exercise for:', topic);
+      console.log('Generating exercise for:', topic, 'difficulty:', resetDifficulty ? 1 : difficultyLevel);
+      
+      // Reset difficulty if new topic selected
+      if (resetDifficulty || currentTopic !== topic) {
+        setCurrentTopic(topic);
+        setDifficultyLevel(1);
+      }
+      
+      const currentDiff = resetDifficulty ? 1 : difficultyLevel;
       
       // Dispatch loading event
       const loadingEvent = new CustomEvent("pluto-exercise-loading", { detail: true });
       globalThis.dispatchEvent(loadingEvent);
       
+      // Difficulty descriptors
+      const difficultyDescriptors = {
+        1: { sl: "zelo enostavno", en: "very simple", it: "molto semplice" },
+        2: { sl: "enostavno", en: "simple", it: "semplice" },
+        3: { sl: "srednje težko", en: "medium difficulty", it: "difficoltà media" },
+        4: { sl: "težko", en: "difficult", it: "difficile" },
+        5: { sl: "zelo težko", en: "very difficult", it: "molto difficile" }
+      };
+      
+      const diffDesc = difficultyDescriptors[Math.min(currentDiff, 5) as 1 | 2 | 3 | 4 | 5][lang];
+      
       // Generate exercise for the topic (send directly to API, not via chat UI)
       const prompts = {
-        sl: `Generiraj 1 enostavno nalogo iz teme "${topic}". 
+        sl: `Generiraj 1 ${diffDesc} nalogo iz teme "${topic}". 
         
 Navodila:
 - Podaj samo nalogo (brez rešitve)
 - Nalogo postavi jasno in razumljivo
+- Težavnost: ${diffDesc} (stopnja ${currentDiff}/5)
 - Primerna za vajo in utrjevanje znanja
 - Na koncu dodaj: "Klikni 'Rešitev' za prikaz rešitve."`,
-        en: `Generate 1 simple exercise on "${topic}". 
+        en: `Generate 1 ${diffDesc} exercise on "${topic}". 
 
 Instructions:
 - Provide only the problem (without solution)
 - State the problem clearly and understandably
+- Difficulty: ${diffDesc} (level ${currentDiff}/5)
 - Suitable for practice and knowledge reinforcement
 - At the end add: "Click 'Solution' to show the solution."`,
-        it: `Genera 1 esercizio semplice su "${topic}". 
+        it: `Genera 1 esercizio ${diffDesc} su "${topic}". 
 
 Istruzioni:
 - Fornisci solo il problema (senza soluzione)
 - Esponi il problema in modo chiaro e comprensibile
+- Difficoltà: ${diffDesc} (livello ${currentDiff}/5)
 - Adatto per la pratica e il consolidamento delle conoscenze
 - Alla fine aggiungi: "Clicca 'Soluzione' per mostrare la soluzione."`
       };
@@ -189,7 +213,12 @@ Istruzioni:
       
       // Dispatch event to add only AI response to chat
       const responseEvent = new CustomEvent("pluto-exercise-response", { 
-        detail: { content: data.reply } 
+        detail: { 
+          content: data.reply,
+          topic: topic,
+          difficulty: currentDiff,
+          isExercise: true 
+        } 
       });
       globalThis.dispatchEvent(responseEvent);
       
@@ -204,6 +233,29 @@ Istruzioni:
       globalThis.dispatchEvent(loadingOffEvent);
     }
   }
+
+  // Export function to be called from Messages component
+  useEffect(() => {
+    const handleNextExercise = (e: Event) => {
+      const ce = e as CustomEvent<{ topic: string }>;
+      console.log('Next exercise requested for:', ce.detail.topic);
+      
+      // Increment difficulty
+      setDifficultyLevel(prev => Math.min(prev + 1, 5));
+      
+      // Generate next exercise with increased difficulty
+      setTimeout(() => {
+        handleExerciseClick(ce.detail.topic, false);
+      }, 100);
+    };
+    
+    globalThis.addEventListener('pluto-next-exercise', handleNextExercise as EventListener);
+    
+    return () => {
+      globalThis.removeEventListener('pluto-next-exercise', handleNextExercise as EventListener);
+    };
+  }, [difficultyLevel, currentTopic]);
+}
 
   const tabLabels = {
     topics: { sl: "Teme", en: "Topics", it: "Argomenti" },

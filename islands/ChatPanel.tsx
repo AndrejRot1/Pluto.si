@@ -8,8 +8,14 @@ const thinkingText = {
   it: "Sto pensando..."
 };
 
+export type ExtendedChatMessage = ChatMessage & {
+  topic?: string;
+  difficulty?: number;
+  isExercise?: boolean;
+};
+
 export default function ChatPanel() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ExtendedChatMessage[]>([]);
   const [sending, setSending] = useState(false);
   const [thinking, setThinking] = useState(false);
   const [lang, setLang] = useState<'sl' | 'en' | 'it'>('sl');
@@ -99,12 +105,15 @@ export default function ChatPanel() {
     setMessages([]);
   }
 
-  function handleExerciseResponse(content: string) {
+  function handleExerciseResponse(data: { content: string; topic?: string; difficulty?: number; isExercise?: boolean }) {
     // Add only AI response to messages (no user prompt shown)
-    const assistantMsg: ChatMessage = { 
+    const assistantMsg: ExtendedChatMessage = { 
       id: Date.now(), 
       role: "assistant", 
-      content 
+      content: data.content,
+      topic: data.topic,
+      difficulty: data.difficulty,
+      isExercise: data.isExercise
     };
     setMessages((m) => [...m, assistantMsg]);
     setThinking(false); // Stop thinking indicator
@@ -164,7 +173,7 @@ export default function ChatPanel() {
 function ComposerBridge(props: { 
   onSend: (text: string) => void; 
   onClear: () => void;
-  onExerciseResponse?: (content: string) => void;
+  onExerciseResponse?: (data: { content: string; topic?: string; difficulty?: number; isExercise?: boolean }) => void;
   onExerciseLoading?: (isLoading: boolean) => void;
 }) {
   useEffect(() => {
@@ -178,10 +187,10 @@ function ComposerBridge(props: {
       props.onClear();
     }
     function onExerciseResponseEvt(e: Event) {
-      const ce = e as CustomEvent<{ content: string }>;
+      const ce = e as CustomEvent<{ content: string; topic?: string; difficulty?: number; isExercise?: boolean }>;
       console.log('Received pluto-exercise-response event:', ce.detail);
       if (props.onExerciseResponse) {
-        props.onExerciseResponse(ce.detail.content);
+        props.onExerciseResponse(ce.detail);
       }
     }
     function onExerciseLoadingEvt(e: Event) {
