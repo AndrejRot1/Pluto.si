@@ -234,7 +234,7 @@ Istruzioni:
     }
   }
 
-  // Export function to be called from Messages component
+  // Listen for next exercise requests
   useEffect(() => {
     const handleNextExercise = (e: Event) => {
       const ce = e as CustomEvent<{ topic: string }>;
@@ -255,7 +255,6 @@ Istruzioni:
       globalThis.removeEventListener('pluto-next-exercise', handleNextExercise as EventListener);
     };
   }, [difficultyLevel, currentTopic]);
-}
 
   const tabLabels = {
     topics: { sl: "Teme", en: "Topics", it: "Argomenti" },
