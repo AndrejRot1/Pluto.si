@@ -396,11 +396,14 @@ export default define.page(function LandingPage() {
             // Detect language (IP-based geolocation + browser fallback)
             let detectedLang = 'en'; // default
             
-            // Try IP-based geolocation first
+            // Try IP-based geolocation first (with fallback)
             try {
               const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 2000);
-              const geoResponse = await fetch('https://ipapi.co/json/', { signal: controller.signal });
+              const timeoutId = setTimeout(() => controller.abort(), 1500); // Shorter timeout
+              const geoResponse = await fetch('https://ipapi.co/json/', { 
+                signal: controller.signal,
+                cache: 'no-cache'
+              });
               clearTimeout(timeoutId);
               
               if (geoResponse.ok) {
@@ -430,8 +433,8 @@ export default define.page(function LandingPage() {
                 throw new Error('Geolocation API failed');
               }
             } catch (error) {
-              // Fallback to browser language
-              console.log('IP geolocation failed, using browser language');
+              // Fallback to browser language (silently, no error shown to user)
+              console.warn('IP geolocation unavailable, using browser language fallback');
               const browserLang = navigator.language || navigator.userLanguage;
               
               if (browserLang.startsWith('sl')) {
