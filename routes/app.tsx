@@ -146,9 +146,9 @@ export default define.page(function Home(props) {
                   {isTrial && (
                     <a 
                       href="/settings"
-                      class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-semibold rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all shadow-md hover:shadow-lg animate-pulse"
+                      class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
                     >
-                      ✨ <span>Upgrade</span>
+                      <span>Upgrade to Plus</span>
                     </a>
                   )}
                   <details class="relative">
@@ -165,9 +165,9 @@ export default define.page(function Home(props) {
                       {isTrial && (
                         <a 
                           href="/settings"
-                          class="block px-4 py-2 text-sm bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold hover:from-yellow-500 hover:to-orange-600 transition-colors"
+                          class="block px-4 py-2 text-sm bg-black text-white font-medium hover:bg-gray-800 transition-colors"
                         >
-                          ✨ Upgrade to Premium
+                          ⚡ Upgrade to Plus
                         </a>
                       )}
                       <a 
