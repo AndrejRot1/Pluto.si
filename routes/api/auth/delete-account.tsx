@@ -8,9 +8,12 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 export const handler = define.handlers({
   async POST(ctx) {
     try {
+      console.log('Delete account: Request received');
+      
       // Get user from authorization header
       const authHeader = ctx.req.headers.get("Authorization");
       if (!authHeader) {
+        console.error('Delete account: No authorization header');
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,
           headers: { "Content-Type": "application/json" },
@@ -18,14 +21,20 @@ export const handler = define.handlers({
       }
 
       const token = authHeader.replace("Bearer ", "");
+      console.log('Delete account: Token received, verifying user...');
+      
       const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
       if (authError || !user) {
+        console.error('Delete account: Auth error or no user:', authError?.message);
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,
           headers: { "Content-Type": "application/json" },
         });
       }
+
+      console.log('Delete account: User verified:', user.email);
+      console.log('Delete account: Attempting to delete user ID:', user.id);
 
       // Delete user from auth.users (cascade will delete profile and subscriptions)
       const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
@@ -37,6 +46,8 @@ export const handler = define.handlers({
           headers: { "Content-Type": "application/json" },
         });
       }
+
+      console.log('Delete account: User successfully deleted:', user.email);
 
       // Clear cookies
       return new Response(JSON.stringify({ success: true }), {

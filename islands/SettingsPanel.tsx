@@ -419,20 +419,28 @@ export default function SettingsPanel(props: {
                        lang === 'es' ? "¿Estás seguro de que quieres eliminar tu cuenta? ¡Esta acción es irreversible!" :
                        lang === 'pl' ? "Czy na pewno chcesz usunąć swoje konto? Ta akcja jest nieodwracalna!" :
                        "Ești sigur că vrei să îți ștergi contul? Această acțiune este ireversibilă!";
+    
+    console.log('SettingsPanel: Delete account clicked');
+    
     if (!confirm(confirmMsg)) {
+      console.log('SettingsPanel: User cancelled deletion');
       return;
     }
 
+    console.log('SettingsPanel: User confirmed deletion');
     setLoading(true);
     setMessage("");
 
     try {
       // Check if we have access token
       if (!accessToken) {
+        console.error('SettingsPanel: No access token found');
         setMessage(`❌ ${t.notLoggedIn}`);
         setLoading(false);
         return;
       }
+
+      console.log('SettingsPanel: Sending delete request with access token:', accessToken ? 'present' : 'missing');
 
       const response = await fetch("/api/auth/delete-account", {
         method: "POST",
@@ -441,13 +449,19 @@ export default function SettingsPanel(props: {
         },
       });
 
+      console.log('SettingsPanel: Delete response status:', response.status);
+
       const data = await response.json();
+      console.log('SettingsPanel: Delete response data:', data);
 
       if (!response.ok || data.error) {
+        console.error('SettingsPanel: Delete failed:', data.error);
         setMessage(`❌ ${data.error || "Delete error"}`);
         setLoading(false);
         return;
       }
+
+      console.log('SettingsPanel: Delete successful, redirecting...');
 
       // Redirect to home/register
       const successMsg = lang === 'sl' ? "✅ Račun uspešno izbrisan" :
