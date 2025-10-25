@@ -37,6 +37,33 @@ export default function RegisterForm() {
     setMessage('');
 
     try {
+      // First check if email already exists
+      console.log('Checking if email exists:', email);
+      const checkResponse = await fetch('/api/auth/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const checkData = await checkResponse.json();
+      console.log('Email check result:', checkData);
+
+      if (checkData.exists) {
+        const existsMsg = lang === 'sl' ? '⚠️ Ta email naslov je že registriran. Poskusite se prijaviti ali ponastaviti geslo.' :
+                         lang === 'en' ? '⚠️ This email is already registered. Try logging in or resetting your password.' :
+                         lang === 'it' ? '⚠️ Questa email è già registrata. Prova ad accedere o reimpostare la password.' :
+                         lang === 'de' ? '⚠️ Diese E-Mail ist bereits registriert. Versuchen Sie sich anzumelden oder das Passwort zurückzusetzen.' :
+                         lang === 'fr' ? '⚠️ Cet email est déjà enregistré. Essayez de vous connecter ou de réinitialiser votre mot de passe.' :
+                         lang === 'es' ? '⚠️ Este correo ya está registrado. Intenta iniciar sesión o restablecer tu contraseña.' :
+                         lang === 'pl' ? '⚠️ Ten adres email jest już zarejestrowany. Spróbuj się zalogować lub zresetować hasło.' :
+                         '⚠️ Acest email este deja înregistrat. Încearcă să te conectezi sau să resetezi parola.';
+        setMessage(existsMsg);
+        setLoading(false);
+        return;
+      }
+
+      // Proceed with registration
+      console.log('Email is available, proceeding with registration');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -46,20 +73,6 @@ export default function RegisterForm() {
       });
 
       if (error) {
-        // Check for specific error codes
-        if (error.message.includes('User already registered')) {
-          const existsMsg = lang === 'sl' ? '⚠️ Ta email naslov je že registriran. Poskusite se prijaviti ali ponastaviti geslo.' :
-                           lang === 'en' ? '⚠️ This email is already registered. Try logging in or resetting your password.' :
-                           lang === 'it' ? '⚠️ Questa email è già registrata. Prova ad accedere o reimpostare la password.' :
-                           lang === 'de' ? '⚠️ Diese E-Mail ist bereits registriert. Versuchen Sie sich anzumelden oder das Passwort zurückzusetzen.' :
-                           lang === 'fr' ? '⚠️ Cet email est déjà enregistré. Essayez de vous connecter ou de réinitialiser votre mot de passe.' :
-                           lang === 'es' ? '⚠️ Este correo ya está registrado. Intenta iniciar sesión o restablecer tu contraseña.' :
-                           lang === 'pl' ? '⚠️ Ten adres email jest już zarejestrowany. Spróbuj się zalogować lub zresetować hasło.' :
-                           '⚠️ Acest email este deja înregistrat. Încearcă să te conectezi sau să resetezi parola.';
-          setMessage(existsMsg);
-          setLoading(false);
-          return;
-        }
         throw error;
       }
 
