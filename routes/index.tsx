@@ -22,14 +22,14 @@ export default define.page(function LandingPage() {
               <a 
                 href="/auth/login" 
                 id="login-btn"
-                class="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                class="px-4 sm:px-5 py-2 sm:py-2.5 bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold rounded-lg transition-colors shadow-sm"
               >
                 Login
               </a>
               <a 
                 href="/auth/register" 
                 id="register-btn"
-                class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                class="px-5 sm:px-6 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg"
               >
                 Register now
               </a>

@@ -5,6 +5,9 @@ import ChatPanel from "../islands/ChatPanel.tsx";
 
 export default define.page(function Home(props) {
   const user = props.state.user;
+  const profile = props.state.profile;
+  const isTrial = profile?.subscription_status === 'trial';
+  
   return (
     <div class="h-screen bg-gray-50 flex">
       <Head>
@@ -139,31 +142,49 @@ export default define.page(function Home(props) {
               `}} />
               
               {user ? (
-                <details class="relative">
-                  <summary class="cursor-pointer list-none">
-                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium hover:bg-blue-700 transition-colors">
-                      {user.email?.[0]?.toUpperCase() || 'U'}
-                    </div>
-                  </summary>
-                  <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                    <div class="px-4 py-2 border-b border-gray-200">
-                      <p id="user-menu-label" class="text-xs text-gray-500">Prijavljen kot</p>
-                      <p class="text-sm font-medium text-gray-900 truncate">{user.email}</p>
-                    </div>
+                <>
+                  {isTrial && (
                     <a 
                       href="/settings"
-                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-semibold rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all shadow-md hover:shadow-lg animate-pulse"
                     >
-                      ⚙️ <span id="user-menu-settings">Nastavitve</span>
+                      ✨ <span>Upgrade</span>
                     </a>
-                    <a 
-                      href="/auth/logout"
-                      class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
-                    >
-                      🚪 <span id="user-menu-logout">Odjava</span>
-                    </a>
-                  </div>
-                </details>
+                  )}
+                  <details class="relative">
+                    <summary class="cursor-pointer list-none">
+                      <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+                        {user.email?.[0]?.toUpperCase() || 'U'}
+                      </div>
+                    </summary>
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                      <div class="px-4 py-2 border-b border-gray-200">
+                        <p id="user-menu-label" class="text-xs text-gray-500">Prijavljen kot</p>
+                        <p class="text-sm font-medium text-gray-900 truncate">{user.email}</p>
+                      </div>
+                      {isTrial && (
+                        <a 
+                          href="/settings"
+                          class="block px-4 py-2 text-sm bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold hover:from-yellow-500 hover:to-orange-600 transition-colors"
+                        >
+                          ✨ Upgrade to Premium
+                        </a>
+                      )}
+                      <a 
+                        href="/settings"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        ⚙️ <span id="user-menu-settings">Nastavitve</span>
+                      </a>
+                      <a 
+                        href="/auth/logout"
+                        class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
+                      >
+                        🚪 <span id="user-menu-logout">Odjava</span>
+                      </a>
+                    </div>
+                  </details>
+                </>
               ) : (
                 <>
                   <a 
@@ -187,7 +208,7 @@ export default define.page(function Home(props) {
         </header>
         
         {/* Scrollable chat area */}
-        <ChatPanel />
+        <ChatPanel profile={profile} />
       </main>
 
       {/* Mobile sidebar toggle script */}

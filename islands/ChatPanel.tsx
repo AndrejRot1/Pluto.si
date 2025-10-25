@@ -21,12 +21,18 @@ export type ExtendedChatMessage = ChatMessage & {
   fileName?: string;
 };
 
-export default function ChatPanel() {
+export default function ChatPanel(props?: {
+  profile?: {
+    subscription_status: string;
+    trial_ends_at: string;
+  }
+}) {
   const [messages, setMessages] = useState<ExtendedChatMessage[]>([]);
   const [sending, setSending] = useState(false);
   const [thinking, setThinking] = useState(false);
   const [lang, setLang] = useState<'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro'>('sl');
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const isTrial = props?.profile?.subscription_status === 'trial';
 
   useEffect(() => {
     // Initialize language from localStorage
@@ -200,8 +206,77 @@ export default function ChatPanel() {
     }
   }
 
+  const upgradeText = {
+    sl: {
+      title: "🎯 Nadgradite na Premium",
+      desc: "Dobite neomejeno nalog, korake rešitev in vse funkcije!",
+      button: "Nadgradite zdaj",
+      trial: "Brezplačna preizkusna doba",
+    },
+    en: {
+      title: "🎯 Upgrade to Premium",
+      desc: "Get unlimited exercises, step-by-step solutions, and all features!",
+      button: "Upgrade now",
+      trial: "Free trial",
+    },
+    it: {
+      title: "🎯 Passa a Premium",
+      desc: "Ottieni esercizi illimitati, soluzioni passo-passo e tutte le funzionalità!",
+      button: "Aggiorna ora",
+      trial: "Prova gratuita",
+    },
+    de: {
+      title: "🎯 Auf Premium upgraden",
+      desc: "Erhalte unbegrenzte Aufgaben, Schritt-für-Schritt-Lösungen und alle Funktionen!",
+      button: "Jetzt upgraden",
+      trial: "Kostenlose Testversion",
+    },
+    fr: {
+      title: "🎯 Passer à Premium",
+      desc: "Obtenez des exercices illimités, des solutions étape par étape et toutes les fonctionnalités!",
+      button: "Mettre à niveau maintenant",
+      trial: "Essai gratuit",
+    },
+    es: {
+      title: "🎯 Actualizar a Premium",
+      desc: "¡Obtén ejercicios ilimitados, soluciones paso a paso y todas las funciones!",
+      button: "Actualizar ahora",
+      trial: "Prueba gratuita",
+    },
+    pl: {
+      title: "🎯 Przejdź na Premium",
+      desc: "Uzyskaj nieograniczone ćwiczenia, rozwiązania krok po kroku i wszystkie funkcje!",
+      button: "Uaktualnij teraz",
+      trial: "Bezpłatny okres próbny",
+    },
+    ro: {
+      title: "🎯 Treci la Premium",
+      desc: "Obține exerciții nelimitate, soluții pas cu pas și toate funcțiile!",
+      button: "Actualizează acum",
+      trial: "Perioadă de probă gratuită",
+    },
+  };
+  
   return (
     <div class="flex-1 flex flex-col h-full">
+      {/* Upgrade banner for trial users */}
+      {isTrial && (
+        <div class="bg-gradient-to-r from-yellow-50 via-orange-50 to-yellow-50 border-b-2 border-yellow-200 px-3 sm:px-4 py-3 sm:py-4 flex-shrink-0">
+          <div class="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="text-center sm:text-left">
+              <h3 class="text-sm sm:text-base font-bold text-gray-900 mb-1">{upgradeText[lang].title}</h3>
+              <p class="text-xs sm:text-sm text-gray-700">{upgradeText[lang].desc}</p>
+            </div>
+            <a 
+              href="/settings"
+              class="flex-shrink-0 px-4 sm:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all shadow-md hover:shadow-lg text-sm whitespace-nowrap"
+            >
+              ✨ {upgradeText[lang].button}
+            </a>
+          </div>
+        </div>
+      )}
+      
       {/* Scrollable messages area */}
       <div ref={scrollerRef} class="flex-1 overflow-y-auto bg-white">
         <div class="max-w-3xl mx-auto">
