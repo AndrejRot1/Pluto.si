@@ -38,17 +38,20 @@ export default function RegisterForm() {
 
     try {
       // First check if email already exists
-      console.log('Checking if email exists:', email);
+      console.log('RegisterForm: Checking if email exists:', email);
       const checkResponse = await fetch('/api/auth/check-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
 
+      console.log('RegisterForm: Check response status:', checkResponse.status);
+      
       const checkData = await checkResponse.json();
-      console.log('Email check result:', checkData);
+      console.log('RegisterForm: Email check result:', checkData);
 
       if (checkData.exists) {
+        console.log('RegisterForm: Email already exists, showing error message');
         const existsMsg = lang === 'sl' ? '⚠️ Ta email naslov je že registriran. Poskusite se prijaviti ali ponastaviti geslo.' :
                          lang === 'en' ? '⚠️ This email is already registered. Try logging in or resetting your password.' :
                          lang === 'it' ? '⚠️ Questa email è già registrata. Prova ad accedere o reimpostare la password.' :
@@ -57,13 +60,14 @@ export default function RegisterForm() {
                          lang === 'es' ? '⚠️ Este correo ya está registrado. Intenta iniciar sesión o restablecer tu contraseña.' :
                          lang === 'pl' ? '⚠️ Ten adres email jest już zarejestrowany. Spróbuj się zalogować lub zresetować hasło.' :
                          '⚠️ Acest email este deja înregistrat. Încearcă să te conectezi sau să resetezi parola.';
+        console.log('RegisterForm: Setting error message:', existsMsg);
         setMessage(existsMsg);
         setLoading(false);
         return;
       }
 
       // Proceed with registration
-      console.log('Email is available, proceeding with registration');
+      console.log('RegisterForm: Email is available, proceeding with registration');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,

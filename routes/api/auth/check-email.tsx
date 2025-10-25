@@ -23,6 +23,8 @@ export const handler = define.handlers({
       // Use service role to check if user exists
       const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
       
+      console.log('Checking email in Supabase:', email);
+      
       const { data, error } = await supabaseAdmin.auth.admin.listUsers();
 
       if (error) {
@@ -31,8 +33,22 @@ export const handler = define.handlers({
         return Response.json({ exists: false });
       }
 
-      // Check if email exists in users list
-      const userExists = data.users.some(user => user.email === email);
+      console.log('Total users in database:', data.users.length);
+      
+      // Check if email exists in users list (including unconfirmed users)
+      const userExists = data.users.some(user => {
+        const matches = user.email?.toLowerCase() === email.toLowerCase();
+        if (matches) {
+          console.log('Found existing user:', {
+            email: user.email,
+            confirmed: !!user.email_confirmed_at,
+            created: user.created_at
+          });
+        }
+        return matches;
+      });
+
+      console.log('User exists check result:', userExists);
 
       return Response.json({ exists: userExists });
     } catch (error: any) {
