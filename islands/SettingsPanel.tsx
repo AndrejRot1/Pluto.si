@@ -413,7 +413,12 @@ export default function SettingsPanel(props: {
   async function handleDeleteAccount() {
     const confirmMsg = lang === 'sl' ? "Ali ste prepričani, da želite izbrisati račun? Ta akcija je nepovrljiva!" :
                        lang === 'en' ? "Are you sure you want to delete your account? This action is irreversible!" :
-                       "Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile!";
+                       lang === 'it' ? "Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile!" :
+                       lang === 'de' ? "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion ist unwiderruflich!" :
+                       lang === 'fr' ? "Êtes-vous sûr de vouloir supprimer votre compte? Cette action est irréversible!" :
+                       lang === 'es' ? "¿Estás seguro de que quieres eliminar tu cuenta? ¡Esta acción es irreversible!" :
+                       lang === 'pl' ? "Czy na pewno chcesz usunąć swoje konto? Ta akcja jest nieodwracalna!" :
+                       "Ești sigur că vrei să îți ștergi contul? Această acțiune este ireversibilă!";
     if (!confirm(confirmMsg)) {
       return;
     }
@@ -422,10 +427,8 @@ export default function SettingsPanel(props: {
     setMessage("");
 
     try {
-      const supabase = createClient(supabaseUrl, supabaseAnonKey);
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-      if (sessionError || !session) {
+      // Check if we have access token
+      if (!accessToken) {
         setMessage(`❌ ${t.notLoggedIn}`);
         setLoading(false);
         return;
@@ -434,7 +437,7 @@ export default function SettingsPanel(props: {
       const response = await fetch("/api/auth/delete-account", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${session.access_token}`,
+          "Authorization": `Bearer ${accessToken}`,
         },
       });
 

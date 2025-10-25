@@ -18,19 +18,25 @@ export default function ForgotPasswordForm() {
     setMessage('');
 
     try {
+      console.log('Sending password reset email to:', email);
+      console.log('Redirect URL:', `${window.location.origin}/auth/reset-password`);
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       });
 
       if (error) {
-        setMessage(error.message);
+        console.error('Password reset error:', error);
+        setMessage(`❌ ${error.message}`);
         setSuccess(false);
       } else {
-        setMessage('✅ Email za ponastavitev gesla je bil poslan. Preverite svoj inbox.');
+        console.log('Password reset email sent successfully');
+        setMessage('✅ Email za ponastavitev gesla je bil poslan. Preverite svoj inbox (tudi spam mapo).');
         setSuccess(true);
       }
-    } catch (error) {
-      setMessage('Prišlo je do napake. Poskusite ponovno.');
+    } catch (error: any) {
+      console.error('Password reset catch error:', error);
+      setMessage(`❌ Prišlo je do napake: ${error?.message || 'Poskusite ponovno.'}`);
       setSuccess(false);
     } finally {
       setLoading(false);
