@@ -37,6 +37,8 @@ export default function LoginForm() {
     setMessage('');
 
     try {
+      console.log('Login form: Sending login request for', email);
+      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -45,12 +47,32 @@ export default function LoginForm() {
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('Login form: Response status:', response.status);
+      
       const data = await response.json();
+      console.log('Login form: Response data:', data);
 
       if (!response.ok || data.error) {
-        setMessage(data.error || 'Login failed');
+        console.error('Login form: Error:', data.error);
+        const errorMsg = data.error || 'Login failed';
+        
+        // Translate common errors
+        let displayError = errorMsg;
+        if (errorMsg.includes('Invalid login credentials') || errorMsg.includes('Email not confirmed')) {
+          displayError = lang === 'sl' ? '❌ Napačen email ali geslo. Preverite tudi ali ste potrdili email.' :
+                        lang === 'en' ? '❌ Invalid email or password. Also check if you confirmed your email.' :
+                        lang === 'it' ? '❌ Email o password non validi. Controlla anche se hai confermato la tua email.' :
+                        lang === 'de' ? '❌ Ungültige E-Mail oder Passwort. Überprüfen Sie auch, ob Sie Ihre E-Mail bestätigt haben.' :
+                        lang === 'fr' ? '❌ Email ou mot de passe invalide. Vérifiez également si vous avez confirmé votre email.' :
+                        lang === 'es' ? '❌ Email o contraseña inválidos. Comprueba también si has confirmado tu email.' :
+                        lang === 'pl' ? '❌ Nieprawidłowy email lub hasło. Sprawdź również, czy potwierdziłeś swój email.' :
+                        '❌ Email sau parolă invalidă. Verifică și dacă ai confirmat email-ul.';
+        }
+        
+        setMessage(displayError);
         setLoading(false);
       } else {
+        console.log('Login form: Success! Redirecting...');
         setMessage(t.successMessage);
         
         // Cookies are set by server via Set-Cookie header
@@ -59,8 +81,9 @@ export default function LoginForm() {
           window.location.href = '/app';
         }, 300);
       }
-    } catch (error) {
-      setMessage('Napaka pri prijavi');
+    } catch (error: any) {
+      console.error('Login form: Catch error:', error);
+      setMessage(`❌ ${lang === 'sl' ? 'Napaka pri prijavi' : lang === 'en' ? 'Login error' : 'Errore di accesso'}: ${error?.message || 'Unknown error'}`);
       setLoading(false);
     }
   }
