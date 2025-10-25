@@ -91,8 +91,8 @@ export const handler = define.handlers({
           mode: "subscription",
           "line_items[0][price]": STRIPE_PRICE_ID,
           "line_items[0][quantity]": "1",
-          success_url: `${origin}/?success=true`,
-          cancel_url: `${origin}/?canceled=true`,
+          success_url: `${origin}/chat?payment=success`,
+          cancel_url: `${origin}/settings?payment=canceled`,
           "metadata[supabase_user_id]": user.id,
         }),
       });
