@@ -117,12 +117,15 @@ export default function RegisterForm() {
             </button>
           </form>
           
-          <p class="mt-6 text-center text-sm text-gray-600">
-            {t.haveAccount}{" "}
-            <a href="/auth/login" class="text-blue-600 hover:underline font-medium">
+          <div class="mt-6 text-center">
+            <p class="text-sm text-gray-600 mb-3">{t.haveAccount}</p>
+            <a 
+              href="/auth/login" 
+              class="inline-block w-full py-2.5 px-4 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors font-medium text-sm"
+            >
               {t.login}
             </a>
-          </p>
+          </div>
           
           {message && (
             <div class={`mt-4 text-center text-sm p-3 rounded-md ${

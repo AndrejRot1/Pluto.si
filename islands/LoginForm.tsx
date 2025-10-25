@@ -124,12 +124,15 @@ export default function LoginForm() {
           </div>
         )}
         
-        <p class="mt-6 text-center text-sm text-gray-600">
-          {t.noAccount}{" "}
-          <a href="/auth/register" class="text-blue-600 hover:text-blue-700 font-semibold">
+        <div class="mt-6 text-center">
+          <p class="text-sm text-gray-600 mb-3">{t.noAccount}</p>
+          <a 
+            href="/auth/register" 
+            class="inline-block w-full py-2.5 px-4 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors font-medium text-sm"
+          >
             {t.register}
           </a>
-        </p>
+        </div>
         </div>
       </div>
     </div>
