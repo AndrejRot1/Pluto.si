@@ -2,6 +2,7 @@ import { Head } from "fresh/runtime";
 import { define } from "../utils.ts";
 import YearSidebar from "../islands/YearSidebar.tsx";
 import ChatPanel from "../islands/ChatPanel.tsx";
+import UpgradeButton from "../islands/UpgradeButton.tsx";
 
 export default define.page(function Home(props) {
   const user = props.state.user;
@@ -144,12 +145,10 @@ export default define.page(function Home(props) {
               {user ? (
                 <>
                   {isTrial && (
-                    <a 
-                      href="/settings"
-                      class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-gray-700 text-white text-sm font-medium rounded-md hover:bg-gray-600 transition-colors"
-                    >
-                      <span>Upgrade to Plus</span>
-                    </a>
+                    <UpgradeButton
+                      class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-gray-700 text-white text-sm font-medium rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      text="Upgrade to Plus"
+                    />
                   )}
                   <details class="relative">
                     <summary class="cursor-pointer list-none">
@@ -163,12 +162,12 @@ export default define.page(function Home(props) {
                         <p class="text-sm font-medium text-gray-900 truncate">{user.email}</p>
                       </div>
                       {isTrial && (
-                        <a 
-                          href="/settings"
-                          class="block px-4 py-2 text-sm bg-gray-700 text-white font-medium hover:bg-gray-600 transition-colors"
-                        >
-                          ⚡ Upgrade to Plus
-                        </a>
+                        <div class="px-2 py-1">
+                          <UpgradeButton
+                            class="w-full px-4 py-2 text-sm bg-gray-700 text-white font-medium hover:bg-gray-600 transition-colors rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                            text="⚡ Upgrade to Plus"
+                          />
+                        </div>
                       )}
                       <a 
                         href="/settings"

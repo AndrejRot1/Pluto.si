@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import ChatComposer from "./ChatComposer.tsx";
 import Messages, { type ChatMessage } from "./Messages.tsx";
+import UpgradeButton from "./UpgradeButton.tsx";
 
 const thinkingText = {
   sl: "Razmišljam...",
@@ -259,12 +260,10 @@ export default function ChatPanel(props?: {
               <h3 class="text-xs sm:text-sm font-medium text-gray-900 mb-0.5">{upgradeText[lang].title}</h3>
               <p class="text-xs text-gray-600">{upgradeText[lang].desc}</p>
             </div>
-            <a 
-              href="/settings"
-              class="flex-shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-700 text-white font-medium rounded-md hover:bg-gray-600 transition-colors text-xs sm:text-sm whitespace-nowrap"
-            >
-              {upgradeText[lang].button}
-            </a>
+            <UpgradeButton
+              class="flex-shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-700 text-white font-medium rounded-md hover:bg-gray-600 transition-colors text-xs sm:text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+              text={upgradeText[lang].button}
+            />
           </div>
         </div>
       )}
