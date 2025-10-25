@@ -550,7 +550,7 @@ export default function SettingsPanel(props: {
           <button
             onClick={handleUpgrade}
             disabled={loading}
-            class="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="w-full px-6 py-3 bg-gray-700 text-white rounded-xl hover:bg-gray-600 transition-all font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? t.preparing : t.upgradeNow}
           </button>
