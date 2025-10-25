@@ -6,6 +6,19 @@ export default define.page(function Settings(props) {
   const user = props.state.user;
   const profile = props.state.profile;
   
+  // Get access token from cookies
+  const authCookie = props.req.headers.get('cookie');
+  let accessToken = '';
+  if (authCookie) {
+    const cookies = Object.fromEntries(
+      authCookie.split(';').map(c => {
+        const [key, ...v] = c.trim().split('=');
+        return [key, v.join('=')];
+      })
+    );
+    accessToken = cookies['sb-access-token'] || '';
+  }
+  
   return (
     <>
       <Head>
@@ -44,7 +57,7 @@ export default define.page(function Settings(props) {
             </a>
           </div>
         </header>
-        <SettingsPanel user={user} profile={profile} />
+        <SettingsPanel user={user} profile={profile} accessToken={accessToken} />
       </div>
     </>
   );

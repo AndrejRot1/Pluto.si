@@ -301,14 +301,15 @@ export default function SettingsPanel(props: {
     subscription_status: string, 
     trial_ends_at: string,
     created_at?: string
-  } 
+  },
+  accessToken?: string
 }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [lang, setLang] = useState<'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro'>('sl');
 
-  const { user, profile } = props;
+  const { user, profile, accessToken } = props;
   const isActive = profile?.subscription_status === "active";
   const isTrial = profile?.subscription_status === "trial";
 
@@ -339,11 +340,8 @@ export default function SettingsPanel(props: {
     setMessage("");
 
     try {
-      // Get session from Supabase
-      const supabase = createClient(supabaseUrl, supabaseAnonKey);
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-      if (sessionError || !session) {
+      // Check if we have access token
+      if (!accessToken) {
         setMessage(`❌ ${t.notLoggedIn}`);
         setLoading(false);
         return;
@@ -352,7 +350,7 @@ export default function SettingsPanel(props: {
       const response = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${session.access_token}`,
+          "Authorization": `Bearer ${accessToken}`,
         },
       });
 
@@ -380,10 +378,7 @@ export default function SettingsPanel(props: {
     setMessage("");
 
     try {
-      const supabase = createClient(supabaseUrl, supabaseAnonKey);
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-      if (sessionError || !session) {
+      if (!accessToken) {
         setMessage(`❌ ${t.notLoggedIn}`);
         setLoading(false);
         return;
@@ -392,7 +387,7 @@ export default function SettingsPanel(props: {
       const response = await fetch("/api/stripe/portal", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${session.access_token}`,
+          "Authorization": `Bearer ${accessToken}`,
         },
       });
 
