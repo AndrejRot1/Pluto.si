@@ -261,7 +261,7 @@ export default function ChatPanel(props?: {
             </div>
             <a 
               href="/settings"
-              class="flex-shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition-colors text-xs sm:text-sm whitespace-nowrap"
+              class="flex-shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-700 text-white font-medium rounded-md hover:bg-gray-600 transition-colors text-xs sm:text-sm whitespace-nowrap"
             >
               {upgradeText[lang].button}
             </a>
