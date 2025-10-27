@@ -1,6 +1,6 @@
 -- ============================================
 -- PLUTO.SI - Additional Supabase Schema
--- (tabela "profiles" že obstaja)
+-- (tabela "user_profiles" že obstaja)
 -- ============================================
 
 -- 1. Subscriptions Table (nova tabela)
@@ -45,7 +45,7 @@ DECLARE
 BEGIN
   SELECT subscription_status, trial_ends_at
   INTO profile_record
-  FROM profiles
+  FROM user_profiles
   WHERE id = user_id;
   
   IF NOT FOUND THEN
@@ -76,9 +76,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Triggers for updated_at
-DROP TRIGGER IF EXISTS update_profiles_updated_at ON profiles;
-CREATE TRIGGER update_profiles_updated_at
-  BEFORE UPDATE ON profiles
+DROP TRIGGER IF EXISTS update_user_profiles_updated_at ON user_profiles;
+CREATE TRIGGER update_user_profiles_updated_at
+  BEFORE UPDATE ON user_profiles
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
@@ -91,6 +91,6 @@ CREATE TRIGGER update_subscriptions_updated_at
 -- ============================================
 -- GRANTS (for authenticated users)
 -- ============================================
-GRANT SELECT, UPDATE ON profiles TO authenticated;
+GRANT SELECT, UPDATE ON user_profiles TO authenticated;
 GRANT SELECT ON subscriptions TO authenticated;
 

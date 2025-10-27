@@ -72,9 +72,9 @@ export const handler = define.middleware(async (ctx) => {
       });
     }
 
-    // Get user profile from user_profiles table
+    // Get user profile from profiles table
     const { data: profile } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
@@ -100,7 +100,7 @@ export const handler = define.middleware(async (ctx) => {
       if (trialEnded) {
         console.log('Trial expired, updating status to expired');
         await supabase
-          .from('user_profiles')
+          .from('profiles')
           .update({ subscription_status: 'expired' })
           .eq('id', user.id);
         
