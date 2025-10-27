@@ -100,22 +100,18 @@ DECLARE
 BEGIN
   -- Check if profile already exists
   SELECT * INTO existing_profile
-  FROM profiles
+  FROM user_profiles
   WHERE email = NEW.email
   LIMIT 1;
   
-  -- If profile exists and trial has expired, don't create new trial
+  -- If profile exists, don't create new trial
   IF existing_profile IS NOT NULL THEN
-    -- Check if previous trial has expired
-    IF existing_profile.trial_ends_at < NOW() AND existing_profile.subscription_status != 'active' THEN
-      -- User already used their trial, don't give them another one
-      RAISE NOTICE 'User % attempted to register again but trial already expired at %', NEW.email, existing_profile.trial_ends_at;
-    END IF;
+    RAISE NOTICE 'User % already has a profile, no new trial granted', NEW.email;
     RETURN NEW;
   END IF;
   
   -- Create new profile with trial (first time registration)
-  INSERT INTO profiles (id, email, trial_ends_at, subscription_status)
+  INSERT INTO user_profiles (id, email, trial_ends_at, subscription_status)
   VALUES (
     NEW.id,
     NEW.email,
