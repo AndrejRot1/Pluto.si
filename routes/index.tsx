@@ -212,8 +212,56 @@ export default define.page(function LandingPage() {
         </section>
 
         {/* Footer */}
-        <footer class="py-8 px-4 sm:px-6 lg:px-8 bg-gray-900 text-gray-400 text-center">
-          <p>© 2025 Pluto.si - AI Math Tutor</p>
+        <footer class="py-12 px-4 sm:px-6 lg:px-8 bg-gray-900">
+          <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+              {/* About */}
+              <div>
+                <h4 class="text-white font-semibold mb-3">About Pluto</h4>
+                <p class="text-gray-400 text-sm">
+                  AI-powered math tutoring platform. 
+                  Personalized learning with progressive difficulty.
+                </p>
+              </div>
+              
+              {/* Products */}
+              <div>
+                <h4 class="text-white font-semibold mb-3">Products</h4>
+                <ul class="space-y-2 text-sm">
+                  <li><a href="/" class="text-gray-400 hover:text-white transition-colors">Pluto - Math Tutor</a></li>
+                  <li class="text-gray-500">More coming soon...</li>
+                </ul>
+              </div>
+              
+              {/* Support */}
+              <div>
+                <h4 class="text-white font-semibold mb-3">Support</h4>
+                <ul class="space-y-2 text-sm">
+                  <li><a href="mailto:support@teachmathai.com" class="text-gray-400 hover:text-white transition-colors">Email Support</a></li>
+                  <li><a href="/demo" class="text-gray-400 hover:text-white transition-colors">Try Demo</a></li>
+                </ul>
+              </div>
+              
+              {/* Legal */}
+              <div>
+                <h4 class="text-white font-semibold mb-3">Legal</h4>
+                <ul class="space-y-2 text-sm">
+                  <li><a href="/terms" class="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
+                  <li><a href="/privacy" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                </ul>
+              </div>
+            </div>
+            
+            {/* Bottom */}
+            <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+              <p class="text-gray-400 text-sm">© 2025 TeachMath AI - Pluto. All rights reserved.</p>
+              <div class="flex items-center gap-2">
+                <a href="https://teachmathai.com" class="text-gray-400 hover:text-white transition-colors text-sm">
+                  teachmathai.com
+                </a>
+              </div>
+            </div>
+          </div>
         </footer>
 
         {/* Language Detection & Translation Script */}
