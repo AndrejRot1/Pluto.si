@@ -155,6 +155,35 @@ export default define.page(function LandingPage() {
           </div>
         </section>
 
+        {/* Pricing Section */}
+        <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+          <div class="max-w-7xl mx-auto">
+            <h3 class="text-4xl font-bold text-center text-gray-900 mb-4">
+              Simple Pricing: Just €9.99/month
+            </h3>
+            <p class="text-center text-gray-600 mb-8">
+              After your 3-day free trial
+            </p>
+            
+            <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl border-2 border-blue-500 p-8 text-center">
+              <h4 class="text-2xl font-bold text-gray-900 mb-4">Plus Plan</h4>
+              <div class="flex items-baseline justify-center gap-2 mb-6">
+                <span class="text-5xl font-bold text-gray-900">€9.99</span>
+                <span class="text-xl text-gray-600">/month</span>
+              </div>
+              <a 
+                href="/auth/register" 
+                class="inline-block w-full px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
+              >
+                Start Free Trial
+              </a>
+              <p class="text-sm text-gray-500 mt-4">
+                No credit card required • Cancel anytime
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-purple-600">
           <div class="max-w-4xl mx-auto text-center">
