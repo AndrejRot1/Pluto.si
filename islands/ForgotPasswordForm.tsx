@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = 'https://vbmtvnqnpsbgnxasejcg.supabase.co';
@@ -11,6 +11,15 @@ export default function ForgotPasswordForm() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [lang, setLang] = useState<'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro'>('sl');
+
+  // Get language from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro' || 'sl';
+      setLang(savedLang);
+    }
+  }, []);
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
@@ -27,11 +36,33 @@ export default function ForgotPasswordForm() {
 
       if (error) {
         console.error('Password reset error:', error);
-        setMessage(`❌ ${error.message}`);
+        
+        // Handle rate limit error
+        if (error.message.includes('rate limit') || error.message.includes('too many requests')) {
+          const rateLimitMsg = lang === 'sl' ? '❌ Preveč zahtev v kratkem času. Počakaj 1 minuto in poskusi znova.' :
+                           lang === 'en' ? '❌ Too many requests. Please wait 1 minute and try again.' :
+                           lang === 'it' ? '❌ Troppe richieste. Attendi 1 minuto e riprova.' :
+                           lang === 'de' ? '❌ Zu viele Anfragen. Warten Sie 1 Minute und versuchen Sie es erneut.' :
+                           lang === 'fr' ? '❌ Trop de demandes. Attendez 1 minute et réessayez.' :
+                           lang === 'es' ? '❌ Demasiadas solicitudes. Espera 1 minuto e inténtalo de nuevo.' :
+                           lang === 'pl' ? '❌ Zbyt wiele żądań. Poczekaj 1 minutę i spróbuj ponownie.' :
+                           '❌ Prea multe cereri. Așteaptă 1 minut și încearcă din nou.';
+          setMessage(rateLimitMsg);
+        } else {
+          setMessage(`❌ ${error.message}`);
+        }
         setSuccess(false);
       } else {
         console.log('Password reset email sent successfully');
-        setMessage('✅ Email za ponastavitev gesla je bil poslan. Preverite svoj inbox (tudi spam mapo).');
+        const successMsg = lang === 'sl' ? '✅ Email za ponastavitev gesla je bil poslan. Preverite svoj inbox (tudi spam mapo).' :
+                          lang === 'en' ? '✅ Password reset email sent. Check your inbox (including spam).' :
+                          lang === 'it' ? '✅ Email di reset password inviato. Controlla la posta (anche spam).' :
+                          lang === 'de' ? '✅ Passwort-Reset-E-Mail gesendet. Überprüfe dein Postfach (auch Spam).' :
+                          lang === 'fr' ? '✅ Email de réinitialisation envoyé. Vérifie ta boîte mail (y compris spam).' :
+                          lang === 'es' ? '✅ Email de restablecimiento enviado. Revisa tu bandeja de entrada (incluido spam).' :
+                          lang === 'pl' ? '✅ E-mail resetowania hasła wysłany. Sprawdź skrzynkę (w tym spam).' :
+                          '✅ Email de resetare trimis. Verifică căsuța poștală (inclusiv spam).';
+        setMessage(successMsg);
         setSuccess(true);
       }
     } catch (error: any) {
