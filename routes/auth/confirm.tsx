@@ -1,5 +1,52 @@
 import { define } from "../../utils.ts";
 import { Head } from "fresh/runtime";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = Deno.env.get("SUPABASE_URL") || "https://vbmtvnqnpsbgnxasejcg.supabase.co";
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+
+export const handler = define.handlers({
+  async GET(ctx) {
+    try {
+      const url = new URL(ctx.req.url);
+      const accessToken = url.hash.split('&').find(param => param.startsWith('access_token='))?.split('=')[1];
+      
+      if (accessToken && supabaseServiceKey) {
+        // Get user from token
+        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+        const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(accessToken);
+        
+        if (!userError && user) {
+          // Check if profile exists
+          const { data: profile, error: profileError } = await supabaseAdmin
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+          
+          // If no profile, create one
+          if (!profile && !profileError) {
+            console.log('Creating profile for confirmed user:', user.email);
+            await supabaseAdmin
+              .from('profiles')
+              .insert({
+                id: user.id,
+                email: user.email,
+                trial_ends_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+                subscription_status: 'trial',
+                created_at: new Date().toISOString(),
+              });
+          }
+        }
+      }
+      
+      return await ctx.render();
+    } catch (error) {
+      console.error('Confirm email handler error:', error);
+      return await ctx.render();
+    }
+  },
+});
 
 export default define.page(function ConfirmEmail() {
   return (
