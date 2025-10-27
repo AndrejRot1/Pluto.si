@@ -5,8 +5,8 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://vbmtvnqnpsbgnxasejc
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZibXR2bnFucHNiZ254YXNlamNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5OTk2OTAsImV4cCI6MjA3NjU3NTY5MH0.qVtDmSgAaEwYVAi8LKSXZbfKt02HU3A_fV1QC0-bESs';
 
 export const handler = define.middleware(async (ctx) => {
-  // Dovoli dostop do javnih strani (auth, api, trial-expired, root landing, demo)
-  const publicPaths = ['/auth/', '/api/', '/trial-expired', '/demo'];
+  // Dovoli dostop do javnih strani (auth, api, trial-expired, root landing, demo, terms, privacy)
+  const publicPaths = ['/auth/', '/api/', '/trial-expired', '/demo', '/terms', '/privacy'];
   // Allow root path (landing page) and exact matches
   if (ctx.url.pathname === '/' || publicPaths.some(path => ctx.url.pathname.startsWith(path) || ctx.url.pathname === path)) {
     return await ctx.next();
