@@ -17,9 +17,12 @@ export default define.page(function LandingPage() {
             <div class="flex items-center gap-2">
               <span class="text-2xl">🚀</span>
               <div>
-                <h1 class="text-xl font-bold text-gray-900">Pluto.si</h1>
+                <div class="flex items-center gap-1.5">
+                  <h1 class="text-xl font-bold text-gray-900">Pluto</h1>
+                  <span class="text-xs text-gray-500 font-medium">by TeachMath AI</span>
+                </div>
                 <p id="header-planet-text" class="text-xs text-gray-500 -mt-1">
-                  A planet orbiting teachmathai.com • More planets coming soon!
+                  Next-generation AI math tutor
                 </p>
               </div>
             </div>
@@ -220,7 +223,7 @@ export default define.page(function LandingPage() {
               sl: {
                 login: "Prijava",
                 register: "Registriraj se",
-                headerPlanetText: "Planet, ki kroži okoli teachmathai.com • Kmalu več planetov!",
+                headerPlanetText: "Nova generacija AI učiteljev za matematiko",
                 heroTitle: "Obvladaj matematiko z AI",
                 heroSubtitle: "Personalizirano matematično tutorstvo s pomočjo umetne inteligence. Progresivna težavnost, koraki rešitev in takojšnja povratna informacija.",
                 heroCta: "Začni se učiti brezplačno",
@@ -247,7 +250,7 @@ export default define.page(function LandingPage() {
               en: {
                 login: "Login",
                 register: "Register now",
-                headerPlanetText: "A planet orbiting teachmathai.com • More planets coming soon!",
+                headerPlanetText: "Next-generation AI math tutor",
                 heroTitle: "Master Mathematics with AI",
                 heroSubtitle: "Personalized math tutoring powered by artificial intelligence. Progressive difficulty, step-by-step solutions, and instant feedback.",
                 heroCta: "Start Learning Free",
