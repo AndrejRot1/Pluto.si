@@ -95,13 +95,35 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Function to automatically create user profile on signup
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  existing_profile RECORD;
 BEGIN
-  INSERT INTO user_profiles (id, email, trial_ends_at)
+  -- Check if profile already exists
+  SELECT * INTO existing_profile
+  FROM profiles
+  WHERE email = NEW.email
+  LIMIT 1;
+  
+  -- If profile exists and trial has expired, don't create new trial
+  IF existing_profile IS NOT NULL THEN
+    -- Check if previous trial has expired
+    IF existing_profile.trial_ends_at < NOW() AND existing_profile.subscription_status != 'active' THEN
+      -- User already used their trial, don't give them another one
+      RAISE NOTICE 'User % attempted to register again but trial already expired at %', NEW.email, existing_profile.trial_ends_at;
+    END IF;
+    RETURN NEW;
+  END IF;
+  
+  -- Create new profile with trial (first time registration)
+  INSERT INTO profiles (id, email, trial_ends_at, subscription_status)
   VALUES (
     NEW.id,
     NEW.email,
-    NOW() + INTERVAL '3 days'
-  );
+    NOW() + INTERVAL '3 days',
+    'trial'
+  )
+  ON CONFLICT (id) DO NOTHING;
+  
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
