@@ -16,7 +16,12 @@ export default define.page(function LandingPage() {
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
             <div class="flex items-center gap-2">
               <span class="text-2xl">🚀</span>
-              <h1 class="text-xl font-bold text-gray-900">Pluto.si</h1>
+              <div>
+                <h1 class="text-xl font-bold text-gray-900">Pluto.si</h1>
+                <p id="header-planet-text" class="text-xs text-gray-500 -mt-1">
+                  A planet orbiting teachmathai.com • More planets coming soon!
+                </p>
+              </div>
             </div>
             <div class="flex items-center gap-3">
               <a 
@@ -215,6 +220,7 @@ export default define.page(function LandingPage() {
               sl: {
                 login: "Prijava",
                 register: "Registriraj se",
+                headerPlanetText: "Planet, ki kroži okoli teachmathai.com • Kmalu več planetov!",
                 heroTitle: "Obvladaj matematiko z AI",
                 heroSubtitle: "Personalizirano matematično tutorstvo s pomočjo umetne inteligence. Progresivna težavnost, koraki rešitev in takojšnja povratna informacija.",
                 heroCta: "Začni se učiti brezplačno",
@@ -241,6 +247,7 @@ export default define.page(function LandingPage() {
               en: {
                 login: "Login",
                 register: "Register now",
+                headerPlanetText: "A planet orbiting teachmathai.com • More planets coming soon!",
                 heroTitle: "Master Mathematics with AI",
                 heroSubtitle: "Personalized math tutoring powered by artificial intelligence. Progressive difficulty, step-by-step solutions, and instant feedback.",
                 heroCta: "Start Learning Free",
@@ -488,6 +495,8 @@ export default define.page(function LandingPage() {
             
             document.getElementById('login-btn').textContent = t.login;
             document.getElementById('register-btn').textContent = t.register;
+            const planetTextEl = document.getElementById('header-planet-text');
+            if (planetTextEl && t.headerPlanetText) planetTextEl.textContent = t.headerPlanetText;
             document.getElementById('hero-title').textContent = t.heroTitle;
             document.getElementById('hero-subtitle').textContent = t.heroSubtitle;
             document.getElementById('hero-cta').textContent = t.heroCta;
