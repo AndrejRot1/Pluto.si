@@ -53,6 +53,13 @@ export const handler = define.handlers({
 
       console.log("✅ Stripe session verified for user:", userId);
 
+      // Get subscription from session
+      const subscriptionId = session.subscription;
+      const customerId = session.customer;
+
+      console.log("🔵 Subscription ID:", subscriptionId);
+      console.log("🔵 Customer ID:", customerId);
+
       // Get user from Supabase
       const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
       const { data: { user }, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
@@ -63,6 +70,43 @@ export const handler = define.handlers({
           status: 302,
           headers: { Location: "/auth/register" },
         });
+      }
+
+      // Update profile with active subscription
+      if (subscriptionId && customerId) {
+        console.log("🔵 Updating profile to active subscription...");
+        const { error: updateError } = await supabaseAdmin
+          .from("profiles")
+          .update({
+            subscription_status: "active",
+            stripe_subscription_id: subscriptionId,
+            stripe_customer_id: customerId,
+          })
+          .eq("id", userId);
+
+        if (updateError) {
+          console.error("❌ Failed to update profile:", updateError);
+        } else {
+          console.log("✅ Profile updated to active subscription");
+        }
+
+        // Also update subscriptions table
+        const { error: subError } = await supabaseAdmin
+          .from("subscriptions")
+          .upsert({
+            user_id: userId,
+            stripe_customer_id: customerId,
+            stripe_subscription_id: subscriptionId,
+            status: "active",
+          }, {
+            onConflict: "stripe_subscription_id",
+          });
+
+        if (subError) {
+          console.error("❌ Failed to update subscriptions table:", subError);
+        } else {
+          console.log("✅ Subscriptions table updated");
+        }
       }
 
       // Create new session for user

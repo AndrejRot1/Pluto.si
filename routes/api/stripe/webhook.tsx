@@ -7,6 +7,7 @@ const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET") || "";
+const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY") || "";
 
 export const handler = define.handlers({
   async POST(ctx) {
@@ -30,10 +31,42 @@ export const handler = define.handlers({
         case "customer.subscription.created":
         case "customer.subscription.updated": {
           const subscription = event.data.object;
-          const userId = subscription.metadata?.supabase_user_id;
+          let userId = subscription.metadata?.supabase_user_id;
+
+          // If no userId in subscription metadata, try to get it from customer
+          if (!userId) {
+            console.log("No user ID in subscription metadata, checking customer...");
+            // Get customer to check metadata
+            const customerRes = await fetch(`https://api.stripe.com/v1/customers/${subscription.customer}`, {
+              headers: {
+                "Authorization": `Bearer ${STRIPE_SECRET_KEY}`,
+              },
+            });
+            
+            if (customerRes.ok) {
+              const customer = await customerRes.json();
+              userId = customer.metadata?.supabase_user_id;
+              console.log("Found user ID from customer:", userId);
+            }
+
+            // Last resort: find user by stripe_customer_id in profiles
+            if (!userId) {
+              console.log("Checking profiles table for customer ID...");
+              const { data: profile } = await supabaseAdmin
+                .from("profiles")
+                .select("id")
+                .eq("stripe_customer_id", subscription.customer)
+                .single();
+              
+              if (profile) {
+                userId = profile.id;
+                console.log("Found user ID from profiles:", userId);
+              }
+            }
+          }
 
           if (!userId) {
-            console.error("No user ID in subscription metadata");
+            console.error("No user ID found for subscription:", subscription.id);
             break;
           }
 
@@ -75,10 +108,36 @@ export const handler = define.handlers({
 
         case "customer.subscription.deleted": {
           const subscription = event.data.object;
-          const userId = subscription.metadata?.supabase_user_id;
+          let userId = subscription.metadata?.supabase_user_id;
+
+          // If no userId in subscription metadata, try to get it from customer or profiles
+          if (!userId) {
+            const customerRes = await fetch(`https://api.stripe.com/v1/customers/${subscription.customer}`, {
+              headers: {
+                "Authorization": `Bearer ${STRIPE_SECRET_KEY}`,
+              },
+            });
+            
+            if (customerRes.ok) {
+              const customer = await customerRes.json();
+              userId = customer.metadata?.supabase_user_id;
+            }
+
+            if (!userId) {
+              const { data: profile } = await supabaseAdmin
+                .from("profiles")
+                .select("id")
+                .eq("stripe_customer_id", subscription.customer)
+                .single();
+              
+              if (profile) {
+                userId = profile.id;
+              }
+            }
+          }
 
           if (!userId) {
-            console.error("No user ID in subscription metadata");
+            console.error("No user ID found for deleted subscription:", subscription.id);
             break;
           }
 
