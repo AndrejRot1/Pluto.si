@@ -34,23 +34,36 @@ export const handler = define.handlers({
       }
 
       console.log('Delete account: User verified:', user.email);
-      console.log('Delete account: Attempting to delete user ID:', user.id);
+      console.log('Delete account: Deleting profile (keeping auth.users) for ID:', user.id);
 
-      // Delete user from auth.users (cascade will delete profile and subscriptions)
-      const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+      // Delete related subscriptions first (optional, keep data clean)
+      const { error: subsDeleteError } = await supabaseAdmin
+        .from('subscriptions')
+        .delete()
+        .eq('user_id', user.id);
 
-      if (deleteError) {
-        console.error("Delete user error:", deleteError);
-        return new Response(JSON.stringify({ error: "Failed to delete account" }), {
+      if (subsDeleteError) {
+        console.warn('Delete account: Could not delete subscriptions:', subsDeleteError);
+      }
+
+      // Delete profile row only, do NOT delete from auth.users
+      const { error: profileDeleteError } = await supabaseAdmin
+        .from('profiles')
+        .delete()
+        .eq('id', user.id);
+
+      if (profileDeleteError) {
+        console.error('Delete account: Failed to delete profile:', profileDeleteError);
+        return new Response(JSON.stringify({ error: "Failed to delete profile" }), {
           status: 500,
           headers: { "Content-Type": "application/json" },
         });
       }
 
-      console.log('Delete account: User successfully deleted:', user.email);
+      console.log('Delete account: Profile deleted. Auth user retained:', user.email);
 
       // Clear cookies
-      return new Response(JSON.stringify({ success: true }), {
+      return new Response(JSON.stringify({ success: true, message: 'Profile deleted, auth user retained' }), {
         status: 200,
         headers: {
           "Content-Type": "application/json",
