@@ -34,7 +34,27 @@ export const handler = define.handlers({
       }
 
       console.log('Delete account: User verified:', user.email);
-      console.log('Delete account: Deleting profile (keeping auth.users) for ID:', user.id);
+      console.log('Delete account: Deleting account completely for ID:', user.id);
+
+      // Mark email as used trial BEFORE deleting from auth.users
+      // This ensures email is tracked in used_trials table even after account deletion
+      // The trigger will also handle this, but we do it explicitly here too for safety
+      const { error: markTrialError } = await supabaseAdmin
+        .from('used_trials')
+        .upsert({
+          email: user.email,
+          first_used_at: new Date().toISOString(),
+          created_at: new Date().toISOString()
+        }, {
+          onConflict: 'email',
+          ignoreDuplicates: false
+        });
+
+      if (markTrialError) {
+        console.warn('Delete account: Could not mark trial as used (trigger will handle it):', markTrialError);
+      } else {
+        console.log('Delete account: Email marked as used trial:', user.email);
+      }
 
       // Delete related subscriptions first (optional, keep data clean)
       const { error: subsDeleteError } = await supabaseAdmin
@@ -46,24 +66,33 @@ export const handler = define.handlers({
         console.warn('Delete account: Could not delete subscriptions:', subsDeleteError);
       }
 
-      // Delete profile row only, do NOT delete from auth.users
+      // Delete profile row (will be deleted automatically via CASCADE when auth.users is deleted)
+      // But we delete it explicitly first to ensure clean deletion
       const { error: profileDeleteError } = await supabaseAdmin
         .from('profiles')
         .delete()
         .eq('id', user.id);
 
       if (profileDeleteError) {
-        console.error('Delete account: Failed to delete profile:', profileDeleteError);
-        return new Response(JSON.stringify({ error: "Failed to delete profile" }), {
+        console.warn('Delete account: Could not delete profile (will be deleted via CASCADE):', profileDeleteError);
+      }
+
+      // Delete user from auth.users (this will trigger mark_trial_before_user_deletion)
+      // This ensures email is tracked in used_trials even if something goes wrong
+      const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+
+      if (deleteUserError) {
+        console.error('Delete account: Failed to delete user from auth.users:', deleteUserError);
+        return new Response(JSON.stringify({ error: "Failed to delete user account" }), {
           status: 500,
           headers: { "Content-Type": "application/json" },
         });
       }
 
-      console.log('Delete account: Profile deleted. Auth user retained:', user.email);
+      console.log('Delete account: Account completely deleted. Email tracked in used_trials:', user.email);
 
       // Clear cookies
-      return new Response(JSON.stringify({ success: true, message: 'Profile deleted, auth user retained' }), {
+      return new Response(JSON.stringify({ success: true, message: 'Account completely deleted' }), {
         status: 200,
         headers: {
           "Content-Type": "application/json",

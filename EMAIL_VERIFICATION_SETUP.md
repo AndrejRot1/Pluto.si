@@ -48,13 +48,25 @@ Potrdite svoj Pluto.si račun
 
 ### C. Nastavi Redirect URL
 
+**⚠️ POMEMBNO:** Supabase zahteva **NATANČNE URL-je**, ne wildcard `/**`!
+
 1. V Supabase Dashboard → **Authentication** → **URL Configuration**
-2. Dodaj v **Redirect URLs**:
+2. Dodaj v **Redirect URLs** (vsak URL v svojo vrstico):
    ```
    http://localhost:5174/auth/confirm
-   https://pluto.si/auth/confirm
+   https://teachmathai.com/auth/confirm
+   https://www.teachmathai.com/auth/confirm
    ```
+   **NE uporabljaj:**
+   - ❌ `http://localhost:5174/**`
+   - ❌ `https://teachmathai.com/**`
+   - ❌ `https://www.teachmathai.com/**`
+   
 3. Klikni **Save**
+
+**Napaka, če nisi natančen:**
+- Supabase vrne `500 Internal Server Error` pri kliku na email link
+- Email confirmation ne deluje
 
 ### D. Email Providers (za produkcijo)
 

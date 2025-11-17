@@ -1,17 +1,5 @@
 import { define } from "../../utils.ts";
 import { Head } from "fresh/runtime";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = Deno.env.get("SUPABASE_URL") || "https://vbmtvnqnpsbgnxasejcg.supabase.co";
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-
-export const handler = define.handlers({
-  async GET(ctx) {
-    // Hash params are only available on client-side, so we just render the page
-    // Client-side JavaScript will handle the confirmation
-    return await ctx.render();
-  },
-});
 
 export default define.page(function ConfirmEmail() {
   return (
@@ -21,16 +9,24 @@ export default define.page(function ConfirmEmail() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="/styles.css" />
         <script dangerouslySetInnerHTML={{__html: `
-          (async function() {
-            // Parse hash params from Supabase redirect
-            const hashParams = new URLSearchParams(window.location.hash.substring(1));
-            const accessToken = hashParams.get('access_token');
-            const refreshToken = hashParams.get('refresh_token');
-            const type = hashParams.get('type');
-            const error = hashParams.get('error');
-            const errorDescription = hashParams.get('error_description');
+          (function() {
+            // Wait for DOM to be ready
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', handleEmailConfirmation);
+            } else {
+              handleEmailConfirmation();
+            }
+            
+            function handleEmailConfirmation() {
+              // Parse hash params from Supabase redirect
+              const hashParams = new URLSearchParams(window.location.hash.substring(1));
+              const accessToken = hashParams.get('access_token');
+              const refreshToken = hashParams.get('refresh_token');
+              const type = hashParams.get('type');
+              const error = hashParams.get('error');
+              const errorDescription = hashParams.get('error_description');
 
-            console.log('Email confirmation params:', { type, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, error });
+              console.log('Email confirmation params:', { type, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, error });
 
             // Check for errors first
             if (error) {
@@ -55,18 +51,22 @@ export default define.page(function ConfirmEmail() {
               
               // Profile should be created by database trigger
               // Show success message
-              document.getElementById('status').innerHTML = \`
-                <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-                  <div class="text-5xl mb-4">✅</div>
-                  <h2 class="text-xl font-bold text-green-900 mb-2">Email potrjen!</h2>
-                  <p class="text-green-700 mb-4">Vaš račun je bil uspešno aktiviran. Preusmerjam vas...</p>
-                </div>
-              \`;
+              const statusEl = document.getElementById('status');
+              if (statusEl) {
+                statusEl.innerHTML = \`
+                  <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
+                    <div class="text-5xl mb-4">✅</div>
+                    <h2 class="text-xl font-bold text-green-900 mb-2">Email potrjen!</h2>
+                    <p class="text-green-700 mb-4">Vaš račun je bil uspešno aktiviran. Preusmerjam vas na prijavo...</p>
+                  </div>
+                \`;
+              }
               
-              // Redirect to main app
+              // Redirect to login page immediately
+              console.log('Redirecting to login...');
               setTimeout(() => {
-                window.location.href = '/app';
-              }, 2000);
+                window.location.replace('/auth/login');
+              }, 1000);
             } else {
               // Show error - missing tokens
               document.getElementById('status').innerHTML = \`
@@ -79,6 +79,7 @@ export default define.page(function ConfirmEmail() {
                   </a>
                 </div>
               \`;
+            }
             }
           })();
         `}} />
