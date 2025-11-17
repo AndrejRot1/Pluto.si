@@ -35,11 +35,26 @@ export const handler = define.handlers({
       // Get or create Stripe customer
       const { data: profile } = await supabaseAdmin
         .from("profiles")
-        .select("stripe_customer_id, email")
+        .select("stripe_customer_id, email, subscription_status, trial_ends_at")
         .eq("id", user.id)
         .single();
 
       let customerId = profile?.stripe_customer_id;
+      
+      // Check if user is still in trial period
+      const isInTrial = profile?.subscription_status === 'trial' && 
+                       profile?.trial_ends_at && 
+                       new Date(profile.trial_ends_at) > new Date();
+      
+      // Calculate remaining trial days (if in trial)
+      let trialEndDays = 0;
+      if (isInTrial && profile?.trial_ends_at) {
+        const trialEnd = new Date(profile.trial_ends_at);
+        const now = new Date();
+        const diffTime = trialEnd.getTime() - now.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        trialEndDays = Math.max(0, diffDays);
+      }
 
       // Create Stripe customer if doesn't exist
       if (!customerId) {
@@ -79,6 +94,29 @@ export const handler = define.handlers({
       const origin = ctx.url.origin;
       console.log("🔵 Creating checkout with customer ID:", customerId);
       console.log("🔵 Price ID:", STRIPE_PRICE_ID);
+      console.log("🔵 Is in trial:", isInTrial, "Trial days remaining:", trialEndDays);
+      
+      // Build checkout session parameters
+      const checkoutParams: Record<string, string> = {
+        customer: customerId || "",
+        mode: "subscription",
+        "line_items[0][price]": STRIPE_PRICE_ID,
+        "line_items[0][quantity]": "1",
+        success_url: `${origin}/auth/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/settings?payment=canceled`,
+        "metadata[supabase_user_id]": user.id,
+      };
+      
+      // If user is in trial, add trial period to subscription
+      // This ensures Stripe will automatically charge after trial ends
+      if (isInTrial && trialEndDays > 0) {
+        // Set trial end date (in Unix timestamp)
+        const trialEndDate = new Date(profile.trial_ends_at);
+        const trialEndUnix = Math.floor(trialEndDate.getTime() / 1000);
+        
+        checkoutParams["subscription_data[trial_end]"] = trialEndUnix.toString();
+        console.log("🔵 Adding trial period to subscription, ends at:", trialEndDate);
+      }
       
       const checkoutRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
         method: "POST",
@@ -86,15 +124,7 @@ export const handler = define.handlers({
           "Authorization": `Bearer ${STRIPE_SECRET_KEY}`,
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: new URLSearchParams({
-          customer: customerId || "",
-          mode: "subscription",
-          "line_items[0][price]": STRIPE_PRICE_ID,
-          "line_items[0][quantity]": "1",
-          success_url: `${origin}/auth/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${origin}/settings?payment=canceled`,
-          "metadata[supabase_user_id]": user.id,
-        }),
+        body: new URLSearchParams(checkoutParams),
       });
 
       const session = await checkoutRes.json();
