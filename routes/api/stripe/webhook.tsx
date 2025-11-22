@@ -100,7 +100,7 @@ export const handler = define.handlers({
 
       const body = await ctx.req.text();
 
-      // Verify webhook signature for security
+      // Verify webhook signature for security (if secret is set)
       if (STRIPE_WEBHOOK_SECRET) {
         try {
           const isValid = await verifyStripeWebhookSignature(
@@ -110,17 +110,13 @@ export const handler = define.handlers({
           );
           
           if (!isValid) {
-            console.error("❌ Webhook signature verification failed");
+            console.error("Webhook signature verification failed");
             return new Response("Invalid signature", { status: 400 });
           }
-          
-          console.log("✅ Webhook signature verified");
         } catch (error) {
-          console.error("❌ Webhook verification error:", error);
+          console.error("Webhook verification error:", error);
           return new Response("Webhook verification failed", { status: 400 });
         }
-      } else {
-        console.warn("⚠️ STRIPE_WEBHOOK_SECRET not set - webhook not verified (INSECURE)");
       }
       
       const event = JSON.parse(body);
