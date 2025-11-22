@@ -9,6 +9,87 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET") || "";
 const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY") || "";
 
+/**
+ * Verify Stripe webhook signature using HMAC SHA256
+ * Based on: https://stripe.com/docs/webhooks/signatures
+ */
+async function verifyStripeWebhookSignature(
+  payload: string,
+  signature: string,
+  secret: string
+): Promise<boolean> {
+  try {
+    // Parse signature header (format: "t=timestamp,v1=signature,v1=signature2,...")
+    const elements = signature.split(",");
+    const sigHeader: Record<string, string> = {};
+    
+    for (const element of elements) {
+      const [key, value] = element.split("=");
+      if (key && value) {
+        sigHeader[key] = value;
+      }
+    }
+    
+    // Get timestamp and signature
+    const timestamp = sigHeader.t;
+    const signatures = Object.entries(sigHeader)
+      .filter(([key]) => key.startsWith("v"))
+      .map(([, value]) => value);
+    
+    if (!timestamp || signatures.length === 0) {
+      return false;
+    }
+    
+    // Check timestamp (reject if older than 5 minutes)
+    const currentTime = Math.floor(Date.now() / 1000);
+    const eventTime = parseInt(timestamp);
+    if (Math.abs(currentTime - eventTime) > 300) {
+      console.warn("⚠️ Webhook timestamp too old or too far in future");
+      return false;
+    }
+    
+    // Create signed payload
+    const signedPayload = `${timestamp}.${payload}`;
+    
+    // Compute HMAC SHA256
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(secret);
+    const messageData = encoder.encode(signedPayload);
+    
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw",
+      keyData,
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    
+    const signatureBuffer = await crypto.subtle.sign(
+      "HMAC",
+      cryptoKey,
+      messageData
+    );
+    
+    // Convert to hex
+    const signatureArray = Array.from(new Uint8Array(signatureBuffer));
+    const signatureHex = signatureArray
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    
+    // Compare with provided signatures
+    for (const providedSig of signatures) {
+      if (signatureHex === providedSig) {
+        return true;
+      }
+    }
+    
+    return false;
+  } catch (error) {
+    console.error("Error verifying webhook signature:", error);
+    return false;
+  }
+}
+
 export const handler = define.handlers({
   async POST(ctx) {
     try {
@@ -19,8 +100,28 @@ export const handler = define.handlers({
 
       const body = await ctx.req.text();
 
-      // Verify webhook signature (simplified - in production use crypto.subtle)
-      // For now, we trust the webhook (add proper verification later)
+      // Verify webhook signature for security
+      if (STRIPE_WEBHOOK_SECRET) {
+        try {
+          const isValid = await verifyStripeWebhookSignature(
+            body,
+            signature,
+            STRIPE_WEBHOOK_SECRET
+          );
+          
+          if (!isValid) {
+            console.error("❌ Webhook signature verification failed");
+            return new Response("Invalid signature", { status: 400 });
+          }
+          
+          console.log("✅ Webhook signature verified");
+        } catch (error) {
+          console.error("❌ Webhook verification error:", error);
+          return new Response("Webhook verification failed", { status: 400 });
+        }
+      } else {
+        console.warn("⚠️ STRIPE_WEBHOOK_SECRET not set - webhook not verified (INSECURE)");
+      }
       
       const event = JSON.parse(body);
 

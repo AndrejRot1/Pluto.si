@@ -3,6 +3,11 @@
 -- ============================================
 -- This creates a separate table to track emails that have used trials
 -- This table is NOT deleted when accounts are deleted, preventing abuse
+--
+-- WORKS FOR:
+-- - Email/password registration
+-- - Google OAuth login (and other OAuth providers)
+-- - Account deletion and re-registration
 
 -- 1. Create table to track used trials (separate from profiles)
 CREATE TABLE IF NOT EXISTS used_trials (
@@ -61,6 +66,8 @@ END;
 $$;
 
 -- 8. Update create_profile_after_email_confirm to check used_trials
+-- This function is triggered on UPDATE when email_confirmed_at is set
+-- Works for email/password users AND OAuth users (if email_confirmed_at is set after INSERT)
 CREATE OR REPLACE FUNCTION create_profile_after_email_confirm()
 RETURNS TRIGGER 
 LANGUAGE plpgsql 
@@ -199,6 +206,8 @@ END;
 $$;
 
 -- 9. Update simple_handle_new_user to also check used_trials
+-- This function is triggered on INSERT for ALL users (email/password AND OAuth like Google)
+-- OAuth users have email_confirmed_at set immediately, but this function still runs first
 CREATE OR REPLACE FUNCTION simple_handle_new_user()
 RETURNS TRIGGER 
 LANGUAGE plpgsql 
