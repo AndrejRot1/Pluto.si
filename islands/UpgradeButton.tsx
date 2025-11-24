@@ -12,16 +12,12 @@ export default function UpgradeButton(props: {
     setLoading(true);
 
     try {
-      // Get access token from cookie if not provided
-      let token = props.accessToken;
-      if (!token) {
-        const cookies = document.cookie.split(';');
-        const accessTokenCookie = cookies.find(c => c.trim().startsWith('sb-access-token='));
-        token = accessTokenCookie ? accessTokenCookie.split('=')[1] : '';
-      }
+      // Use access token from props (set by server-side)
+      const token = props.accessToken;
 
       if (!token) {
-        alert('Not logged in');
+        // If no token, user is not logged in - redirect to login
+        console.log('No access token, redirecting to login');
         window.location.href = '/auth/login';
         return;
       }
@@ -30,13 +26,17 @@ export default function UpgradeButton(props: {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
+        credentials: "include",
       });
 
       const data = await response.json();
 
       if (!response.ok || data.error) {
-        alert(`Error: ${data.error || "Payment error"}`);
+        const errorMsg = data.error || "Payment error";
+        console.error("Upgrade error:", errorMsg);
+        alert(`Error: ${errorMsg}`);
         setLoading(false);
         return;
       }

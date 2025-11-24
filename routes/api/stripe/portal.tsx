@@ -53,6 +53,31 @@ export const handler = define.handlers({
         });
       }
 
+      // Verify customer ID is valid for current mode (test/live)
+      const verifyCustomerRes = await fetch(`https://api.stripe.com/v1/customers/${profile.stripe_customer_id}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${STRIPE_SECRET_KEY}`,
+        },
+      });
+
+      if (!verifyCustomerRes.ok) {
+        const error = await verifyCustomerRes.json();
+        // If customer doesn't exist in current mode (test/live mismatch)
+        if (error.error?.code === 'resource_missing') {
+          console.log("❌ Customer ID exists in different mode");
+          return new Response(JSON.stringify({ error: "Stripe customer not found. Please try upgrading again." }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        console.error("❌ Error verifying customer:", error);
+        return new Response(JSON.stringify({ error: error.error?.message || "Failed to verify customer" }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
       // Create Stripe billing portal session
       const origin = ctx.url.origin;
       console.log("🔵 Creating portal for customer:", profile.stripe_customer_id);

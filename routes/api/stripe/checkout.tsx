@@ -56,6 +56,30 @@ export const handler = define.handlers({
         trialEndDays = Math.max(0, diffDays);
       }
 
+      // Verify existing customer ID is valid for current mode (test/live)
+      if (customerId) {
+        const verifyCustomerRes = await fetch(`https://api.stripe.com/v1/customers/${customerId}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${STRIPE_SECRET_KEY}`,
+          },
+        });
+
+        if (!verifyCustomerRes.ok) {
+          const error = await verifyCustomerRes.json();
+          // If customer doesn't exist in current mode (test/live mismatch), clear it
+          if (error.error?.code === 'resource_missing') {
+            console.log("⚠️ Customer ID exists in different mode, creating new one...");
+            customerId = null;
+            // Clear invalid customer ID from database
+            await supabaseAdmin
+              .from("profiles")
+              .update({ stripe_customer_id: null })
+              .eq("id", user.id);
+          }
+        }
+      }
+
       // Create Stripe customer if doesn't exist
       if (!customerId) {
         const createCustomerRes = await fetch("https://api.stripe.com/v1/customers", {
@@ -108,14 +132,18 @@ export const handler = define.handlers({
       };
       
       // If user is in trial, add trial period to subscription
-      // This ensures Stripe will automatically charge after trial ends
-      if (isInTrial && trialEndDays > 0) {
+      // Stripe requires trial_end to be MORE than 2 days in the future (not 2 or more)
+      if (isInTrial && trialEndDays > 2) {
         // Set trial end date (in Unix timestamp)
         const trialEndDate = new Date(profile.trial_ends_at);
         const trialEndUnix = Math.floor(trialEndDate.getTime() / 1000);
         
         checkoutParams["subscription_data[trial_end]"] = trialEndUnix.toString();
         console.log("🔵 Adding trial period to subscription, ends at:", trialEndDate);
+      } else if (isInTrial && trialEndDays <= 2) {
+        // Trial is ending soon (2 days or less), don't add trial_end
+        // Stripe will start charging immediately
+        console.log("⚠️ Trial ending soon (2 days or less), starting subscription immediately without trial period");
       }
       
       const checkoutRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {

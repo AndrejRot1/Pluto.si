@@ -351,7 +351,9 @@ export default function SettingsPanel(props: {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
         },
+        credentials: "include",
       });
 
       const data = await response.json();
@@ -388,7 +390,9 @@ export default function SettingsPanel(props: {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
         },
+        credentials: "include",
       });
 
       const data = await response.json();

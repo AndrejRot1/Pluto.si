@@ -9,6 +9,19 @@ export default define.page(function Home(props) {
   const profile = props.state.profile;
   const isTrial = profile?.subscription_status === 'trial';
   
+  // Get access token from cookies (server-side)
+  const authCookie = props.req.headers.get('cookie');
+  let accessToken = '';
+  if (authCookie) {
+    const cookies = Object.fromEntries(
+      authCookie.split(';').map(c => {
+        const [key, ...v] = c.trim().split('=');
+        return [key, v.join('=')];
+      })
+    );
+    accessToken = cookies['sb-access-token'] || '';
+  }
+  
   return (
     <div class="h-screen bg-gray-50 flex">
       <Head>
@@ -148,6 +161,7 @@ export default define.page(function Home(props) {
                     <UpgradeButton
                       class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-gray-700 text-white text-sm font-medium rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       text="Upgrade to Plus"
+                      accessToken={accessToken}
                     />
                   )}
                   <details class="relative">
@@ -166,6 +180,7 @@ export default define.page(function Home(props) {
                           <UpgradeButton
                             class="w-full px-4 py-2 text-sm bg-gray-700 text-white font-medium hover:bg-gray-600 transition-colors rounded disabled:opacity-50 disabled:cursor-not-allowed"
                             text="⚡ Upgrade to Plus"
+                            accessToken={accessToken}
                           />
                         </div>
                       )}
@@ -207,7 +222,7 @@ export default define.page(function Home(props) {
         </header>
         
         {/* Scrollable chat area */}
-        <ChatPanel profile={profile} />
+        <ChatPanel profile={profile} accessToken={accessToken} />
       </main>
 
       {/* Mobile sidebar toggle script */}
