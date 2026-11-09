@@ -1,8 +1,4 @@
 import { useState, useEffect } from "preact/hooks";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = 'https://vbmtvnqnpsbgnxasejcg.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZibXR2bnFucHNiZ254YXNlamNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5OTk2OTAsImV4cCI6MjA3NjU3NTY5MH0.qVtDmSgAaEwYVAi8LKSXZbfKt02HU3A_fV1QC0-bESs';
 
 const translations = {
   sl: {
@@ -14,8 +10,8 @@ const translations = {
     registeredFrom: "Registriran od",
     status: "Status",
     premiumActive: "Premium Aktiven",
-    freeTrial: "Brezplačni preskus",
-    trialExpires: "Preskus poteče:",
+    freeTrial: "Brezplačne pomoči",
+    trialExpires: "Porabljeno:",
     inactive: "Neaktiven",
     upgradeTitle: "Nadgradi na Premium",
     upgradeDesc: "Pridobi polni dostop do vseh funkcij Pluto.si!",
@@ -50,8 +46,8 @@ const translations = {
     registeredFrom: "Registered since",
     status: "Status",
     premiumActive: "Premium Active",
-    freeTrial: "Free Trial",
-    trialExpires: "Trial expires:",
+    freeTrial: "Free helps",
+    trialExpires: "Used:",
     inactive: "Inactive",
     upgradeTitle: "Upgrade to Premium",
     upgradeDesc: "Get full access to all Pluto.si features!",
@@ -300,6 +296,7 @@ export default function SettingsPanel(props: {
   profile?: { 
     subscription_status: string, 
     trial_ends_at: string,
+    trial_helps_used?: number,
     created_at?: string
   },
   accessToken?: string
@@ -518,14 +515,15 @@ export default function SettingsPanel(props: {
                   {t.premiumActive}
                 </span>
               )}
-              {isTrial && profile?.trial_ends_at && (
+              {isTrial && (
                 <div>
                   <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800 border border-yellow-200">
                     <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
                     {t.freeTrial}
                   </span>
                   <p class="text-sm text-gray-600 mt-2">
-                    {t.trialExpires} <strong>{formatDate(profile.trial_ends_at)}</strong>
+                    {t.trialExpires}{" "}
+                    <strong>{profile?.trial_helps_used ?? 0}/10</strong>
                   </p>
                 </div>
               )}

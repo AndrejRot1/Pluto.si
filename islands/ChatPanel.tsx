@@ -18,6 +18,7 @@ export type ExtendedChatMessage = ChatMessage & {
   topic?: string;
   difficulty?: number;
   isExercise?: boolean;
+  subject?: string;
   imageUrl?: string;
   fileName?: string;
 };
@@ -91,19 +92,39 @@ export default function ChatPanel(props?: {
     try {
       // Get language from localStorage
       const language = localStorage.getItem('pluto-lang') || 'sl';
+      const subject = localStorage.getItem('pluto-subject') || 'math';
       
       // Use non-streaming API for now to avoid issues
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: trimmed, language }),
+        body: JSON.stringify({ text: trimmed, language, subject }),
       });
       
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        const data = await res.json();
         const assistant: ChatMessage = { id: Date.now() + 1, role: "assistant", content: data.reply ?? "Oprostite, prišlo je do napake." };
         setThinking(false);
         setMessages((m) => [...m, assistant]);
+      } else if (res.status === 402 || data.error === "trial_exhausted") {
+        setThinking(false);
+        setMessages((m) => [...m, {
+          id: Date.now() + 2,
+          role: "assistant",
+          content: language === "sl"
+            ? "Porabili ste brezplačne AI pomoči. Nadgradite na Premium v Nastavitvah."
+            : "You've used your free AI helps. Upgrade to Premium in Settings.",
+        }]);
+        globalThis.location.href = "/trial-expired";
+      } else if (res.status === 401) {
+        setThinking(false);
+        setMessages((m) => [...m, {
+          id: Date.now() + 2,
+          role: "assistant",
+          content: language === "sl"
+            ? "Seja je potekla. Prosim prijavi se znova."
+            : "Session expired. Please log in again.",
+        }]);
       } else {
         throw new Error(`HTTP ${res.status}`);
       }
@@ -120,7 +141,7 @@ export default function ChatPanel(props?: {
     setMessages([]);
   }
 
-  function handleExerciseResponse(data: { content: string; topic?: string; difficulty?: number; isExercise?: boolean }) {
+  function handleExerciseResponse(data: { content: string; topic?: string; difficulty?: number; isExercise?: boolean; subject?: string }) {
     // Add only AI response to messages (no user prompt shown)
     const assistantMsg: ExtendedChatMessage = { 
       id: Date.now(), 
@@ -128,7 +149,8 @@ export default function ChatPanel(props?: {
       content: data.content,
       topic: data.topic,
       difficulty: data.difficulty,
-      isExercise: data.isExercise
+      isExercise: data.isExercise,
+      subject: data.subject || localStorage.getItem("pluto-subject") || "math",
     };
     setMessages((m) => [...m, assistantMsg]);
     setThinking(false); // Stop thinking indicator
@@ -155,6 +177,7 @@ export default function ChatPanel(props?: {
     // Send extracted text to DeepSeek
     try {
       const language = localStorage.getItem('pluto-lang') || 'sl';
+      const subject = localStorage.getItem('pluto-subject') || 'math';
       
       // If no text extracted, ask user to describe the problem
       if (!data.text || data.text.trim().length === 0) {
@@ -171,12 +194,12 @@ export default function ChatPanel(props?: {
         return;
       }
 
-      const prompt = `Solve this math problem: ${data.text}`;
+      const prompt = `Solve this problem: ${data.text}`;
 
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: prompt, language }),
+        body: JSON.stringify({ text: prompt, language, subject }),
       });
 
       if (!res.ok) {
@@ -252,17 +275,16 @@ export default function ChatPanel(props?: {
   };
   
   return (
-    <div class="flex-1 flex flex-col h-full">
-      {/* Upgrade banner for trial users - ChatGPT style */}
+    <div class="flex h-full flex-1 flex-col">
       {isTrial && (
-        <div class="bg-gray-50 border-b border-gray-200 px-3 sm:px-4 py-2.5 sm:py-3 flex-shrink-0">
-          <div class="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
+        <div class="flex-shrink-0 border-b border-teal-100 bg-teal-50/80 px-3 py-2.5 sm:px-4 sm:py-3">
+          <div class="mx-auto flex max-w-3xl flex-col items-center justify-between gap-2 sm:flex-row sm:gap-3">
             <div class="text-center sm:text-left">
-              <h3 class="text-xs sm:text-sm font-medium text-gray-900 mb-0.5">{upgradeText[lang].title}</h3>
-              <p class="text-xs text-gray-600">{upgradeText[lang].desc}</p>
+              <h3 class="mb-0.5 text-xs font-semibold text-teal-950 sm:text-sm">{upgradeText[lang].title}</h3>
+              <p class="text-xs text-teal-800/80">{upgradeText[lang].desc}</p>
             </div>
             <UpgradeButton
-              class="flex-shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-700 text-white font-medium rounded-md hover:bg-gray-600 transition-colors text-xs sm:text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+              class="flex-shrink-0 whitespace-nowrap rounded-xl bg-teal-800 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm"
               text={upgradeText[lang].button}
               accessToken={props?.accessToken}
             />
@@ -270,25 +292,31 @@ export default function ChatPanel(props?: {
         </div>
       )}
       
-      {/* Scrollable messages area */}
-      <div ref={scrollerRef} class="flex-1 overflow-y-auto bg-white">
-        <div class="max-w-3xl mx-auto">
+      <div ref={scrollerRef} class="flex-1 overflow-y-auto">
+        <div class="mx-auto max-w-3xl">
           {messages.length === 0 ? (
-            <div class="text-center text-gray-500 pt-12 sm:pt-16 px-4">
-              <p class="text-base sm:text-lg mb-2">Pozdravljeni v pomočniku za matematiko.</p>
-              <p class="text-xs sm:text-sm">Na dnu je tipkovnica za matematične simbole in funkcije.</p>
+            <div class="px-4 pt-14 text-center sm:pt-20">
+              <p class="font-display text-2xl font-semibold text-slate-900 sm:text-3xl">Pluto</p>
+              <p class="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate-600 sm:text-base">
+                Vprašaj tutorja ali izberi temo levo — matematika, fizika, kemija, biologija.
+              </p>
+              <div class="mx-auto mt-6 flex max-w-sm flex-wrap justify-center gap-2 text-xs text-slate-500">
+                <span class="rounded-full border border-slate-200 bg-white/80 px-3 py-1">Korak za korakom</span>
+                <span class="rounded-full border border-slate-200 bg-white/80 px-3 py-1">LaTeX + diagrami</span>
+                <span class="rounded-full border border-slate-200 bg-white/80 px-3 py-1">Preveri odgovor</span>
+              </div>
             </div>
           ) : (
-            <div class="px-3 sm:px-4 py-3 sm:py-4">
+            <div class="px-3 py-4 sm:px-4 sm:py-5">
               <Messages items={messages} />
               {thinking && (
-                <div class="bg-gray-50 rounded-xl p-3 sm:p-4 mt-3 sm:mt-4 flex items-center gap-3">
+                <div class="mt-3 flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white/80 p-3 sm:mt-4 sm:p-4">
                   <div class="flex gap-1">
-                    <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
-                    <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
-                    <div class="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                    <div class="h-2 w-2 animate-bounce rounded-full bg-teal-600" style="animation-delay: 0ms"></div>
+                    <div class="h-2 w-2 animate-bounce rounded-full bg-teal-600" style="animation-delay: 150ms"></div>
+                    <div class="h-2 w-2 animate-bounce rounded-full bg-teal-600" style="animation-delay: 300ms"></div>
                   </div>
-                  <span class="text-xs sm:text-sm text-gray-600">{thinkingText[lang]}</span>
+                  <span class="text-xs text-slate-600 sm:text-sm">{thinkingText[lang]}</span>
                 </div>
               )}
             </div>
@@ -296,9 +324,8 @@ export default function ChatPanel(props?: {
         </div>
       </div>
       
-        {/* Fixed input area */}
-        <div class="bg-white p-2 sm:p-4 flex-shrink-0">
-          <div class="max-w-3xl mx-auto">
+        <div class="flex-shrink-0 border-t border-slate-200/70 bg-white/80 p-2 backdrop-blur-md sm:p-4">
+          <div class="mx-auto max-w-3xl">
             <ChatComposer />
           </div>
         </div>

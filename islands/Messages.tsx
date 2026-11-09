@@ -1,4 +1,16 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
+import { normalizeLatex } from "../utils/latex.ts";
+import RichContent from "./RichContent.tsx";
+
+type FunctionPlotFn = (options: {
+  target: Element;
+  width: number;
+  height: number;
+  grid: boolean;
+  xAxis: { domain: [number, number] };
+  yAxis: { domain: [number, number] };
+  data: Array<{ fn: string; color: string }>;
+}) => void;
 
 export type ChatMessage = { 
   id: number; 
@@ -7,13 +19,33 @@ export type ChatMessage = {
   topic?: string;
   difficulty?: number;
   isExercise?: boolean;
+  subject?: string;
   imageUrl?: string;
   fileName?: string;
 };
 
 export default function Messages(props: { items: ChatMessage[] }) {
   const [solutionShownFor, setSolutionShownFor] = useState<Set<number>>(new Set());
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [checkingId, setCheckingId] = useState<number | null>(null);
+  const [checkResults, setCheckResults] = useState<
+    Record<number, { correct: boolean; feedback: string }>
+  >({});
+  const [startedAt, setStartedAt] = useState<Record<number, number>>({});
   const [lang, setLang] = useState<'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro'>('sl');
+  const advancingRef = useRef<Set<number>>(new Set());
+
+  useEffect(() => {
+    setStartedAt((prev) => {
+      const next = { ...prev };
+      for (const m of props.items) {
+        if (m.isExercise && next[m.id] == null) {
+          next[m.id] = Date.now();
+        }
+      }
+      return next;
+    });
+  }, [props.items]);
 
   useEffect(() => {
     // Initialize language from localStorage
@@ -32,144 +64,36 @@ export default function Messages(props: { items: ChatMessage[] }) {
     };
   }, []);
   useEffect(() => {
-    // trigger KaTeX auto-render when messages change
-    const renderMath = () => {
-      const w = globalThis as unknown as { 
-        renderMathInElement?: (el: Element, opts: { delimiters: { left: string; right: string; display: boolean }[]; throwOnError?: boolean }) => void;
-        functionPlot?: (opts: { target: Element; width: number; height: number; grid: boolean; data: Array<{ fn: string; color: string }> }) => void;
+    const renderGraphs = () => {
+      const w = globalThis as unknown as {
+        functionPlot?: FunctionPlotFn;
       };
-      
-      if (w.renderMathInElement) {
-        const messagesEl = document.getElementById("messages");
-        if (messagesEl) {
-          console.log('Rendering math in messages...');
-          w.renderMathInElement(messagesEl, {
-            delimiters: [
-              { left: "$$", right: "$$", display: true },
-              { left: "$", right: "$", display: false },
-              { left: "\\(", right: "\\)", display: false },
-              { left: "\\[", right: "\\]", display: true },
-            ],
-            throwOnError: false
+      if (!w.functionPlot) return;
+      document.querySelectorAll(".graph-container").forEach((container) => {
+        const funcStr = container.getAttribute("data-function");
+        if (!funcStr || container.children.length > 0) return;
+        try {
+          const containerWidth = (container as HTMLElement).offsetWidth || 500;
+          const width = Math.min(containerWidth, 500);
+          const height = Math.min(400, globalThis.innerHeight * 0.5);
+          w.functionPlot!({
+            target: container,
+            width,
+            height,
+            grid: true,
+            xAxis: { domain: [-10, 10] },
+            yAxis: { domain: [-10, 10] },
+            data: [{ fn: funcStr, color: "#0f766e" }],
           });
-          console.log('Math rendering completed');
+        } catch (e) {
+          (container as HTMLElement).innerHTML =
+            `<div class="p-3 text-sm text-red-700">Graf ni uspel: ${funcStr}<div class="text-xs mt-1">${e}</div></div>`;
         }
-      } else {
-        console.log('KaTeX renderMathInElement not available yet');
-      }
-      
-      // Render graphs
-      if (w.functionPlot) {
-        const graphContainers = document.querySelectorAll('.graph-container');
-        graphContainers.forEach((container) => {
-          const funcStr = container.getAttribute('data-function');
-          if (funcStr && container.children.length === 0) {
-            try {
-              const containerWidth = (container as HTMLElement).offsetWidth || 500;
-              const width = Math.min(containerWidth, 500);
-              const height = Math.min(400, globalThis.innerHeight * 0.5);
-              
-              console.log('Rendering graph for function:', funcStr);
-              
-              (w.functionPlot as any)({
-                target: container,
-                width: width,
-                height: height,
-                grid: true,
-                xAxis: { domain: [-10, 10] },
-                yAxis: { domain: [-10, 10] },
-                data: [{
-                  fn: funcStr,
-                  color: '#2563eb'
-                }]
-              });
-              
-              console.log('Graph rendered successfully');
-            } catch (e) {
-              console.error('Graph rendering error for function:', funcStr, e);
-              // Show error message in container
-              (container as HTMLElement).innerHTML = `
-                <div class="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-                  <p><strong>Napaka pri risanju grafa:</strong></p>
-                  <p>Funkcija: ${funcStr}</p>
-                  <p class="text-xs mt-1">${e}</p>
-                </div>
-              `;
-            }
-          }
-        });
-      }
+      });
     };
-    
-    // Try multiple times to ensure libraries are loaded
-    setTimeout(renderMath, 100);
-    setTimeout(renderMath, 500);
-    setTimeout(renderMath, 1000);
-  }, [props.items]);
-
-  // Parse content and extract graphs and math
-  function parseContent(content: string) {
-    const parts: Array<{ type: 'text' | 'graph' | 'math', content: string }> = [];
-    
-    // First extract graphs - support multiple formats
-    // Format 1: [GRAPH:f(x)]
-    // Format 2: Graf funkcije f(x) = ...
-    const graphRegex = /\[GRAPH:([^\]]+)\]|Graf(?:ikon)?\s+funkcije\s+(?:f\(x\)\s*=\s*)?([^\n.]+)/gi;
-    let lastIndex = 0;
-    let match;
-    
-    while ((match = graphRegex.exec(content)) !== null) {
-      // Add text before graph
-      if (match.index > lastIndex) {
-        const textPart = content.substring(lastIndex, match.index);
-        // Parse math in this text part
-        parseMath(textPart, parts);
-      }
-      // Add graph (use whichever capture group matched)
-      const funcStr = match[1] || match[2];
-      if (funcStr) {
-        parts.push({ type: 'graph', content: funcStr.trim() });
-      }
-      lastIndex = match.index + match[0].length;
-    }
-    
-    // Add remaining text
-    if (lastIndex < content.length) {
-      const textPart = content.substring(lastIndex);
-      parseMath(textPart, parts);
-    } else if (lastIndex === 0) {
-      // No graphs found, just parse math
-      parseMath(content, parts);
-    }
-    
-    return parts.length > 0 ? parts : [{ type: 'text', content }];
-  }
-  
-  // Helper to parse math expressions
-  function parseMath(text: string, parts: Array<{ type: 'text' | 'graph' | 'math', content: string }>) {
-    // Check for $ delimited math
-    const mathRegex = /\$([^\$]+)\$/g;
-    let lastIdx = 0;
-    let m;
-    
-    while ((m = mathRegex.exec(text)) !== null) {
-      // Add text before math
-      if (m.index > lastIdx) {
-        parts.push({ type: 'text', content: text.substring(lastIdx, m.index) });
-      }
-      // Add math (keep the $ delimiters)
-      parts.push({ type: 'math', content: `$${m[1]}$` });
-      lastIdx = m.index + m[0].length;
-    }
-    
-    // Add remaining text
-    if (lastIdx < text.length) {
-      parts.push({ type: 'text', content: text.substring(lastIdx) });
-    } else if (lastIdx === 0) {
-      // No math found
-      parts.push({ type: 'text', content: text });
-    }
-  }
+    setTimeout(renderGraphs, 120);
+    setTimeout(renderGraphs, 500);
+  }, [props.items, checkResults]);
 
   // Check if message is an exercise (contains exercise trigger phrases)
   function isExercise(content: string): boolean {
@@ -187,10 +111,76 @@ export default function Messages(props: { items: ChatMessage[] }) {
     return triggers[lang].some(trigger => content.includes(trigger));
   }
 
+  async function handleCheckAnswer(m: ChatMessage) {
+    const answer = (answers[m.id] || "").trim();
+    if (!answer || checkingId === m.id) return;
+    setCheckingId(m.id);
+    try {
+      const duration_ms = Math.max(
+        0,
+        Date.now() - (startedAt[m.id] || Date.now()),
+      );
+      const res = await fetch("/api/check-answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          exercise: m.content,
+          answer,
+          subject: m.subject || localStorage.getItem("pluto-subject") || "math",
+          topic: m.topic,
+          language: lang,
+          difficulty: m.difficulty || 1,
+          duration_ms,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const correct = Boolean(data.correct);
+        const feedback = normalizeLatex(String(data.feedback || ""));
+        setCheckResults((prev) => ({
+          ...prev,
+          [m.id]: { correct, feedback },
+        }));
+        if (correct) {
+          setSolutionShownFor((prev) => new Set(prev).add(m.id));
+          if (m.topic && !advancingRef.current.has(m.id)) {
+            advancingRef.current.add(m.id);
+            setTimeout(() => handleNextExercise(m.topic!), 900);
+          }
+        }
+      } else {
+        setCheckResults((prev) => ({
+          ...prev,
+          [m.id]: {
+            correct: false,
+            feedback: data.error || "Napaka pri preverjanju",
+          },
+        }));
+      }
+    } catch {
+      setCheckResults((prev) => ({
+        ...prev,
+        [m.id]: { correct: false, feedback: "Napaka pri preverjanju" },
+      }));
+    } finally {
+      setCheckingId(null);
+    }
+  }
+
   // Request solution for the exercise
-  async function handleSolutionClick(exerciseContent: string, messageId: number) {
+  async function handleSolutionClick(exerciseContent: string, messageId: number, topic?: string) {
     // Mark that solution was requested for this message
     setSolutionShownFor(prev => new Set(prev).add(messageId));
+    fetch("/api/progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event_type: "solution_viewed",
+        subject: localStorage.getItem("pluto-subject") || "math",
+        topic,
+        duration_ms: Math.max(0, Date.now() - (startedAt[messageId] || Date.now())),
+      }),
+    }).catch(() => {});
     const prompts = {
       sl: `Pokaži podrobno rešitev za to nalogo:\n\n${exerciseContent}\n\nNavodila:\n- Podaj vse korake rešitve\n- Razloži vsak korak\n- Uporabi matematične zapise (LaTeX)\n- Na koncu podaj končen odgovor`,
       en: `Show a detailed solution for this exercise:\n\n${exerciseContent}\n\nInstructions:\n- Provide all solution steps\n- Explain each step\n- Use mathematical notation (LaTeX)\n- Provide the final answer at the end`,
@@ -213,7 +203,9 @@ export default function Messages(props: { items: ChatMessage[] }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           text: prompts[lang],
-          language: lang 
+          language: lang,
+          subject: localStorage.getItem("pluto-subject") || "math",
+          forceDeepSeek: true
         })
       });
       
@@ -274,30 +266,42 @@ export default function Messages(props: { items: ChatMessage[] }) {
   };
 
   return (
-    <div id="messages" class="max-w-3xl mx-auto space-y-3 sm:space-y-4">
+    <div id="messages" class="mx-auto max-w-3xl space-y-3 sm:space-y-4">
       {props.items.map((m, index) => {
-        const showSolutionButton = m.role === "assistant" && isExercise(m.content) && !solutionShownFor.has(m.id);
+        const isExerciseMsg = m.role === "assistant" &&
+          (m.isExercise || isExercise(m.content));
+        const hasCheckResult = Boolean(checkResults[m.id]);
+        const showSolutionButton = isExerciseMsg &&
+          !solutionShownFor.has(m.id);
+        const showCheckPanel = showSolutionButton ||
+          (isExerciseMsg && hasCheckResult);
         
         // Check if next message is a solution (for showing "Next exercise" button)
         const nextMessage = props.items[index + 1];
         const isSolutionShown = solutionShownFor.has(m.id) || 
           (nextMessage && nextMessage.role === "assistant" && !isExercise(nextMessage.content));
-        const showNextExerciseButton = m.isExercise && isSolutionShown && m.topic;
+        // Don't show manual next button if we already auto-advanced after a correct check
+        const showNextExerciseButton = m.isExercise && isSolutionShown && m.topic &&
+          !checkResults[m.id]?.correct;
         
         // Get difficulty badge info
         const difficultyLevel = m.difficulty || 1;
         const difficultyInfo = difficultyLabels[Math.min(difficultyLevel, 5) as 1 | 2 | 3 | 4 | 5];
         
         return (
-          <div class={m.role === "user" ? "bg-white/90 rounded-xl p-3 sm:p-4" : "bg-gray-50 rounded-xl p-3 sm:p-4"}>
+          <div
+            class={m.role === "user"
+              ? "ml-4 rounded-2xl rounded-br-md border border-teal-100 bg-teal-50/70 p-3 sm:ml-12 sm:p-4"
+              : "mr-2 rounded-2xl rounded-bl-md border border-slate-200/80 bg-white/90 p-3 shadow-sm sm:mr-8 sm:p-4"}
+          >
             {/* Difficulty badge for exercises */}
             {m.isExercise && m.difficulty && (
-              <div class="mb-2 flex items-center gap-2">
-                <span class={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${difficultyInfo.color}`}>
-                  {difficultyInfo[lang]} {difficultyLevel}/5
+              <div class="mb-2.5 flex flex-wrap items-center gap-2">
+                <span class={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${difficultyInfo.color}`}>
+                  {difficultyInfo[lang]} · {difficultyLevel}/5
                 </span>
                 {m.topic && (
-                  <span class="text-xs text-gray-500">
+                  <span class="text-xs text-slate-500">
                     {m.topic}
                   </span>
                 )}
@@ -319,50 +323,94 @@ export default function Messages(props: { items: ChatMessage[] }) {
               </div>
             )}
             
-            <div class="prose prose-sm max-w-none text-sm sm:text-base">
-              {parseContent(m.content).map((part, idx) => {
-                if (part.type === 'graph') {
-                  return (
-                    <div 
-                      key={idx}
-                      class="graph-container my-3 sm:my-4 w-full max-w-full overflow-x-auto" 
-                      data-function={part.content}
-                      style="height: min(300px, 40vh); max-height: 400px;"
-                    />
-                  );
-                } else if (part.type === 'math') {
-                  return (
-                    <span key={idx} class="math-inline text-sm sm:text-base">{part.content}</span>
-                  );
-                } else {
-                  return (
-                    <span key={idx} class="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{part.content}</span>
-                  );
-                }
-              })}
-            </div>
+            <RichContent content={m.content} />
             
-            {/* Solution button for exercises */}
-            {showSolutionButton && (
-              <div class="mt-3 pt-3 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => handleSolutionClick(m.content, m.id)}
-                  class="inline-flex items-center gap-2 px-4 sm:px-4 py-2.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors min-h-[44px] sm:min-h-0"
-                >
-                  <span>✓</span>
-                  <span>{solutionButtonLabels[lang]}</span>
-                </button>
+            {/* Answer check + solution for exercises */}
+            {showCheckPanel && (
+              <div class="mt-3 space-y-2.5 border-t border-slate-200/80 pt-3">
+                {!checkResults[m.id]?.correct && (
+                  <div class="flex flex-col gap-2 sm:flex-row">
+                    <input
+                      type="text"
+                      value={answers[m.id] || ""}
+                      onInput={(e) =>
+                        setAnswers((prev) => ({
+                          ...prev,
+                          [m.id]: (e.target as HTMLInputElement).value,
+                        }))
+                      }
+                      onKeyDown={(e) => {
+                        if (
+                          e.key === "Enter" &&
+                          (answers[m.id] || "").trim() &&
+                          checkingId !== m.id
+                        ) {
+                          e.preventDefault();
+                          handleCheckAnswer(m);
+                        }
+                      }}
+                      placeholder={lang === "sl"
+                        ? "Tvoj odgovor..."
+                        : "Your answer..."}
+                      class="min-h-[44px] flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleCheckAnswer(m)}
+                      disabled={checkingId === m.id || !(answers[m.id] || "").trim()}
+                      class="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      {checkingId === m.id
+                        ? (lang === "sl" ? "Preverjam..." : "Checking...")
+                        : (lang === "sl" ? "Preveri" : "Check")}
+                    </button>
+                  </div>
+                )}
+                {checkResults[m.id] && (
+                  <div
+                    class={`rounded-xl px-3.5 py-3 text-sm leading-relaxed ${
+                      checkResults[m.id].correct
+                        ? "border border-emerald-200/80 bg-emerald-50 text-emerald-900"
+                        : "border border-amber-200/80 bg-amber-50 text-amber-950"
+                    }`}
+                  >
+                    <div class="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide opacity-80">
+                      <span>{checkResults[m.id].correct ? "✓" : "!"}</span>
+                      <span>
+                        {checkResults[m.id].correct
+                          ? (lang === "sl" ? "Pravilno" : "Correct")
+                          : (lang === "sl" ? "Poskusi znova" : "Try again")}
+                      </span>
+                    </div>
+                    <RichContent content={checkResults[m.id].feedback} />
+                    {checkResults[m.id].correct && m.topic && (
+                      <p class="mt-2 text-xs text-emerald-700/80">
+                        {lang === "sl"
+                          ? "Nalagam naslednjo nalogo…"
+                          : "Loading next exercise…"}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {!checkResults[m.id]?.correct && showSolutionButton && (
+                  <button
+                    type="button"
+                    onClick={() => handleSolutionClick(m.content, m.id, m.topic)}
+                    class="inline-flex min-h-[40px] items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                  >
+                    {solutionButtonLabels[lang]}
+                  </button>
+                )}
               </div>
             )}
             
             {/* Next exercise button - shown after solution */}
             {showNextExerciseButton && (
-              <div class="mt-3 pt-3 border-t border-gray-200">
+              <div class="mt-3 border-t border-slate-200/80 pt-3">
                 <button
                   type="button"
                   onClick={() => handleNextExercise(m.topic!)}
-                  class="inline-flex items-center gap-2 px-4 sm:px-4 py-2.5 sm:py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors min-h-[44px] sm:min-h-0"
+                  class="inline-flex min-h-[40px] items-center gap-2 rounded-xl bg-emerald-600 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
                 >
                   <span>→</span>
                   <span>{nextExerciseLabels[lang]}</span>

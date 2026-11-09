@@ -1,22 +1,12 @@
 import { define } from "../../utils.ts";
-import { supabase } from "../../utils/supabase.ts";
+import { clearAuthSetCookieHeaders } from "../../utils/auth-cookies.ts";
 
 export const handler = define.handlers({
-  async GET(ctx) {
-    // Sign out from Supabase
-    await supabase.auth.signOut();
-    
-    // Clear cookies and redirect to register page
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: '/auth/register',
-        'Set-Cookie': [
-          'sb-access-token=; Path=/; Max-Age=0',
-          'sb-refresh-token=; Path=/; Max-Age=0',
-        ].join(', '),
-      },
-    });
+  GET(_ctx) {
+    const headers = new Headers({ Location: "/auth/login" });
+    for (const c of clearAuthSetCookieHeaders()) {
+      headers.append("Set-Cookie", c);
+    }
+    return new Response(null, { status: 302, headers });
   },
 });
-

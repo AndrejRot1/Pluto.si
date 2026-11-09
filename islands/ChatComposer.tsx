@@ -186,7 +186,7 @@ export default function ChatComposer() {
 
   return (
     <div
-      class={`relative rounded-xl p-2 bg-white/80 shadow ${isDragging ? "ring-2 ring-blue-400" : ""} ${uploading ? "opacity-50 pointer-events-none" : ""}`}
+      class={`relative rounded-2xl border border-slate-200/80 bg-white p-2 shadow-sm ${isDragging ? "ring-2 ring-teal-400" : ""} ${uploading ? "pointer-events-none opacity-50" : ""}`}
       onDragOver={(e) => {
         e.preventDefault();
         if (!isDragging) setIsDragging(true);
@@ -339,7 +339,7 @@ export default function ChatComposer() {
               <path d="M16.5 6.75v7.5a4.5 4.5 0 1 1-9 0v-9a3 3 0 1 1 6 0v8.25a1.5 1.5 0 1 1-3 0V7.5h-1.5v6.75a3 3 0 1 0 6 0v-8.25a4.5 4.5 0 1 0-9 0v9a6 6 0 1 0 12 0v-7.5h-1.5z"/>
             </svg>
           </button>
-          <button type="button" class="px-3 sm:px-4 py-2 bg-black text-white rounded-lg text-sm shadow hover:bg-gray-900 min-h-[44px] font-medium" onClick={() => {
+          <button type="button" class="min-h-[44px] rounded-xl bg-teal-800 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-teal-700 sm:px-4" onClick={() => {
             const text = value.trim();
             if (!text) return;
             const evt = new CustomEvent("pluto-send", { detail: text });

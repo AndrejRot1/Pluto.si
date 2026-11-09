@@ -1,164 +1,281 @@
 import { useEffect, useState } from "preact/hooks";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = 'https://vbmtvnqnpsbgnxasejcg.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZibXR2bnFucHNiZ254YXNlamNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5OTk2OTAsImV4cCI6MjA3NjU3NTY5MH0.qVtDmSgAaEwYVAi8LKSXZbfKt02HU3A_fV1QC0-bESs';
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [lang, setLang] = useState<'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro'>('en');
+  const [lang, setLang] = useState<
+    "sl" | "en" | "it" | "de" | "fr" | "es" | "pl" | "ro"
+  >("en");
 
   useEffect(() => {
-    const savedLang = localStorage.getItem('pluto-lang') as 'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro' || 'en';
+    const savedLang =
+      (localStorage.getItem("pluto-lang") as
+        | "sl"
+        | "en"
+        | "it"
+        | "de"
+        | "fr"
+        | "es"
+        | "pl"
+        | "ro") || "en";
     setLang(savedLang);
+
+    const params = new URLSearchParams(globalThis.location.search);
+    const err = params.get("error");
+    if (err === "credentials" || err === "session" || err === "missing") {
+      setMessage(
+        savedLang === "sl"
+          ? "❌ Prijava ni uspela. Preveri email in geslo."
+          : "❌ Login failed. Check email and password.",
+      );
+    }
   }, []);
 
   const translations = {
-    sl: { title: 'Dobrodošli nazaj', subtitle: 'Prijavite se v svoj račun', email: 'Email', password: 'Geslo', forgotPassword: 'Pozabljeno geslo?', loginButton: 'Prijava', loggingIn: 'Prijavljanje...', successMessage: '✅ Uspešna prijava! Preusmerjanje...', noAccount: 'Nimate računa?', register: 'Registrirajte se →' },
-    en: { title: 'Welcome back', subtitle: 'Log in to your account', email: 'Email', password: 'Password', forgotPassword: 'Forgot password?', loginButton: 'Log in', loggingIn: 'Logging in...', successMessage: '✅ Login successful! Redirecting...', noAccount: 'No account?', register: 'Register →' },
-    it: { title: 'Bentornato', subtitle: 'Accedi al tuo account', email: 'Email', password: 'Password', forgotPassword: 'Password dimenticata?', loginButton: 'Accedi', loggingIn: 'Accesso...', successMessage: '✅ Accesso riuscito! Reindirizzamento...', noAccount: 'Nessun account?', register: 'Registrati →' },
-    de: { title: 'Willkommen zurück', subtitle: 'Melden Sie sich in Ihrem Konto an', email: 'E-Mail', password: 'Passwort', forgotPassword: 'Passwort vergessen?', loginButton: 'Anmelden', loggingIn: 'Anmelden...', successMessage: '✅ Anmeldung erfolgreich! Weiterleitung...', noAccount: 'Kein Konto?', register: 'Registrieren →' },
-    fr: { title: 'Bon retour', subtitle: 'Connectez-vous à votre compte', email: 'Email', password: 'Mot de passe', forgotPassword: 'Mot de passe oublié ?', loginButton: 'Se connecter', loggingIn: 'Connexion...', successMessage: '✅ Connexion réussie ! Redirection...', noAccount: 'Pas de compte ?', register: 'S\'inscrire →' },
-    es: { title: 'Bienvenido de nuevo', subtitle: 'Inicia sesión en tu cuenta', email: 'Correo', password: 'Contraseña', forgotPassword: '¿Olvidaste tu contraseña?', loginButton: 'Iniciar sesión', loggingIn: 'Iniciando sesión...', successMessage: '✅ ¡Inicio de sesión exitoso! Redirigiendo...', noAccount: '¿No tienes cuenta?', register: 'Registrarse →' },
-    pl: { title: 'Witamy ponownie', subtitle: 'Zaloguj się do swojego konta', email: 'Email', password: 'Hasło', forgotPassword: 'Zapomniałeś hasła?', loginButton: 'Zaloguj się', loggingIn: 'Logowanie...', successMessage: '✅ Logowanie udane! Przekierowanie...', noAccount: 'Nie masz konta?', register: 'Zarejestruj się →' },
-    ro: { title: 'Bine ai revenit', subtitle: 'Conectează-te la contul tău', email: 'Email', password: 'Parolă', forgotPassword: 'Ai uitat parola?', loginButton: 'Conectare', loggingIn: 'Conectare...', successMessage: '✅ Conectare reușită! Redirecționare...', noAccount: 'Nu ai cont?', register: 'Înregistrează-te →' }
+    sl: {
+      title: "Dobrodošli nazaj",
+      subtitle: "Prijavite se v svoj račun",
+      email: "Email",
+      password: "Geslo",
+      forgotPassword: "Pozabljeno geslo?",
+      loginButton: "Prijava",
+      loggingIn: "Prijavljanje...",
+      successMessage: "✅ Uspešna prijava! Preusmerjanje...",
+      noAccount: "Nimate računa?",
+      register: "Registrirajte se →",
+    },
+    en: {
+      title: "Welcome back",
+      subtitle: "Log in to your account",
+      email: "Email",
+      password: "Password",
+      forgotPassword: "Forgot password?",
+      loginButton: "Log in",
+      loggingIn: "Logging in...",
+      successMessage: "✅ Login successful! Redirecting...",
+      noAccount: "No account?",
+      register: "Register →",
+    },
+    it: {
+      title: "Bentornato",
+      subtitle: "Accedi al tuo account",
+      email: "Email",
+      password: "Password",
+      forgotPassword: "Password dimenticata?",
+      loginButton: "Accedi",
+      loggingIn: "Accesso...",
+      successMessage: "✅ Accesso riuscito! Reindirizzamento...",
+      noAccount: "Nessun account?",
+      register: "Registrati →",
+    },
+    de: {
+      title: "Willkommen zurück",
+      subtitle: "Melden Sie sich in Ihrem Konto an",
+      email: "E-Mail",
+      password: "Passwort",
+      forgotPassword: "Passwort vergessen?",
+      loginButton: "Anmelden",
+      loggingIn: "Anmelden...",
+      successMessage: "✅ Anmeldung erfolgreich! Weiterleitung...",
+      noAccount: "Kein Konto?",
+      register: "Registrieren →",
+    },
+    fr: {
+      title: "Bon retour",
+      subtitle: "Connectez-vous à votre compte",
+      email: "Email",
+      password: "Mot de passe",
+      forgotPassword: "Mot de passe oublié ?",
+      loginButton: "Se connecter",
+      loggingIn: "Connexion...",
+      successMessage: "✅ Connexion réussie ! Redirection...",
+      noAccount: "Pas de compte ?",
+      register: "S'inscrire →",
+    },
+    es: {
+      title: "Bienvenido de nuevo",
+      subtitle: "Inicia sesión en tu cuenta",
+      email: "Correo",
+      password: "Contraseña",
+      forgotPassword: "¿Olvidaste tu contraseña?",
+      loginButton: "Iniciar sesión",
+      loggingIn: "Iniciando sesión...",
+      successMessage: "✅ ¡Inicio de sesión exitoso! Redirigiendo...",
+      noAccount: "¿No tienes cuenta?",
+      register: "Registrarse →",
+    },
+    pl: {
+      title: "Witamy ponownie",
+      subtitle: "Zaloguj się do swojego konta",
+      email: "Email",
+      password: "Hasło",
+      forgotPassword: "Zapomniałeś hasła?",
+      loginButton: "Zaloguj się",
+      loggingIn: "Logowanie...",
+      successMessage: "✅ Logowanie udane! Przekierowanie...",
+      noAccount: "Nie masz konta?",
+      register: "Zarejestruj się →",
+    },
+    ro: {
+      title: "Bine ai revenit",
+      subtitle: "Conectează-te la contul tău",
+      email: "Email",
+      password: "Parolă",
+      forgotPassword: "Ai uitat parola?",
+      loginButton: "Conectare",
+      loggingIn: "Conectare...",
+      successMessage: "✅ Conectare reușită! Redirecționare...",
+      noAccount: "Nu ai cont?",
+      register: "Înregistrează-te →",
+    },
   };
 
   const t = translations[lang];
 
   async function handleLogin(e: Event) {
     e.preventDefault();
+    e.stopPropagation();
+    if (loading) return;
     setLoading(true);
-    setMessage('');
+    setMessage("");
 
     try {
-      console.log('Login form: Sending login request for', email);
-      
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        credentials: "same-origin",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          password,
+        }),
       });
 
-      console.log('Login form: Response status:', response.status);
-      
-      const data = await response.json();
-      console.log('Login form: Response data:', data);
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok || data.error) {
-        console.error('Login form: Error:', data.error);
-        const errorMsg = data.error || 'Login failed';
-        
-        // Translate common errors
+        const errorMsg = String(data.error || "Login failed");
         let displayError = errorMsg;
-        if (errorMsg.includes('Invalid login credentials') || errorMsg.includes('Email not confirmed')) {
-          displayError = lang === 'sl' ? '❌ Napačen email ali geslo. Preverite tudi ali ste potrdili email.' :
-                        lang === 'en' ? '❌ Invalid email or password. Also check if you confirmed your email.' :
-                        lang === 'it' ? '❌ Email o password non validi. Controlla anche se hai confermato la tua email.' :
-                        lang === 'de' ? '❌ Ungültige E-Mail oder Passwort. Überprüfen Sie auch, ob Sie Ihre E-Mail bestätigt haben.' :
-                        lang === 'fr' ? '❌ Email ou mot de passe invalide. Vérifiez également si vous avez confirmé votre email.' :
-                        lang === 'es' ? '❌ Email o contraseña inválidos. Comprueba también si has confirmado tu email.' :
-                        lang === 'pl' ? '❌ Nieprawidłowy email lub hasło. Sprawdź również, czy potwierdziłeś swój email.' :
-                        '❌ Email sau parolă invalidă. Verifică și dacă ai confirmat email-ul.';
+        if (
+          errorMsg.includes("Invalid login credentials") ||
+          errorMsg.includes("Email not confirmed")
+        ) {
+          displayError = lang === "sl"
+            ? "❌ Napačen email ali geslo."
+            : "❌ Invalid email or password.";
         }
-        
         setMessage(displayError);
         setLoading(false);
-      } else {
-        console.log('Login form: Success! Redirecting...');
-        setMessage(t.successMessage);
-        
-        // Cookies are set by server via Set-Cookie header
-        // Redirect to main app
-        setTimeout(() => {
-          window.location.href = '/app';
-        }, 300);
+        return;
       }
+
+      setMessage(t.successMessage);
+      // Hard navigation so cookies from Set-Cookie are definitely used
+      globalThis.location.href = "/app";
     } catch (error: any) {
-      console.error('Login form: Catch error:', error);
-      setMessage(`❌ ${lang === 'sl' ? 'Napaka pri prijavi' : lang === 'en' ? 'Login error' : 'Errore di accesso'}: ${error?.message || 'Unknown error'}`);
+      setMessage(
+        `❌ ${
+          lang === "sl" ? "Napaka pri prijavi" : "Login error"
+        }: ${error?.message || "Unknown error"}`,
+      );
       setLoading(false);
     }
   }
 
   return (
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center px-4 py-12">
-      <div class="max-w-md w-full">
-        <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
+    <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 px-4 py-12">
+      <div class="w-full max-w-md">
+        <div class="mb-8 text-center">
+          <h1 class="mb-2 text-3xl font-bold text-gray-900">{t.title}</h1>
           <p class="text-gray-600">{t.subtitle}</p>
         </div>
-        
-        <div class="bg-white/80 backdrop-blur rounded-2xl shadow-xl border border-gray-200 p-8">
-        
-        <form onSubmit={handleLogin} class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{t.email}</label>
-            <input
-              type="email"
-              value={email}
-              onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
-              required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="email@example.com"
-            />
-          </div>
-          
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <label class="block text-sm font-medium text-gray-700">{t.password}</label>
-              <a href="/auth/forgot-password" class="text-sm text-blue-600 hover:underline">
-                {t.forgotPassword}
-              </a>
+
+        <div class="rounded-2xl border border-gray-200 bg-white/80 p-8 shadow-xl backdrop-blur">
+          {/* Classic form POST works even if the island JS fails to hydrate */}
+          <form
+            method="POST"
+            action="/api/auth/login"
+            class="space-y-4"
+            onSubmit={handleLogin}
+          >
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">
+                {t.email}
+              </label>
+              <input
+                type="email"
+                name="email"
+                autocomplete="email"
+                value={email}
+                onInput={(e) =>
+                  setEmail((e.target as HTMLInputElement).value)}
+                required
+                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="email@example.com"
+              />
             </div>
-            <input
-              type="password"
-              value={password}
-              onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
-              required
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="••••••••"
-            />
+
+            <div>
+              <div class="mb-1 flex items-center justify-between">
+                <label class="block text-sm font-medium text-gray-700">
+                  {t.password}
+                </label>
+                <a
+                  href="/auth/forgot-password"
+                  class="text-sm text-blue-600 hover:underline"
+                >
+                  {t.forgotPassword}
+                </a>
+              </div>
+              <input
+                type="password"
+                name="password"
+                autocomplete="current-password"
+                value={password}
+                onInput={(e) =>
+                  setPassword((e.target as HTMLInputElement).value)}
+                required
+                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              class="min-h-[48px] w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? t.loggingIn : t.loginButton}
+            </button>
+          </form>
+
+          {message && (
+            <div
+              class={`mt-5 rounded-xl p-3 text-center text-sm ${
+                message.includes("✅")
+                  ? "border border-green-200 bg-green-50 text-green-700"
+                  : "border border-red-200 bg-red-50 text-red-700"
+              }`}
+            >
+              {message}
+            </div>
+          )}
+
+          <div class="mt-6 text-center">
+            <p class="mb-3 text-sm text-gray-600">{t.noAccount}</p>
+            <a
+              href="/auth/register"
+              class="inline-block w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400 hover:bg-gray-50"
+            >
+              {t.register}
+            </a>
           </div>
-          
-          <button
-            type="submit"
-            disabled={loading}
-            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 font-medium min-h-[48px]"
-          >
-            {loading ? t.loggingIn : t.loginButton}
-          </button>
-        </form>
-        
-        {message && (
-          <div class={`mt-5 text-center text-sm p-3 rounded-xl ${
-            message.includes('✅') 
-              ? 'bg-green-50 text-green-700 border border-green-200' 
-              : 'bg-red-50 text-red-700 border border-red-200'
-          }`}>
-            {message}
-          </div>
-        )}
-        
-        <div class="mt-6 text-center">
-          <p class="text-sm text-gray-600 mb-3">{t.noAccount}</p>
-          <a 
-            href="/auth/register" 
-            class="inline-block w-full py-2.5 px-4 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors font-medium text-sm"
-          >
-            {t.register}
-          </a>
-        </div>
         </div>
       </div>
     </div>
   );
 }
-

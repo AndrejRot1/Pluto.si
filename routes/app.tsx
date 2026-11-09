@@ -23,25 +23,24 @@ export default define.page(function Home(props) {
   }
   
   return (
-    <div class="h-screen bg-gray-50 flex">
+    <div class="flex h-screen bg-[radial-gradient(1200px_600px_at_10%_-10%,#d1fae5_0%,transparent_55%),radial-gradient(900px_500px_at_90%_0%,#e0f2fe_0%,transparent_50%),linear-gradient(180deg,#f8fafc_0%,#f3f6f4_100%)]">
       <Head>
-        <title>Pluto.si • Pogovorni asistent za matematiko</title>
+        <title>Pluto.si • STEM tutor</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       
-      {/* Fixed sidebar - hidden on mobile */}
-      <div class="hidden lg:block">
-        <YearSidebar />
-      </div>
-
-      {/* Mobile sidebar drawer */}
-      <div id="mobile-sidebar" class="fixed inset-0 bg-black/50 z-50 lg:hidden hidden">
-        <div class="absolute left-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl transform transition-transform">
-          <div class="flex items-center justify-between p-4 border-b">
-            <h2 class="text-lg font-semibold text-gray-900">Teme</h2>
-            <button 
-              id="close-sidebar" 
-              class="p-2 hover:bg-gray-100 rounded-lg"
+      {/* Sidebar: drawer below md, always-visible column from md up */}
+      <div
+        id="mobile-sidebar"
+        class="fixed inset-0 z-50 hidden bg-black/40 md:static md:inset-auto md:z-auto md:block md:bg-transparent"
+      >
+        <div class="absolute left-0 top-0 flex h-full w-[min(20rem,85vw)] flex-col border-r border-slate-200/80 bg-white/95 shadow-2xl backdrop-blur md:relative md:h-screen md:w-72 md:shadow-none">
+          <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3 md:hidden">
+            <h2 class="font-display text-base font-semibold text-slate-900">Teme</h2>
+            <button
+              id="close-sidebar"
+              type="button"
+              class="rounded-lg p-2 hover:bg-gray-100"
               aria-label="Zapri"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
@@ -49,7 +48,7 @@ export default define.page(function Home(props) {
               </svg>
             </button>
           </div>
-          <div class="overflow-y-auto h-[calc(100%-4rem)]">
+          <div class="min-h-0 flex-1 overflow-y-auto">
             <YearSidebar />
           </div>
         </div>
@@ -58,20 +57,23 @@ export default define.page(function Home(props) {
       {/* Main chat area */}
       <main class="flex-1 flex flex-col h-screen">
         {/* Fixed header */}
-        <header class="bg-white border-b border-gray-200 px-2 sm:px-4 py-2 sm:py-3 flex-shrink-0">
-          <div class="max-w-5xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+        <header class="flex-shrink-0 border-b border-slate-200/70 bg-white/70 px-2 py-2 backdrop-blur-md sm:px-4 sm:py-3">
+          <div class="mx-auto flex max-w-5xl items-center justify-between gap-2 sm:gap-4">
             <div class="flex items-center gap-2">
               {/* Hamburger menu - mobile only */}
               <button 
                 id="open-sidebar"
-                class="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
+                class="rounded-xl p-2 hover:bg-slate-100 md:hidden"
                 aria-label="Odpri menu"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
               </button>
-              <h1 class="text-base sm:text-xl font-semibold text-gray-800">Matematični asistent</h1>
+              <div>
+                <h1 class="font-display text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">Pluto</h1>
+                <p class="hidden text-[11px] text-slate-500 sm:block">STEM tutor · korak za korakom</p>
+              </div>
             </div>
             <div class="flex items-center gap-2 sm:gap-3">
               <label class="text-sm text-gray-600 flex items-center gap-2">
@@ -184,6 +186,12 @@ export default define.page(function Home(props) {
                           />
                         </div>
                       )}
+                      <a 
+                        href="/progress"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        📊 Napredek
+                      </a>
                       <a 
                         href="/settings"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"

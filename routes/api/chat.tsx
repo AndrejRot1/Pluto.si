@@ -1,5 +1,91 @@
 import { define } from "../../utils.ts";
 import { izjaveInMnoziceExercises } from "../../data/exercises.ts";
+import { subjectSystemPrompt, isSubjectId } from "../../data/subjects.ts";
+import { supabaseAdmin } from "../../utils/supabase-admin.ts";
+import {
+  TRIAL_HELPS_LIMIT,
+  canUseHelp,
+  trialHelpsUsed,
+  trialPayload,
+} from "../../utils/trial.ts";
+
+function parseCookies(cookieHeader: string | null): Record<string, string> {
+  if (!cookieHeader) return {};
+  return Object.fromEntries(
+    cookieHeader.split(";").map((c) => {
+      const [key, ...v] = c.trim().split("=");
+      return [key, v.join("=")];
+    }),
+  );
+}
+
+async function getAuthedProfile(req: Request) {
+  const cookies = parseCookies(req.headers.get("cookie"));
+  const accessToken = cookies["sb-access-token"];
+  if (!accessToken) return null;
+
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(
+    accessToken,
+  );
+  if (error || !user) return null;
+
+  // Prefer usage-trial columns; fall back if migration not applied yet
+  let { data: profile, error: profileError } = await supabaseAdmin
+    .from("profiles")
+    .select(
+      "id, subscription_status, trial_helps_used, trial_ends_at, email",
+    )
+    .eq("id", user.id)
+    .single();
+
+  if (profileError || !profile) {
+    const fallback = await supabaseAdmin
+      .from("profiles")
+      .select("id, subscription_status, trial_ends_at, email")
+      .eq("id", user.id)
+      .single();
+    if (!fallback.data) return null;
+    profile = {
+      ...fallback.data,
+      trial_helps_used: 0,
+    };
+  }
+
+  return {
+    user,
+    profile: {
+      ...profile,
+      trial_helps_used: Number(profile.trial_helps_used ?? 0),
+    },
+  };
+}
+
+async function consumeTrialHelp(userId: string, currentUsed: number) {
+  const nextUsed = currentUsed + 1;
+  const update: Record<string, unknown> = {
+    trial_helps_used: nextUsed,
+  };
+  if (nextUsed >= TRIAL_HELPS_LIMIT) {
+    update.subscription_status = "expired";
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("profiles")
+    .update(update)
+    .eq("id", userId)
+    .select("subscription_status, trial_helps_used")
+    .single();
+
+  if (error) {
+    console.error("Failed to increment trial_helps_used:", error);
+    // Column may be missing until migrate-usage-trial.sql is run
+    return {
+      subscription_status: nextUsed >= TRIAL_HELPS_LIMIT ? "expired" : "trial",
+      trial_helps_used: nextUsed,
+    };
+  }
+  return data;
+}
 
 // Cache for HTML exercises
 let htmlExercisesCache: Array<Record<string, unknown>> | null = null;
@@ -260,6 +346,9 @@ function explainMath(text: string): string {
   const lim = limitStandard(text);
   if (lim) return lim;
 
+  const factored = factorExpression(text);
+  if (factored) return factored;
+
   if (/∫|integral/i.test(text)) {
     return "Koraki za integral: 1) Prepoznaj obliko, 2) Izberi metodo (substitucija, delna integracija), 3) Izračun, 4) Dodaj C ali vstavitev mej.";
   }
@@ -297,7 +386,13 @@ interface DeepSeekChatCompletion {
   choices: Array<{ index: number; finish_reason: string; message: { role: string; content: string } }>;
 }
 
-async function callDeepSeek(prompt: string, stream = false, language = "sl"): Promise<Response | string> {
+async function callDeepSeek(
+  prompt: string,
+  stream = false,
+  language = "sl",
+  allowLocalFallback = true,
+  subject = "math",
+): Promise<Response | string> {
   // Try to load from .env file first, then from environment
   let apiKey = Deno.env.get("DEEPSEEK_API_KEY");
   
@@ -318,53 +413,19 @@ async function callDeepSeek(prompt: string, stream = false, language = "sl"): Pr
   }
   if (!apiKey) {
     console.error('DEEPSEEK_API_KEY not found!');
+    if (!allowLocalFallback) {
+      return "(DeepSeek ni konfiguriran. Nastavite DEEPSEEK_API_KEY v okolju strežnika.)";
+    }
     return "(DeepSeek ni konfiguriran. Nastavite DEEPSEEK_API_KEY v okolju strežnika.)\n" + explainMath(prompt);
   }
   console.log('Using API key:', apiKey.substring(0, 10) + '...');
   
-  // Map language codes to instructions
-  const langMap: Record<string, string> = {
-    sl: "Respond in Slovenian",
-    en: "Respond in English",
-    it: "Respond in Italian",
-    de: "Respond in German",
-    fr: "Respond in French",
-    es: "Respond in Spanish",
-    pl: "Respond in Polish",
-    ro: "Respond in Romanian"
-  };
-  const langInstruction = langMap[language] || langMap.en;
-  
   const endpoint = "https://api.deepseek.com/chat/completions";
   const messages: DeepSeekMessage[] = [
-      {
-        role: "system",
-        content:
-        `You are a helpful math tutor. Answer ONLY math questions. If not math, politely refuse. ${langInstruction}. Show clear step-by-step reasoning and final result where applicable.
-        
-When appropriate, you can include graphs by using the syntax: [GRAPH:function]
-For example:
-- [GRAPH:x^2] for parabola
-- [GRAPH:sin(x)] for sine wave
-- [GRAPH:2*x + 3] for linear function
-- [GRAPH:x^3 - 2*x] for cubic function
-- [GRAPH:1/x] for hyperbola
-
-IMPORTANT for graphs:
-- Use JavaScript math notation
-- Exponents: x^2, x^3 (not x²)
-- Multiplication: 2*x (not 2x)
-- Division: x/2
-- Square root: sqrt(x)
-- Functions: sin(x), cos(x), tan(x), log(x), abs(x)
-- Examples of CORRECT syntax:
-  ✓ [GRAPH:x^2 + 2*x + 1]
-  ✓ [GRAPH:sin(x) + cos(x)]
-  ✓ [GRAPH:sqrt(x)]
-  ✗ DON'T use: [GRAPH:x² + 2x + 1]
-
-Include graphs when visualizing the function helps understand the concept.`,
-      },
+    {
+      role: "system",
+      content: subjectSystemPrompt(subject, language),
+    },
     { role: "user", content: prompt },
   ];
   const body: Record<string, unknown> = {
@@ -383,6 +444,7 @@ Include graphs when visualizing the function helps understand the concept.`,
   });
   if (stream) return res; // return raw response for SSE/NDJSON
   if (!res.ok) {
+    if (!allowLocalFallback) return `(DeepSeek napaka ${res.status})`;
     return `(DeepSeek napaka ${res.status})\n` + explainMath(prompt);
   }
   const data = (await res.json()) as DeepSeekChatCompletion;
@@ -468,9 +530,100 @@ function limitStandard(input: string): string | null {
   return null;
 }
 
+/** Razstavljanje izrazov: reagira na "razstavi", "faktoriziraj", "izpostavi" in poskuša razstaviti izraz. */
+function factorExpression(input: string): string | null {
+  if (!/razstavi|faktoriziraj|izpostavi|factor/i.test(input)) return null;
+
+  // Oblika a^2 - b^2 = (a-b)(a+b)
+  const diffSq = /(?:razstavi|faktoriziraj|izpostavi).*?([a-zA-Z])\s*\^?\s*2\s*-\s*(\d+)\s*\^?\s*2/i.exec(input);
+  if (diffSq) {
+    const v = diffSq[1];
+    const n = parseInt(diffSq[2], 10);
+    if (!Number.isNaN(n) && n >= 0) {
+      const sqrt = Math.sqrt(n);
+      if (Number.isInteger(sqrt)) {
+        return [
+          `Razlika kvadratov: ${v}² − ${n} = ${v}² − ${sqrt}² = (${v} − ${sqrt})(${v} + ${sqrt}).`,
+        ].join("\n");
+      }
+    }
+  }
+
+  // Izpostavitev skupnega faktorja: ax + ay ali ax + b (številski skupni delitelj)
+  const sumTwo = /(?:razstavi|faktoriziraj|izpostavi).*?(\d*)\s*([a-zA-Z])\s*\+\s*(\d+)/i.exec(input);
+  if (sumTwo) {
+    const coefStr = sumTwo[1];
+    const letter = sumTwo[2];
+    const right = parseInt(sumTwo[3], 10);
+    const leftCoef = coefStr === "" ? 1 : parseInt(coefStr, 10);
+    if (!Number.isNaN(right) && !Number.isNaN(leftCoef) && right > 0 && leftCoef > 0) {
+      const g = (a: number, b: number): number => (b === 0 ? a : g(b, a % b));
+      const d = g(leftCoef, right);
+      if (d > 1) {
+        const a = leftCoef / d;
+        const c = right / d;
+        const expr = leftCoef === 1 ? letter : `${leftCoef}${letter}`;
+        const inParen = a === 1 ? `${letter} + ${c}` : `${a}${letter} + ${c}`;
+        return [
+          `Izpostavitev skupnega faktorja: ${expr} + ${right}`,
+          `GCD(${leftCoef}, ${right}) = ${d}, zato ${expr} + ${right} = ${d}(${inParen}).`,
+        ].join("\n");
+      }
+    }
+  }
+
+  // Kvadratni trinom x^2 + bx + c (iscemo celoštevilske r,s: r+s=b, r*s=c)
+  const quad = /(?:razstavi|faktoriziraj).*?([a-zA-Z])\s*\^?\s*2\s*\+\s*(\d+)\s*\1\s*\+\s*(\d+)/i.exec(input);
+  if (quad) {
+    const v = quad[1];
+    const b = parseInt(quad[2], 10);
+    const c = parseInt(quad[3], 10);
+    if (!Number.isNaN(b) && !Number.isNaN(c)) {
+      for (let r = -Math.abs(c); r <= Math.abs(c); r++) {
+        const s = c / r;
+        if (r !== 0 && Number.isInteger(s) && r + s === b) {
+          const rS = r >= 0 ? `+ ${r}` : `− ${-r}`;
+          const sS = s >= 0 ? `+ ${s}` : `− ${-s}`;
+          return [
+            `Kvadratni trinom: ${v}² + ${b}${v} + ${c}`,
+            `Iščemo r, s, da velja r + s = ${b} in r·s = ${c}. Dobimo r = ${r}, s = ${s}.`,
+            `Razstavljeno: (${v} ${rS})(${v} ${sS}).`,
+          ].join("\n");
+        }
+      }
+    }
+  }
+
+  // Splošen odgovor, če izraza nismo prepoznali – ni pusto
+  return [
+    "**Razstavljanje izrazov**",
+    "- **Izpostavitev skupnega faktorja:** npr. $6x+12 = 6(x+2)$, $ax+ay = a(x+y)$.",
+    "- **Razlika kvadratov:** $a^2 - b^2 = (a-b)(a+b)$.",
+    "- **Kvadratni trinom** $x^2+bx+c$: poišči $r,s$ z $r+s=b$ in $r\\cdot s=c$, potem $x^2+bx+c=(x+r)(x+s)$.",
+    "Zapiši konkretni izraz (npr. „Razstavi x² + 5x + 6“ ali „Izpostavi skupni faktor v 4x+8“), da ga razstavim korak za korakom.",
+  ].join("\n\n");
+}
+
 export const handler = define.handlers({
   async POST(ctx) {
     try {
+      const authed = await getAuthedProfile(ctx.req);
+      if (!authed) {
+        return json({ error: "unauthorized" }, { status: 401 });
+      }
+
+      const { user, profile } = authed;
+      if (!canUseHelp(profile)) {
+        return json(
+          {
+            error: "trial_exhausted",
+            remaining: 0,
+            trial: trialPayload(profile),
+          },
+          { status: 402 },
+        );
+      }
+
       let parsed: unknown;
       try {
         parsed = await ctx.req.json();
@@ -483,22 +636,51 @@ export const handler = define.handlers({
       const language = (typeof parsed === "object" && parsed !== null && "language" in parsed)
         ? String((parsed as { language?: unknown }).language ?? "sl")
         : "sl";
+      const forceDeepSeek = (typeof parsed === "object" && parsed !== null && "forceDeepSeek" in parsed)
+        ? Boolean((parsed as { forceDeepSeek?: unknown }).forceDeepSeek)
+        : false;
+      const rawSubject = (typeof parsed === "object" && parsed !== null && "subject" in parsed)
+        ? String((parsed as { subject?: unknown }).subject ?? "math")
+        : "math";
+      const subject = isSubjectId(rawSubject) ? rawSubject : "math";
       if (!text.trim()) return json({ reply: "Prosim, vnesite vprašanje." });
-      
-      // Always send to DeepSeek, let it handle the math-only filtering
+
+      const isTrial = profile.subscription_status === "trial";
+      const usedBefore = trialHelpsUsed(profile);
+
+      async function withTrialMeta(reply: string) {
+        let nextProfile = profile;
+        if (isTrial) {
+          nextProfile = await consumeTrialHelp(user.id, usedBefore);
+        }
+        return json({
+          reply,
+          trial: trialPayload(nextProfile),
+        });
+      }
+
+      if (!forceDeepSeek && subject === "math") {
+        const localFactored = factorExpression(text);
+        if (localFactored) return await withTrialMeta(localFactored);
+      }
+
       const wantsStream = /stream=1/.test(new URL(ctx.req.url).search);
       if (wantsStream) {
-        const ds = await callDeepSeek(text, true, language);
+        if (isTrial) {
+          await consumeTrialHelp(user.id, usedBefore);
+        }
+        const ds = await callDeepSeek(text, true, language, !forceDeepSeek, subject);
         if (ds instanceof Response && ds.ok) {
-          // proxy the stream transparently
           return new Response(ds.body, { headers: { "content-type": ds.headers.get("content-type") ?? "text/event-stream" } });
         }
         const fallback = typeof ds === "string" ? ds : explainMath(text);
-        return json({ reply: fallback });
+        return await withTrialMeta(fallback);
       } else {
-        const explanation = await callDeepSeek(text, false, language);
-        if (typeof explanation === "string") return json({ reply: explanation });
-        return json({ reply: explainMath(text) });
+        const explanation = await callDeepSeek(text, false, language, !forceDeepSeek, subject);
+        if (typeof explanation === "string") {
+          return await withTrialMeta(explanation);
+        }
+        return await withTrialMeta(explainMath(text));
       }
     } catch (_e) {
       return json({ reply: "Prišlo je do napake pri obdelavi vprašanja." }, { status: 200 });

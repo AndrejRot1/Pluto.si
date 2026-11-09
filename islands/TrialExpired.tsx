@@ -19,8 +19,8 @@ const translations: Record<Lang, {
   support: string;
 }> = {
   sl: {
-    title: "Brezplačni preskus je potekel",
-    subtitle: "Vaš 3-dnevni brezplačni preskus je potekel. Nadgradite na Premium za neomejen dostop!",
+    title: "Brezplačne pomoči so porabljene",
+    subtitle: "Porabili ste 10 brezplačnih AI pomoči. Nadgradite na Premium za neomejen dostop!",
     premiumTitle: "Pluto.si Premium",
     feature1: "Neomejen dostop do AI asistenta",
     feature2: "Korak-po-korak rešitve",
@@ -35,8 +35,8 @@ const translations: Record<Lang, {
     support: "support@pluto.si",
   },
   en: {
-    title: "Free Trial Expired",
-    subtitle: "Your 3-day free trial has expired. Upgrade to Premium for unlimited access!",
+    title: "Free helps used up",
+    subtitle: "You've used your 10 free AI helps. Upgrade to Premium for unlimited access!",
     premiumTitle: "Pluto.si Premium",
     feature1: "Unlimited access to AI assistant",
     feature2: "Step-by-step solutions",

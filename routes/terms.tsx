@@ -64,9 +64,9 @@ export default define.page(function Terms() {
             <section>
               <h2 class="text-2xl font-semibold text-gray-900 mb-3">4. Free Trial</h2>
               <p>
-                We offer a 3-day free trial period. During this time, you have full access to all features. 
-                After the trial expires, you must subscribe to continue using the Service. Only one free trial 
-                per email address is allowed.
+                We offer 10 free AI helps for new accounts. During this time, you have access to math tutoring
+                features. After the free helps are used, you must subscribe to continue using the Service.
+                Only one free trial per email address is allowed.
               </p>
             </section>
 

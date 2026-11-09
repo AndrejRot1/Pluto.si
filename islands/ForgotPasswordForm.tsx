@@ -1,10 +1,5 @@
 import { useState, useEffect } from "preact/hooks";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = 'https://vbmtvnqnpsbgnxasejcg.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZibXR2bnFucHNiZ254YXNlamNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5OTk2OTAsImV4cCI6MjA3NjU3NTY5MH0.qVtDmSgAaEwYVAi8LKSXZbfKt02HU3A_fV1QC0-bESs';
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from "../utils/supabase-browser.ts";
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('');

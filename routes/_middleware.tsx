@@ -1,138 +1,152 @@
 import { define } from "../utils.ts";
 import { createClient } from "@supabase/supabase-js";
+import { getSupabaseConfig } from "../utils/supabase-env.ts";
+import { isTrialExhausted } from "../utils/trial.ts";
+import {
+  parseCookies,
+  withAuthCookies,
+} from "../utils/auth-cookies.ts";
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://vbmtvnqnpsbgnxasejcg.supabase.co';
-const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZibXR2bnFucHNiZ254YXNlamNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5OTk2OTAsImV4cCI6MjA3NjU3NTY5MH0.qVtDmSgAaEwYVAi8LKSXZbfKt02HU3A_fV1QC0-bESs';
+const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseConfig();
 
 export const handler = define.middleware(async (ctx) => {
-  // Dovoli dostop do javnih strani (auth, api, trial-expired, root landing, demo, terms, privacy)
-  const publicPaths = ['/auth/', '/api/', '/trial-expired', '/demo', '/terms', '/privacy'];
-  // Allow root path (landing page) and exact matches
-  if (ctx.url.pathname === '/' || publicPaths.some(path => ctx.url.pathname.startsWith(path) || ctx.url.pathname === path)) {
+  const publicPaths = [
+    "/auth/",
+    "/api/",
+    "/trial-expired",
+    "/demo",
+    "/terms",
+    "/privacy",
+  ];
+  if (
+    ctx.url.pathname === "/" ||
+    publicPaths.some((path) =>
+      ctx.url.pathname.startsWith(path) || ctx.url.pathname === path
+    )
+  ) {
     return await ctx.next();
   }
-  
-  // Preveri session cookie
-  const authCookie = ctx.req.headers.get('cookie');
-  
+
+  const authCookie = ctx.req.headers.get("cookie");
   if (!authCookie) {
     return new Response(null, {
       status: 302,
-      headers: {
-        Location: '/',
-      },
+      headers: { Location: "/auth/login" },
     });
   }
 
-  // Parse cookies to get session tokens
-  const cookies = Object.fromEntries(
-    authCookie.split(';').map(c => {
-      const [key, ...v] = c.trim().split('=');
-      return [key, v.join('=')];
-    })
-  );
-
-  const accessToken = cookies['sb-access-token'];
-  const refreshToken = cookies['sb-refresh-token'];
-
-  console.log('Cookies found:', { 
-    hasAccessToken: !!accessToken, 
-    hasRefreshToken: !!refreshToken 
-  });
+  const cookies = parseCookies(authCookie);
+  let accessToken = cookies["sb-access-token"] || "";
+  let refreshToken = cookies["sb-refresh-token"] || "";
 
   if (!accessToken && !refreshToken) {
-    console.log('No auth cookies, redirecting to landing');
     return new Response(null, {
       status: 302,
-      headers: {
-        Location: '/',
-      },
+      headers: { Location: "/auth/login" },
     });
   }
 
-  // Verify user with Supabase
   try {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    });
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    let user = null;
+    let refreshed = false;
 
-    const { data: { user }, error } = await supabase.auth.getUser();
+    if (accessToken) {
+      const { data, error } = await supabase.auth.getUser(accessToken);
+      if (!error && data.user) {
+        user = data.user;
+      }
+    }
 
-    if (error || !user) {
-      console.log('Invalid session, redirecting to register');
+    // Access JWT expired / missing — refresh with refresh token
+    if (!user && refreshToken) {
+      const { data, error } = await supabase.auth.refreshSession({
+        refresh_token: refreshToken,
+      });
+      if (!error && data.session?.access_token) {
+        accessToken = data.session.access_token;
+        refreshToken = data.session.refresh_token || refreshToken;
+        refreshed = true;
+        if (data.user) {
+          user = data.user;
+        } else {
+          const again = await supabase.auth.getUser(accessToken);
+          user = again.data.user;
+        }
+      }
+    }
+
+    if (!user) {
+      console.log("Invalid session, redirecting to login");
       return new Response(null, {
         status: 302,
-        headers: {
-          Location: '/auth/register',
-        },
+        headers: { Location: "/auth/login" },
       });
     }
 
-    // Get user profile from profiles table
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
+    const authed = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    });
+
+    const { data: profile } = await authed
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
       .single();
 
-    console.log('User authenticated:', user.email, 'Profile:', profile);
+    console.log("User authenticated:", user.email, "Profile:", profile);
 
-    // Store user and profile in context
     ctx.state.user = {
       id: user.id,
       email: user.email,
     };
     ctx.state.profile = profile;
 
-    // Check if trial has expired
     if (profile) {
-      const now = new Date();
-      const trialEndsAt = profile.trial_ends_at ? new Date(profile.trial_ends_at) : null;
-      const trialEnded = profile.subscription_status === 'trial' && 
-                         trialEndsAt && 
-                         trialEndsAt < now;
-      
-      // Auto-update status to 'expired' if trial has ended
-      if (trialEnded) {
-        console.log('Trial expired, updating status to expired');
-        await supabase
-          .from('profiles')
-          .update({ subscription_status: 'expired' })
-          .eq('id', user.id);
-        
-        // Update local profile object
-        profile.subscription_status = 'expired';
+      if (
+        profile.subscription_status === "trial" &&
+        isTrialExhausted(profile)
+      ) {
+        console.log("Trial helps exhausted, updating status to expired");
+        await authed
+          .from("profiles")
+          .update({ subscription_status: "expired" })
+          .eq("id", user.id);
+
+        profile.subscription_status = "expired";
         ctx.state.profile = profile;
       }
-      
-      const isExpired = profile.subscription_status === 'expired';
-      const hasActiveSubscription = profile.subscription_status === 'active';
 
-      // Redirect to trial-expired page (except for settings page where they can upgrade)
-      if (isExpired && !hasActiveSubscription && ctx.url.pathname !== '/settings') {
-        console.log('Trial expired, redirecting to trial-expired page');
-        return new Response(null, {
+      const isExpired = profile.subscription_status === "expired";
+      const hasActiveSubscription = profile.subscription_status === "active";
+
+      if (
+        isExpired &&
+        !hasActiveSubscription &&
+        ctx.url.pathname !== "/settings"
+      ) {
+        console.log("Trial expired, redirecting to trial-expired page");
+        const expiredResp = new Response(null, {
           status: 302,
-          headers: {
-            Location: '/trial-expired',
-          },
+          headers: { Location: "/trial-expired" },
         });
+        return refreshed
+          ? withAuthCookies(expiredResp, accessToken, refreshToken)
+          : expiredResp;
       }
     }
 
-    return await ctx.next();
+    const response = await ctx.next();
+    return refreshed
+      ? withAuthCookies(response, accessToken, refreshToken)
+      : response;
   } catch (err) {
-    console.error('Middleware error:', err);
+    console.error("Middleware error:", err);
     return new Response(null, {
       status: 302,
-      headers: {
-        Location: '/auth/register',
-      },
+      headers: { Location: "/auth/login" },
     });
   }
 });
-

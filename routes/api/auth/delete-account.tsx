@@ -1,9 +1,5 @@
 import { define } from "../../../utils.ts";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+import { supabaseAdmin } from "../../../utils/supabase-admin.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {

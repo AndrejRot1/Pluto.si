@@ -5,9 +5,9 @@ export default define.page(function LandingPage() {
   return (
     <>
       <Head>
-        <title>Pluto.si - AI Math Tutor</title>
+        <title>Pluto.si - AI STEM Tutor</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="AI-powered math learning platform with progressive difficulty exercises" />
+        <meta name="description" content="AI tutor for math, physics, chemistry and biology with progress tracking" />
       </Head>
       
       <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -22,7 +22,7 @@ export default define.page(function LandingPage() {
                   <span class="text-xs text-gray-500 font-medium">by TeachMath AI</span>
                 </div>
                 <p id="header-planet-text" class="text-xs text-gray-500 -mt-1">
-                  Next-generation AI math tutor
+                  Next-generation AI STEM tutor
                 </p>
               </div>
             </div>
@@ -49,11 +49,10 @@ export default define.page(function LandingPage() {
         <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
           <div class="max-w-7xl mx-auto text-center">
             <h2 id="hero-title" class="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">
-              Master Mathematics with AI
+              Master STEM with AI
             </h2>
             <p id="hero-subtitle" class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Personalized math tutoring powered by artificial intelligence. 
-              Progressive difficulty, step-by-step solutions, and instant feedback.
+              Math, physics, chemistry and biology — with progress tracked per subject.
             </p>
             <a 
               href="/auth/register" 
@@ -63,8 +62,17 @@ export default define.page(function LandingPage() {
               Start Learning Free
             </a>
             <p id="trial-text" class="text-sm text-gray-500 mt-4">
-              3-day free trial • No credit card required
+              10 free AI helps • No credit card required
             </p>
+          </div>
+        </section>
+
+        <section class="px-4 sm:px-6 lg:px-8 pb-8">
+          <div class="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-gray-800">∑ Matematika</div>
+            <div class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-gray-800">⚛ Fizika</div>
+            <div class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-gray-800">🧪 Kemija</div>
+            <div class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-gray-800">🧬 Biologija</div>
           </div>
         </section>
 
@@ -89,12 +97,12 @@ export default define.page(function LandingPage() {
 
               {/* Feature 2 */}
               <div class="p-6 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors">
-                <div class="text-4xl mb-4">📊</div>
+                <div class="text-4xl mb-4">📈</div>
                 <h4 id="feature2-title" class="text-xl font-semibold mb-3 text-gray-900">
-                  Visual Learning
+                  Progress Tracking
                 </h4>
                 <p id="feature2-desc" class="text-gray-600">
-                  Interactive graphs, step-by-step solutions with LaTeX rendering, and visual explanations.
+                  See accuracy, correct answers, time spent and topic performance as you learn.
                 </p>
               </div>
 
@@ -170,7 +178,7 @@ export default define.page(function LandingPage() {
               Simple Pricing: Just €9.99/month
             </h3>
             <p class="text-center text-gray-600 mb-8">
-              After your 3-day free trial
+              After your free AI helps
             </p>
             
             <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl border-2 border-blue-500 p-8 text-center">
@@ -271,16 +279,16 @@ export default define.page(function LandingPage() {
               sl: {
                 login: "Prijava",
                 register: "Registriraj se",
-                headerPlanetText: "Nova generacija AI učiteljev za matematiko",
-                heroTitle: "Obvladaj matematiko z AI",
-                heroSubtitle: "Personalizirano matematično tutorstvo s pomočjo umetne inteligence. Progresivna težavnost, koraki rešitev in takojšnja povratna informacija.",
+                headerPlanetText: "Nova generacija AI učiteljev za STEM",
+                heroTitle: "Obvladaj STEM z AI",
+                heroSubtitle: "Matematika, fizika, kemija in biologija — napredek ločeno po predmetih.",
                 heroCta: "Začni se učiti brezplačno",
-                trialText: "3-dnevno brezplačno preizkusno obdobje • Kreditna kartica ni potrebna",
+                trialText: "10 brezplačnih AI pomoči • Kreditna kartica ni potrebna",
                 featuresTitle: "Zakaj izbrati Pluto.si?",
                 feature1Title: "Progresivna težavnost",
                 feature1Desc: "Začni enostavno in postopoma povečuj težavnost. Naš AI se prilagaja tvojemu nivoju znanja s 5 stopnjami težavnosti.",
-                feature2Title: "Vizualno učenje",
-                feature2Desc: "Interaktivni grafi, koraki rešitev z LaTeX renderingom in vizualne razlage.",
+                feature2Title: "Spremljanje napredka",
+                feature2Desc: "Natančnost, pravilni odgovori, čas učenja in uspešnost po temah.",
                 feature3Title: "Večjezična podpora",
                 feature3Desc: "Uči se v slovenščini, angleščini ali italijanščini. Spremeni jezik kadarkoli.",
                 feature4Title: "Obsežne teme",
@@ -298,16 +306,16 @@ export default define.page(function LandingPage() {
               en: {
                 login: "Login",
                 register: "Register now",
-                headerPlanetText: "Next-generation AI math tutor",
-                heroTitle: "Master Mathematics with AI",
-                heroSubtitle: "Personalized math tutoring powered by artificial intelligence. Progressive difficulty, step-by-step solutions, and instant feedback.",
+                headerPlanetText: "Next-generation AI STEM tutor",
+                heroTitle: "Master STEM with AI",
+                heroSubtitle: "Math, physics, chemistry and biology — with progress tracked per subject.",
                 heroCta: "Start Learning Free",
-                trialText: "3-day free trial • No credit card required",
+                trialText: "10 free AI helps • No credit card required",
                 featuresTitle: "Why Choose Pluto.si?",
                 feature1Title: "Progressive Difficulty",
                 feature1Desc: "Start easy and gradually increase difficulty. Our AI adapts to your skill level with 5 difficulty tiers.",
-                feature2Title: "Visual Learning",
-                feature2Desc: "Interactive graphs, step-by-step solutions with LaTeX rendering, and visual explanations.",
+                feature2Title: "Progress Tracking",
+                feature2Desc: "See accuracy, correct answers, time spent and topic performance as you learn.",
                 feature3Title: "Multilingual Support",
                 feature3Desc: "Learn in Slovenian, English, or Italian. Switch languages anytime to match your preference.",
                 feature4Title: "Comprehensive Topics",
