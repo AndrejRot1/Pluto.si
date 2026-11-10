@@ -3,11 +3,13 @@ import { define } from "../utils.ts";
 import YearSidebar from "../islands/YearSidebar.tsx";
 import ChatPanel from "../islands/ChatPanel.tsx";
 import UpgradeButton from "../islands/UpgradeButton.tsx";
+import { isAdminEmail } from "../utils/admin.ts";
 
 export default define.page(function Home(props) {
   const user = props.state.user;
   const profile = props.state.profile;
   const isTrial = profile?.subscription_status === 'trial';
+  const isAdmin = isAdminEmail(user?.email);
   
   // Get access token from cookies (server-side)
   const authCookie = props.req.headers.get('cookie');
@@ -192,6 +194,14 @@ export default define.page(function Home(props) {
                       >
                         📊 Napredek
                       </a>
+                      {isAdmin && (
+                        <a
+                          href="/admin"
+                          class="block px-4 py-2 text-sm text-indigo-700 hover:bg-indigo-50 transition-colors"
+                        >
+                          🛡️ Admin
+                        </a>
+                      )}
                       <a 
                         href="/settings"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
