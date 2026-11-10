@@ -182,7 +182,7 @@ export default function YearSidebar() {
 
   function closeMobileSidebar() {
     const sidebar = document.getElementById("mobile-sidebar");
-    if (sidebar && globalThis.matchMedia("(max-width: 767px)").matches) {
+    if (sidebar && globalThis.matchMedia("(max-width: 1023px)").matches) {
       sidebar.classList.add("hidden");
     }
   }
@@ -405,14 +405,14 @@ End with: Click 'Solution' to show the solution`,
   const showPopular = subjectId === "math";
 
   return (
-    <aside class="flex h-full w-full flex-col bg-white p-3 sm:p-4">
-      <div class="mb-3 grid grid-cols-2 gap-1.5">
+    <aside class="flex h-full min-h-0 w-full flex-col bg-white p-3 sm:p-4">
+      <div class="mb-3 grid shrink-0 grid-cols-2 gap-1.5">
         {subjects.map((s) => (
           <button
             type="button"
             key={s.id}
             onClick={() => changeSubject(s.id)}
-            class={`min-h-[40px] rounded-lg px-2 py-2 text-xs font-medium transition-colors ${
+            class={`min-h-[40px] touch-manipulation rounded-lg px-2 py-2 text-xs font-medium transition-colors ${
               subjectId === s.id
                 ? "bg-slate-800 text-white"
                 : "bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -424,7 +424,7 @@ End with: Click 'Solution' to show the solution`,
         ))}
       </div>
 
-      <div class={`mb-3 grid gap-1 rounded-xl bg-slate-100 p-1 sm:mb-4 ${showPopular ? "grid-cols-3" : "grid-cols-2"}`}>
+      <div class={`mb-3 grid shrink-0 gap-1 rounded-xl bg-slate-100 p-1 sm:mb-4 ${showPopular ? "grid-cols-3" : "grid-cols-2"}`}>
         <button
           type="button"
           onClick={() => setActiveTab("topics")}
@@ -463,7 +463,7 @@ End with: Click 'Solution' to show the solution`,
       </div>
 
       {isGenerating && (
-        <div class="mb-3 rounded-xl border border-sky-100 bg-sky-50 px-3 py-2.5 sm:mb-4">
+        <div class="mb-3 shrink-0 rounded-xl border border-sky-100 bg-sky-50 px-3 py-2.5 sm:mb-4">
           <div class="flex items-center gap-2">
             <div class="flex gap-1">
               <div class="h-1.5 w-1.5 animate-bounce rounded-full bg-sky-600" style="animation-delay: 0ms" />
@@ -479,56 +479,58 @@ End with: Click 'Solution' to show the solution`,
         </div>
       )}
 
-      {activeTab === "popular" && showPopular
-        ? (
-          <div class="space-y-1">
-            <p class="mb-2 px-1 text-xs text-slate-500">
-              {lang === "sl"
-                ? "Naloge s strani Arnes (mpavle1) — DeepSeek izbere in reši eno."
-                : "Exercises from Arnes (mpavle1) — DeepSeek picks one and solves it."}
-            </p>
-            {mostUsedExercises.map((item) => (
-              <button
-                type="button"
-                key={item.id}
-                onClick={() => handleMostUsedClick(item.id, item.label[lang])}
-                class="block w-full min-h-[44px] rounded-md px-3 py-2.5 text-left text-sm text-slate-700 transition-colors hover:bg-teal-50 hover:text-teal-900 sm:min-h-0 sm:py-2"
-              >
-                {item.label[lang]}
-              </button>
-            ))}
-          </div>
-        )
-        : (
-          <div class="space-y-1">
-            {subject.topics.map((category) => (
-              <details class="group" key={category.title.en}>
-                <summary class="flex min-h-[44px] cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-slate-50 sm:min-h-0 sm:py-2">
-                  <span class="text-sm font-medium text-slate-700">
-                    {category.title[lang]}
-                  </span>
-                  <span class="text-xs text-slate-400 transition-transform group-open:rotate-90">›</span>
-                </summary>
-                <div class="ml-1 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2">
-                  {category.items.map((item) => (
-                    <button
-                      type="button"
-                      key={item.en}
-                      onClick={() =>
-                        activeTab === "topics"
-                          ? handleTopicClick(item[lang])
-                          : handleExerciseClick(item[lang])
-                      }
-                      class="block w-full min-h-[44px] rounded-md px-3 py-2.5 text-left text-sm text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 sm:min-h-0 sm:py-2"
-                    >
-                      {item[lang]}
-                    </button>
-                  ))}
-                </div>
-              </details>
-            ))}
-          </div>
-        )}
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-0.5">
+        {activeTab === "popular" && showPopular
+          ? (
+            <div class="space-y-1 pb-4">
+              <p class="mb-2 px-1 text-xs text-slate-500">
+                {lang === "sl"
+                  ? "Naloge s strani Arnes (mpavle1) — DeepSeek izbere in reši eno."
+                  : "Exercises from Arnes (mpavle1) — DeepSeek picks one and solves it."}
+              </p>
+              {mostUsedExercises.map((item) => (
+                <button
+                  type="button"
+                  key={item.id}
+                  onClick={() => handleMostUsedClick(item.id, item.label[lang])}
+                  class="block w-full min-h-[44px] touch-manipulation rounded-md px-3 py-2.5 text-left text-sm text-slate-700 transition-colors hover:bg-teal-50 hover:text-teal-900 sm:min-h-0 sm:py-2"
+                >
+                  {item.label[lang]}
+                </button>
+              ))}
+            </div>
+          )
+          : (
+            <div class="space-y-1 pb-4">
+              {subject.topics.map((category) => (
+                <details class="group" key={category.title.en}>
+                  <summary class="flex min-h-[44px] cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-slate-50 sm:min-h-0 sm:py-2">
+                    <span class="text-sm font-medium text-slate-700">
+                      {category.title[lang]}
+                    </span>
+                    <span class="text-xs text-slate-400 transition-transform group-open:rotate-90">›</span>
+                  </summary>
+                  <div class="ml-1 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2">
+                    {category.items.map((item) => (
+                      <button
+                        type="button"
+                        key={item.en}
+                        onClick={() =>
+                          activeTab === "topics"
+                            ? handleTopicClick(item[lang])
+                            : handleExerciseClick(item[lang])
+                        }
+                        class="block w-full min-h-[44px] touch-manipulation rounded-md px-3 py-2.5 text-left text-sm text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 sm:min-h-0 sm:py-2"
+                      >
+                        {item[lang]}
+                      </button>
+                    ))}
+                  </div>
+                </details>
+              ))}
+            </div>
+          )}
+      </div>
     </aside>
   );
 }

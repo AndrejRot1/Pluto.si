@@ -12,32 +12,32 @@ export default define.page(function LandingPage() {
       
       <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         {/* Header with Login/Register */}
-        <header class="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-gray-200 z-50">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-              <span class="text-2xl">🚀</span>
-              <div>
+        <header class="fixed top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md safe-pt">
+          <div class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:px-6 sm:py-4 lg:px-8">
+            <div class="flex min-w-0 items-center gap-2">
+              <span class="text-xl sm:text-2xl">🚀</span>
+              <div class="min-w-0">
                 <div class="flex items-center gap-1.5">
-                  <h1 class="text-xl font-bold text-gray-900">Pluto</h1>
-                  <span class="text-xs text-gray-500 font-medium">by TeachMath AI</span>
+                  <h1 class="text-lg font-bold text-gray-900 sm:text-xl">Pluto</h1>
+                  <span class="hidden text-xs font-medium text-gray-500 sm:inline">by TeachMath AI</span>
                 </div>
-                <p id="header-planet-text" class="text-xs text-gray-500 -mt-1">
+                <p id="header-planet-text" class="hidden text-xs text-gray-500 -mt-0.5 sm:block">
                   Next-generation AI STEM tutor
                 </p>
               </div>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex shrink-0 items-center gap-2 sm:gap-3">
               <a 
                 href="/auth/login" 
                 id="login-btn"
-                class="px-4 sm:px-5 py-2 sm:py-2.5 bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold rounded-lg transition-colors shadow-sm"
+                class="min-h-[40px] rounded-lg border-2 border-blue-600 bg-white px-3 py-2 text-sm font-semibold text-blue-600 shadow-sm transition-colors hover:bg-blue-50 sm:min-h-0 sm:px-5 sm:py-2.5"
               >
                 Login
               </a>
               <a 
                 href="/auth/register" 
                 id="register-btn"
-                class="px-5 sm:px-6 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg"
+                class="min-h-[40px] rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-blue-700 hover:shadow-lg sm:min-h-0 sm:px-6 sm:py-2.5"
               >
                 Register now
               </a>
@@ -46,18 +46,18 @@ export default define.page(function LandingPage() {
         </header>
 
         {/* Hero Section */}
-        <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-          <div class="max-w-7xl mx-auto text-center">
-            <h2 id="hero-title" class="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">
+        <section class="px-4 pb-12 pt-24 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
+          <div class="mx-auto max-w-7xl text-center">
+            <h2 id="hero-title" class="mb-4 text-3xl font-bold text-gray-900 sm:mb-6 sm:text-5xl md:text-6xl">
               Master STEM with AI
             </h2>
-            <p id="hero-subtitle" class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p id="hero-subtitle" class="mx-auto mb-6 max-w-2xl text-base text-gray-600 sm:mb-8 sm:text-xl">
               Math, physics, chemistry and biology — with progress tracked per subject.
             </p>
             <a 
               href="/auth/register" 
               id="hero-cta"
-              class="inline-block px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-xl transition-colors shadow-lg hover:shadow-xl"
+              class="inline-block min-h-[48px] rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg transition-colors hover:bg-blue-700 hover:shadow-xl sm:px-8 sm:py-4 sm:text-lg"
             >
               Start Learning Free
             </a>
@@ -174,7 +174,7 @@ export default define.page(function LandingPage() {
         {/* Pricing Section */}
         <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
           <div class="max-w-7xl mx-auto">
-            <h3 id="pricing-title" class="text-4xl font-bold text-center text-gray-900 mb-4">
+            <h3 id="pricing-title" class="mb-4 text-center text-2xl font-bold text-gray-900 sm:text-4xl">
               Simple pricing
             </h3>
             <p id="pricing-subtitle" class="text-center text-gray-600 mb-10">

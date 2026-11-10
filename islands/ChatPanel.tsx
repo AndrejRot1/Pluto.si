@@ -298,12 +298,12 @@ export default function ChatPanel(props?: {
       <div ref={scrollerRef} class="flex-1 overflow-y-auto">
         <div class="mx-auto max-w-3xl">
           {messages.length === 0 ? (
-            <div class="px-4 pt-14 text-center sm:pt-20">
+            <div class="px-4 pb-4 pt-6 text-center sm:pt-14 lg:pt-20">
               <p class="font-display text-2xl font-semibold text-slate-900 sm:text-3xl">Pluto</p>
-              <p class="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate-600 sm:text-base">
-                Vprašaj tutorja ali izberi temo levo — matematika, fizika, kemija, biologija.
+              <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-600 sm:mt-3 sm:text-base">
+                Vprašaj tutorja ali odpri teme (☰) — matematika, fizika, kemija, biologija.
               </p>
-              <div class="mx-auto mt-6 flex max-w-sm flex-wrap justify-center gap-2 text-xs text-slate-500">
+              <div class="mx-auto mt-4 hidden max-w-sm flex-wrap justify-center gap-2 text-xs text-slate-500 sm:mt-6 sm:flex">
                 <span class="rounded-full border border-slate-200 bg-white/80 px-3 py-1">Korak za korakom</span>
                 <span class="rounded-full border border-slate-200 bg-white/80 px-3 py-1">LaTeX + diagrami</span>
                 <span class="rounded-full border border-slate-200 bg-white/80 px-3 py-1">Preveri odgovor</span>
@@ -327,7 +327,7 @@ export default function ChatPanel(props?: {
         </div>
       </div>
       
-        <div class="flex-shrink-0 border-t border-slate-200/70 bg-white/80 p-2 backdrop-blur-md sm:p-4">
+        <div class="safe-pb flex-shrink-0 border-t border-slate-200/70 bg-white/90 p-1.5 backdrop-blur-md sm:p-3 lg:p-4">
           <div class="mx-auto max-w-3xl">
             <ChatComposer />
           </div>

@@ -119,7 +119,45 @@ export default define.page(async (ctx) => {
             <div class="border-b border-slate-100 px-4 py-3">
               <h2 class="text-sm font-semibold text-slate-800">Uporabniki</h2>
             </div>
-            <div class="overflow-x-auto">
+
+            {/* Mobile cards */}
+            <div class="space-y-3 p-3 md:hidden">
+              {rows.map((p) => (
+                <div class="rounded-lg border border-slate-100 bg-slate-50/80 p-3" key={p.id}>
+                  <div class="flex items-start justify-between gap-2">
+                    <p class="break-all text-sm font-medium text-slate-800">{p.email}</p>
+                    <span
+                      class={`shrink-0 inline-flex rounded-md px-2 py-0.5 text-xs font-medium ${
+                        statusBadge(p.subscription_status)
+                      }`}
+                    >
+                      {p.subscription_status || "—"}
+                    </span>
+                  </div>
+                  <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+                    <span>Trial {p.trial_helps_used ?? 0}/10</span>
+                    <span>
+                      {p.stripe_subscription_id
+                        ? "Stripe ✓"
+                        : p.stripe_customer_id
+                        ? "Customer only"
+                        : "No Stripe"}
+                    </span>
+                    <span>
+                      {p.created_at
+                        ? new Date(p.created_at).toLocaleDateString("sl-SI")
+                        : "—"}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {rows.length === 0 && (
+                <p class="px-1 py-4 text-sm text-slate-500">Ni uporabnikov.</p>
+              )}
+            </div>
+
+            {/* Desktop table */}
+            <div class="hidden overflow-x-auto md:block">
               <table class="min-w-full text-left text-sm">
                 <thead class="bg-slate-50 text-xs uppercase text-slate-500">
                   <tr>

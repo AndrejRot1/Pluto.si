@@ -316,8 +316,8 @@ export default function Messages(props: { items: ChatMessage[] }) {
         return (
           <div
             class={m.role === "user"
-              ? "ml-4 rounded-2xl rounded-br-md border border-teal-100 bg-teal-50/70 p-3 sm:ml-12 sm:p-4"
-              : "mr-2 rounded-2xl rounded-bl-md border border-slate-200/80 bg-white/90 p-3 shadow-sm sm:mr-8 sm:p-4"}
+              ? "ml-2 max-w-full overflow-x-auto rounded-2xl rounded-br-md border border-teal-100 bg-teal-50/70 p-3 sm:ml-12 sm:p-4"
+              : "mr-1 max-w-full overflow-x-auto rounded-2xl rounded-bl-md border border-slate-200/80 bg-white/90 p-3 shadow-sm sm:mr-8 sm:p-4"}
           >
             {/* Difficulty badge for exercises */}
             {m.isExercise && m.difficulty && (

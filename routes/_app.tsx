@@ -32,7 +32,11 @@ export default define.page(function App({ Component }) {
     <html>
       <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+        />
+        <meta name="theme-color" content="#f3f6f4" />
         <title>Pluto.si</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>" />
         <script
@@ -59,13 +63,27 @@ export default define.page(function App({ Component }) {
             font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
             color: var(--pluto-ink);
             background: var(--pluto-bg);
+            overflow-x: hidden;
+            max-width: 100vw;
           }
           .font-display { font-family: Fraunces, Georgia, serif; }
           .katex { font-size: 1.05em; }
-          .katex-display { margin: 0.75rem 0; overflow-x: auto; overflow-y: hidden; }
+          .katex-display { margin: 0.75rem 0; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+          .safe-pb { padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px)); }
+          .safe-pt { padding-top: env(safe-area-inset-top, 0px); }
+          .no-scrollbar::-webkit-scrollbar { display: none; }
+          .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+          .touch-manipulation { touch-action: manipulation; }
+          @media (max-width: 640px) {
+            .katex { font-size: 0.95em; }
+            .katex-display { margin: 0.5rem 0; }
+          }
+          @media (min-width: 641px) and (max-width: 1023px) {
+            .katex { font-size: 1em; }
+          }
         `}</style>
       </head>
-      <body class="antialiased">
+      <body class="antialiased safe-pt">
         <Component />
       </body>
     </html>
