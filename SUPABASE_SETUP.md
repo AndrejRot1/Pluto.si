@@ -14,6 +14,9 @@ Stari Supabase projekt je bil izbrisan. Sledi korakom spodaj.
 2. Odpri datoteko `setup-fresh-supabase.sql` iz tega repozitorija
 3. Kopiraj vsebino in klikni **Run**
 
+Če projekt že obstaja in manjkata tabela `subscriptions` / zaščita billing polj, zaženi še:
+`migrate-secure-billing.sql`
+
 ## 3. Nastavi Auth
 
 **Authentication → URL Configuration:**

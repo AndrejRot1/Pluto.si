@@ -4,8 +4,9 @@
 -- ============================================
 
 -- 1. Profiles table
--- Trial is usage-based: 5 AI helps (trial_helps_used), not calendar days.
+-- Trial is usage-based: 10 AI helps (trial_helps_used), not calendar days.
 -- trial_ends_at is kept for compatibility / metadata only.
+-- Billing fields are written only by service_role (API / Stripe webhooks).
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT NOT NULL,
@@ -31,9 +32,34 @@ CREATE POLICY "Users can view own profile"
   ON profiles FOR SELECT
   USING (auth.uid() = id);
 
-CREATE POLICY "Users can update own profile"
-  ON profiles FOR UPDATE
-  USING (auth.uid() = id);
+-- No client UPDATE policy on profiles (prevents self-upgrading to active).
+-- Writes go through service_role from the app / Stripe webhook.
+
+CREATE OR REPLACE FUNCTION protect_profile_billing_fields()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  -- Use auth.role(), not current_user (SECURITY DEFINER runs as postgres).
+  IF auth.role() = 'service_role' THEN
+    RETURN NEW;
+  END IF;
+  NEW.subscription_status := OLD.subscription_status;
+  NEW.trial_helps_used := OLD.trial_helps_used;
+  NEW.trial_ends_at := OLD.trial_ends_at;
+  NEW.stripe_customer_id := OLD.stripe_customer_id;
+  NEW.stripe_subscription_id := OLD.stripe_subscription_id;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS protect_profile_billing_fields_trigger ON profiles;
+CREATE TRIGGER protect_profile_billing_fields_trigger
+  BEFORE UPDATE ON profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION protect_profile_billing_fields();
 
 -- 2. Subscriptions table
 CREATE TABLE IF NOT EXISTS subscriptions (

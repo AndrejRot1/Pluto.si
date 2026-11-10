@@ -1,6 +1,7 @@
 import { define } from "../utils.ts";
 import { createClient } from "@supabase/supabase-js";
 import { getSupabaseConfig } from "../utils/supabase-env.ts";
+import { supabaseAdmin } from "../utils/supabase-admin.ts";
 import { isTrialExhausted } from "../utils/trial.ts";
 import {
   parseCookies,
@@ -110,7 +111,8 @@ export const handler = define.middleware(async (ctx) => {
         isTrialExhausted(profile)
       ) {
         console.log("Trial helps exhausted, updating status to expired");
-        await authed
+        // Service role only — clients can no longer UPDATE billing fields via RLS
+        await supabaseAdmin
           .from("profiles")
           .update({ subscription_status: "expired" })
           .eq("id", user.id);
