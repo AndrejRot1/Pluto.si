@@ -115,7 +115,10 @@ export default function ChatPanel(props?: {
             ? "Porabili ste brezplačne AI pomoči. Nadgradite na Premium v Nastavitvah."
             : "You've used your free AI helps. Upgrade to Premium in Settings.",
         }]);
-        globalThis.location.href = "/trial-expired";
+        // Let the message paint before navigating away
+        setTimeout(() => {
+          globalThis.location.href = "/trial-expired";
+        }, 1400);
       } else if (res.status === 401) {
         setThinking(false);
         setMessages((m) => [...m, {

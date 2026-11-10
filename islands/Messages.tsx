@@ -31,17 +31,42 @@ export default function Messages(props: { items: ChatMessage[] }) {
   const [checkResults, setCheckResults] = useState<
     Record<number, { correct: boolean; feedback: string }>
   >({});
-  const [startedAt, setStartedAt] = useState<Record<number, number>>({});
+  const [startedAt, setStartedAt] = useState<Record<number, number>>(() => {
+    try {
+      const raw = sessionStorage.getItem("pluto-exercise-started-at");
+      if (!raw) return {};
+      const parsed = JSON.parse(raw) as Record<string, number>;
+      const out: Record<number, number> = {};
+      for (const [k, v] of Object.entries(parsed)) {
+        const id = Number(k);
+        if (Number.isFinite(id) && typeof v === "number") out[id] = v;
+      }
+      return out;
+    } catch {
+      return {};
+    }
+  });
   const [lang, setLang] = useState<'sl' | 'en' | 'it' | 'de' | 'fr' | 'es' | 'pl' | 'ro'>('sl');
   const advancingRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     setStartedAt((prev) => {
       const next = { ...prev };
+      let changed = false;
       for (const m of props.items) {
         if (m.isExercise && next[m.id] == null) {
           next[m.id] = Date.now();
+          changed = true;
         }
+      }
+      if (!changed) return prev;
+      try {
+        sessionStorage.setItem(
+          "pluto-exercise-started-at",
+          JSON.stringify(next),
+        );
+      } catch {
+        // ignore quota / private mode
       }
       return next;
     });

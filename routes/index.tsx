@@ -174,29 +174,52 @@ export default define.page(function LandingPage() {
         {/* Pricing Section */}
         <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
           <div class="max-w-7xl mx-auto">
-            <h3 class="text-4xl font-bold text-center text-gray-900 mb-4">
-              Simple Pricing: Just €9.99/month
+            <h3 id="pricing-title" class="text-4xl font-bold text-center text-gray-900 mb-4">
+              Simple pricing
             </h3>
-            <p class="text-center text-gray-600 mb-8">
-              After your free AI helps
+            <p id="pricing-subtitle" class="text-center text-gray-600 mb-10">
+              After your free AI helps — choose monthly or yearly
             </p>
             
-            <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl border-2 border-blue-500 p-8 text-center">
-              <h4 class="text-2xl font-bold text-gray-900 mb-4">Plus Plan</h4>
-              <div class="flex items-baseline justify-center gap-2 mb-6">
-                <span class="text-5xl font-bold text-gray-900">€9.99</span>
-                <span class="text-xl text-gray-600">/month</span>
+            <div class="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
+              <div class="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-md">
+                <h4 id="pricing-monthly-plan" class="mb-4 text-xl font-bold text-gray-900">Monthly</h4>
+                <div class="mb-2 flex items-baseline justify-center gap-2">
+                  <span id="pricing-monthly-amount" class="text-4xl font-bold text-gray-900">€9.99</span>
+                  <span id="pricing-monthly-period" class="text-lg text-gray-600">/month</span>
+                </div>
+                <p id="pricing-monthly-hint" class="mb-6 text-sm text-gray-500">Flexible — cancel anytime</p>
+                <a 
+                  href="/auth/register" 
+                  id="pricing-monthly-cta"
+                  class="inline-block w-full rounded-xl bg-slate-800 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-slate-700"
+                >
+                  Start Free Trial
+                </a>
               </div>
-              <a 
-                href="/auth/register" 
-                class="inline-block w-full px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
-              >
-                Start Free Trial
-              </a>
-              <p class="text-sm text-gray-500 mt-4">
-                No credit card required • Cancel anytime
-              </p>
+
+              <div class="relative rounded-2xl border-2 border-blue-500 bg-white p-8 text-center shadow-xl">
+                <span id="pricing-yearly-badge" class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
+                  Save 2 months
+                </span>
+                <h4 id="pricing-yearly-plan" class="mb-4 text-xl font-bold text-gray-900">Yearly</h4>
+                <div class="mb-2 flex items-baseline justify-center gap-2">
+                  <span id="pricing-yearly-amount" class="text-4xl font-bold text-gray-900">€89.99</span>
+                  <span id="pricing-yearly-period" class="text-lg text-gray-600">/year</span>
+                </div>
+                <p id="pricing-yearly-hint" class="mb-6 text-sm text-gray-500">≈ €7.50/month</p>
+                <a 
+                  href="/auth/register" 
+                  id="pricing-yearly-cta"
+                  class="inline-block w-full rounded-xl bg-blue-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-blue-700"
+                >
+                  Start Free Trial
+                </a>
+              </div>
             </div>
+            <p id="pricing-note" class="mt-8 text-center text-sm text-gray-500">
+              No credit card required • Cancel anytime
+            </p>
           </div>
         </section>
 
@@ -299,6 +322,20 @@ export default define.page(function LandingPage() {
                 feature6Desc: "Uči se kjerkoli, kadarkoli. Popolnoma odziven dizajn optimiziran za telefone, tablice in namizne računalnike.",
                 demoTitle: "Preizkusi interaktivni demo",
                 demoDesc: "Poglej Pluto.si v akciji! Doživite reševanje problemov korak-po-korak z našo interaktivno demonstracijo.",
+                pricingTitle: "Enostavne cene",
+                pricingSubtitle: "Po porabljenih brezplačnih AI pomočeh — izberi mesečno ali letno",
+                pricingMonthlyPlan: "Mesečno",
+                pricingMonthlyAmount: "9,99 €",
+                pricingMonthlyPeriod: "/mesec",
+                pricingMonthlyHint: "Prilagodljivo — prekliči kadarkoli",
+                pricingMonthlyCta: "Začni brezplačno",
+                pricingYearlyPlan: "Letno",
+                pricingYearlyAmount: "89,99 €",
+                pricingYearlyPeriod: "/leto",
+                pricingYearlyHint: "≈ 7,50 €/mesec",
+                pricingYearlyBadge: "2 meseca gratis",
+                pricingYearlyCta: "Začni brezplačno",
+                pricingNote: "Kreditna kartica ni potrebna • Kadarkoli prekličeš",
                 ctaTitle: "Pripravljen izstopati v matematiki?",
                 ctaSubtitle: "Pridruži se tisočim študentov, ki izboljšujejo svoje matematične veščine z AI tutorstvom.",
                 ctaButton: "Začni zdaj"
@@ -326,6 +363,20 @@ export default define.page(function LandingPage() {
                 feature6Desc: "Learn anywhere, anytime. Fully responsive design optimized for phones, tablets, and desktops.",
                 demoTitle: "Try Interactive Demo",
                 demoDesc: "See Pluto.si in action! Experience step-by-step problem solving with our interactive demonstration.",
+                pricingTitle: "Simple pricing",
+                pricingSubtitle: "After your free AI helps — choose monthly or yearly",
+                pricingMonthlyPlan: "Monthly",
+                pricingMonthlyAmount: "€9.99",
+                pricingMonthlyPeriod: "/month",
+                pricingMonthlyHint: "Flexible — cancel anytime",
+                pricingMonthlyCta: "Start Free Trial",
+                pricingYearlyPlan: "Yearly",
+                pricingYearlyAmount: "€89.99",
+                pricingYearlyPeriod: "/year",
+                pricingYearlyHint: "≈ €7.50/month",
+                pricingYearlyBadge: "Save 2 months",
+                pricingYearlyCta: "Start Free Trial",
+                pricingNote: "No credit card required • Cancel anytime",
                 ctaTitle: "Ready to Excel in Math?",
                 ctaSubtitle: "Join thousands of students improving their math skills with AI-powered tutoring.",
                 ctaButton: "Get Started Now"
@@ -352,6 +403,20 @@ export default define.page(function LandingPage() {
                 feature6Desc: "Impara ovunque, in qualsiasi momento. Design completamente responsive ottimizzato per telefoni, tablet e desktop.",
                 demoTitle: "Prova la Demo Interattiva",
                 demoDesc: "Vedi Pluto.si in azione! Sperimenta la risoluzione dei problemi passo-passo con la nostra dimostrazione interattiva.",
+                pricingTitle: "Prezzi semplici",
+                pricingSubtitle: "Dopo gli aiuti AI gratuiti — mensile o annuale",
+                pricingMonthlyPlan: "Mensile",
+                pricingMonthlyAmount: "€9,99",
+                pricingMonthlyPeriod: "/mese",
+                pricingMonthlyHint: "Flessibile — annulla quando vuoi",
+                pricingMonthlyCta: "Inizia gratis",
+                pricingYearlyPlan: "Annuale",
+                pricingYearlyAmount: "€89,99",
+                pricingYearlyPeriod: "/anno",
+                pricingYearlyHint: "≈ €7,50/mese",
+                pricingYearlyBadge: "2 mesi gratis",
+                pricingYearlyCta: "Inizia gratis",
+                pricingNote: "Nessuna carta di credito richiesta • Annulla quando vuoi",
                 ctaTitle: "Pronto a Eccellere in Matematica?",
                 ctaSubtitle: "Unisciti a migliaia di studenti che migliorano le loro abilità matematiche con il tutoraggio AI.",
                 ctaButton: "Inizia Ora"
@@ -378,6 +443,20 @@ export default define.page(function LandingPage() {
                 feature6Desc: "Lerne überall und jederzeit. Vollständig responsives Design optimiert für Telefone, Tablets und Desktops.",
                 demoTitle: "Interaktive Demo ausprobieren",
                 demoDesc: "Sehen Sie Pluto.si in Aktion! Erlebe Schritt-für-Schritt-Problemlösung mit unserer interaktiven Demonstration.",
+                pricingTitle: "Einfache Preise",
+                pricingSubtitle: "Nach den kostenlosen KI-Hilfen — monatlich oder jährlich",
+                pricingMonthlyPlan: "Monatlich",
+                pricingMonthlyAmount: "€9,99",
+                pricingMonthlyPeriod: "/Monat",
+                pricingMonthlyHint: "Flexibel — jederzeit kündbar",
+                pricingMonthlyCta: "Kostenlos starten",
+                pricingYearlyPlan: "Jährlich",
+                pricingYearlyAmount: "€89,99",
+                pricingYearlyPeriod: "/Jahr",
+                pricingYearlyHint: "≈ €7,50/Monat",
+                pricingYearlyBadge: "2 Monate gratis",
+                pricingYearlyCta: "Kostenlos starten",
+                pricingNote: "Keine Kreditkarte erforderlich • Jederzeit kündbar",
                 ctaTitle: "Bereit, in Mathe zu glänzen?",
                 ctaSubtitle: "Schließe dich Tausenden von Schülern an, die ihre Mathe-Fähigkeiten mit KI-gestütztem Tutoring verbessern.",
                 ctaButton: "Jetzt loslegen"
@@ -404,6 +483,20 @@ export default define.page(function LandingPage() {
                 feature6Desc: "Apprenez n'importe où, n'importe quand. Design entièrement responsive optimisé pour téléphones, tablettes et ordinateurs.",
                 demoTitle: "Essayer la Démo Interactive",
                 demoDesc: "Voir Pluto.si en action ! Découvrez la résolution de problèmes étape par étape avec notre démonstration interactive.",
+                pricingTitle: "Tarifs simples",
+                pricingSubtitle: "Après vos aides IA gratuites — mensuel ou annuel",
+                pricingMonthlyPlan: "Mensuel",
+                pricingMonthlyAmount: "9,99 €",
+                pricingMonthlyPeriod: "/mois",
+                pricingMonthlyHint: "Flexible — annulez à tout moment",
+                pricingMonthlyCta: "Commencer gratuitement",
+                pricingYearlyPlan: "Annuel",
+                pricingYearlyAmount: "89,99 €",
+                pricingYearlyPeriod: "/an",
+                pricingYearlyHint: "≈ 7,50 €/mois",
+                pricingYearlyBadge: "2 mois offerts",
+                pricingYearlyCta: "Commencer gratuitement",
+                pricingNote: "Aucune carte de crédit requise • Annulez à tout moment",
                 ctaTitle: "Prêt à exceller en mathématiques ?",
                 ctaSubtitle: "Rejoignez des milliers d'étudiants qui améliorent leurs compétences en mathématiques avec le tutorat alimenté par l'IA.",
                 ctaButton: "Commencer maintenant"
@@ -430,6 +523,20 @@ export default define.page(function LandingPage() {
                 feature6Desc: "Aprende en cualquier lugar, en cualquier momento. Diseño totalmente responsive optimizado para teléfonos, tabletas y computadoras.",
                 demoTitle: "Probar Demo Interactiva",
                 demoDesc: "¡Ve Pluto.si en acción! Experimenta la resolución de problemas paso a paso con nuestra demostración interactiva.",
+                pricingTitle: "Precios simples",
+                pricingSubtitle: "Después de tus ayudas de IA gratis — mensual o anual",
+                pricingMonthlyPlan: "Mensual",
+                pricingMonthlyAmount: "9,99 €",
+                pricingMonthlyPeriod: "/mes",
+                pricingMonthlyHint: "Flexible — cancela cuando quieras",
+                pricingMonthlyCta: "Empezar gratis",
+                pricingYearlyPlan: "Anual",
+                pricingYearlyAmount: "89,99 €",
+                pricingYearlyPeriod: "/año",
+                pricingYearlyHint: "≈ 7,50 €/mes",
+                pricingYearlyBadge: "2 meses gratis",
+                pricingYearlyCta: "Empezar gratis",
+                pricingNote: "No se requiere tarjeta de crédito • Cancela cuando quieras",
                 ctaTitle: "¿Listo para sobresalir en matemáticas?",
                 ctaSubtitle: "Únete a miles de estudiantes que mejoran sus habilidades matemáticas con tutoría impulsada por IA.",
                 ctaButton: "Comenzar ahora"
@@ -456,6 +563,20 @@ export default define.page(function LandingPage() {
                 feature6Desc: "Ucz się wszędzie i zawsze. W pełni responsywny design zoptymalizowany pod telefony, tablety i komputery.",
                 demoTitle: "Wypróbuj Interaktywne Demo",
                 demoDesc: "Zobacz Pluto.si w akcji! Doświadcz rozwiązywania problemów krok po kroku z naszą interaktywną demonstracją.",
+                pricingTitle: "Proste ceny",
+                pricingSubtitle: "Po darmowych pomocach AI — miesięcznie lub rocznie",
+                pricingMonthlyPlan: "Miesięcznie",
+                pricingMonthlyAmount: "9,99 €",
+                pricingMonthlyPeriod: "/miesiąc",
+                pricingMonthlyHint: "Elastycznie — anuluj w każdej chwili",
+                pricingMonthlyCta: "Zacznij za darmo",
+                pricingYearlyPlan: "Rocznie",
+                pricingYearlyAmount: "89,99 €",
+                pricingYearlyPeriod: "/rok",
+                pricingYearlyHint: "≈ 7,50 €/miesiąc",
+                pricingYearlyBadge: "2 miesiące gratis",
+                pricingYearlyCta: "Zacznij za darmo",
+                pricingNote: "Karta kredytowa nie jest wymagana • Anuluj w każdej chwili",
                 ctaTitle: "Gotowy, aby osiągnąć sukces w matematyce?",
                 ctaSubtitle: "Dołącz do tysięcy studentów poprawiających swoje umiejętności matematyczne dzięki korepetycjom napędzanym przez AI.",
                 ctaButton: "Zacznij teraz"
@@ -482,17 +603,33 @@ export default define.page(function LandingPage() {
                 feature6Desc: "Învață oriunde, oricând. Design complet responsive optimizat pentru telefoane, tablete și desktop-uri.",
                 demoTitle: "Încearcă Demo Interactiv",
                 demoDesc: "Vezi Pluto.si în acțiune! Experimentează rezolvarea problemelor pas cu pas cu demonstrația noastră interactivă.",
+                pricingTitle: "Prețuri simple",
+                pricingSubtitle: "După ajutoarele AI gratuite — lunar sau anual",
+                pricingMonthlyPlan: "Lunar",
+                pricingMonthlyAmount: "9,99 €",
+                pricingMonthlyPeriod: "/lună",
+                pricingMonthlyHint: "Flexibil — anulează oricând",
+                pricingMonthlyCta: "Începe gratuit",
+                pricingYearlyPlan: "Anual",
+                pricingYearlyAmount: "89,99 €",
+                pricingYearlyPeriod: "/an",
+                pricingYearlyHint: "≈ 7,50 €/lună",
+                pricingYearlyBadge: "2 luni gratis",
+                pricingYearlyCta: "Începe gratuit",
+                pricingNote: "Nu este necesar cardul de credit • Anulează oricând",
                 ctaTitle: "Gata să excelezi la matematică?",
                 ctaSubtitle: "Alătură-te miilor de studenți care își îmbunătățesc abilitățile matematice cu meditații alimentate de AI.",
                 ctaButton: "Începe acum"
               }
             };
 
-            // Detect language (IP-based geolocation + browser fallback)
-            let detectedLang = 'en'; // default
-            
-            // Try IP-based geolocation first (with fallback)
-            try {
+            // Prefer saved language, then IP geolocation, then browser fallback
+            const savedLang = localStorage.getItem('pluto-lang');
+            let detectedLang = (savedLang && translations[savedLang]) ? savedLang : 'en';
+
+            if (savedLang && translations[savedLang]) {
+              console.log('Using saved language:', detectedLang);
+            } else try {
               const controller = new AbortController();
               const timeoutId = setTimeout(() => controller.abort(), 1500); // Shorter timeout
               const geoResponse = await fetch('https://ipapi.co/json/', { 
@@ -575,6 +712,20 @@ export default define.page(function LandingPage() {
             document.getElementById('feature6-desc').textContent = t.feature6Desc;
             document.getElementById('demo-title').textContent = t.demoTitle;
             document.getElementById('demo-desc').textContent = t.demoDesc;
+            document.getElementById('pricing-title').textContent = t.pricingTitle;
+            document.getElementById('pricing-subtitle').textContent = t.pricingSubtitle;
+            document.getElementById('pricing-monthly-plan').textContent = t.pricingMonthlyPlan;
+            document.getElementById('pricing-monthly-amount').textContent = t.pricingMonthlyAmount;
+            document.getElementById('pricing-monthly-period').textContent = t.pricingMonthlyPeriod;
+            document.getElementById('pricing-monthly-hint').textContent = t.pricingMonthlyHint;
+            document.getElementById('pricing-monthly-cta').textContent = t.pricingMonthlyCta;
+            document.getElementById('pricing-yearly-plan').textContent = t.pricingYearlyPlan;
+            document.getElementById('pricing-yearly-amount').textContent = t.pricingYearlyAmount;
+            document.getElementById('pricing-yearly-period').textContent = t.pricingYearlyPeriod;
+            document.getElementById('pricing-yearly-hint').textContent = t.pricingYearlyHint;
+            document.getElementById('pricing-yearly-badge').textContent = t.pricingYearlyBadge;
+            document.getElementById('pricing-yearly-cta').textContent = t.pricingYearlyCta;
+            document.getElementById('pricing-note').textContent = t.pricingNote;
             document.getElementById('cta-title').textContent = t.ctaTitle;
             document.getElementById('cta-subtitle').textContent = t.ctaSubtitle;
             document.getElementById('cta-button').textContent = t.ctaButton;

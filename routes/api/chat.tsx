@@ -659,9 +659,15 @@ export const handler = define.handlers({
         });
       }
 
+      // Local regex helpers must not consume trial helps (no DeepSeek call).
       if (!forceDeepSeek && subject === "math") {
         const localFactored = factorExpression(text);
-        if (localFactored) return await withTrialMeta(localFactored);
+        if (localFactored) {
+          return json({
+            reply: localFactored,
+            trial: trialPayload(profile),
+          });
+        }
       }
 
       const wantsStream = /stream=1/.test(new URL(ctx.req.url).search);

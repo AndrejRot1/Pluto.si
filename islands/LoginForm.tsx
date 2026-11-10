@@ -1,4 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
+import GoogleLoginButton from "./GoogleLoginButton.tsx";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -45,6 +46,7 @@ export default function LoginForm() {
       successMessage: "✅ Uspešna prijava! Preusmerjanje...",
       noAccount: "Nimate računa?",
       register: "Registrirajte se →",
+      or: "ali",
     },
     en: {
       title: "Welcome back",
@@ -57,6 +59,7 @@ export default function LoginForm() {
       successMessage: "✅ Login successful! Redirecting...",
       noAccount: "No account?",
       register: "Register →",
+      or: "or",
     },
     it: {
       title: "Bentornato",
@@ -69,6 +72,7 @@ export default function LoginForm() {
       successMessage: "✅ Accesso riuscito! Reindirizzamento...",
       noAccount: "Nessun account?",
       register: "Registrati →",
+      or: "oppure",
     },
     de: {
       title: "Willkommen zurück",
@@ -81,6 +85,7 @@ export default function LoginForm() {
       successMessage: "✅ Anmeldung erfolgreich! Weiterleitung...",
       noAccount: "Kein Konto?",
       register: "Registrieren →",
+      or: "oder",
     },
     fr: {
       title: "Bon retour",
@@ -93,6 +98,7 @@ export default function LoginForm() {
       successMessage: "✅ Connexion réussie ! Redirection...",
       noAccount: "Pas de compte ?",
       register: "S'inscrire →",
+      or: "ou",
     },
     es: {
       title: "Bienvenido de nuevo",
@@ -105,6 +111,7 @@ export default function LoginForm() {
       successMessage: "✅ ¡Inicio de sesión exitoso! Redirigiendo...",
       noAccount: "¿No tienes cuenta?",
       register: "Registrarse →",
+      or: "o",
     },
     pl: {
       title: "Witamy ponownie",
@@ -117,6 +124,7 @@ export default function LoginForm() {
       successMessage: "✅ Logowanie udane! Przekierowanie...",
       noAccount: "Nie masz konta?",
       register: "Zarejestruj się →",
+      or: "lub",
     },
     ro: {
       title: "Bine ai revenit",
@@ -129,6 +137,7 @@ export default function LoginForm() {
       successMessage: "✅ Conectare reușită! Redirecționare...",
       noAccount: "Nu ai cont?",
       register: "Înregistrează-te →",
+      or: "sau",
     },
   };
 
@@ -252,6 +261,20 @@ export default function LoginForm() {
               {loading ? t.loggingIn : t.loginButton}
             </button>
           </form>
+
+          <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-200" />
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="bg-white px-3 text-gray-500">{t.or}</span>
+            </div>
+          </div>
+
+          <GoogleLoginButton
+            lang={lang}
+            onError={(msg) => setMessage(`❌ ${msg}`)}
+          />
 
           {message && (
             <div

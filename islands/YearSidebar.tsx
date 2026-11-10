@@ -12,6 +12,27 @@ import {
 
 /** Desktop + mobile each mount YearSidebar — only one next-exercise run at a time. */
 let nextExerciseLock = false;
+let nextExerciseLockTimer: ReturnType<typeof setTimeout> | null = null;
+
+function acquireNextExerciseLock(): boolean {
+  if (nextExerciseLock) return false;
+  nextExerciseLock = true;
+  if (nextExerciseLockTimer) clearTimeout(nextExerciseLockTimer);
+  // Safety unlock so a failed/early-return path cannot freeze generation forever
+  nextExerciseLockTimer = setTimeout(() => {
+    nextExerciseLock = false;
+    nextExerciseLockTimer = null;
+  }, 30_000);
+  return true;
+}
+
+function releaseNextExerciseLock() {
+  nextExerciseLock = false;
+  if (nextExerciseLockTimer) {
+    clearTimeout(nextExerciseLockTimer);
+    nextExerciseLockTimer = null;
+  }
+}
 
 export default function YearSidebar() {
   const [lang, setLang] = useState<LangCode>("sl");
@@ -90,7 +111,10 @@ export default function YearSidebar() {
   }
 
   async function handleMostUsedClick(id: string, label: string) {
-    if (generatingRef.current) return;
+    if (generatingRef.current) {
+      releaseNextExerciseLock();
+      return;
+    }
     closeMobileSidebar();
     popularSetIdRef.current = id;
     setCurrentTopic(label);
@@ -149,7 +173,7 @@ export default function YearSidebar() {
     } finally {
       setIsGenerating(false);
       generatingRef.current = false;
-      nextExerciseLock = false;
+      releaseNextExerciseLock();
       globalThis.dispatchEvent(
         new CustomEvent("pluto-exercise-loading", { detail: false }),
       );
@@ -191,7 +215,10 @@ export default function YearSidebar() {
     resetDifficulty: boolean = true,
     difficultyOverride?: number,
   ) {
-    if (generatingRef.current) return;
+    if (generatingRef.current) {
+      releaseNextExerciseLock();
+      return;
+    }
     if (typeof difficultyOverride !== "number") {
       closeMobileSidebar();
       popularSetIdRef.current = null;
@@ -303,7 +330,7 @@ End with: Click 'Solution' to show the solution`,
     } finally {
       setIsGenerating(false);
       generatingRef.current = false;
-      nextExerciseLock = false;
+      releaseNextExerciseLock();
       globalThis.dispatchEvent(
         new CustomEvent("pluto-exercise-loading", { detail: false }),
       );
@@ -315,12 +342,11 @@ End with: Click 'Solution' to show the solution`,
 
   useEffect(() => {
     const handleNextExercise = (e: Event) => {
-      if (nextExerciseLock || generatingRef.current) return;
-      nextExerciseLock = true;
+      if (generatingRef.current || !acquireNextExerciseLock()) return;
       const ce = e as CustomEvent<{ topic: string }>;
       const topic = ce.detail?.topic;
       if (!topic) {
-        nextExerciseLock = false;
+        releaseNextExerciseLock();
         return;
       }
       const popularId = popularSetIdRef.current;

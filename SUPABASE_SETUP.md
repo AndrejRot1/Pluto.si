@@ -83,11 +83,18 @@ Brezplačni preskus je **usage-based**: **10 AI pomoči** (`trial_helps_used`), 
 - Vaje in demo strani
 - Landing page
 
-## Google OAuth (opcijsko)
+## Google OAuth
 
-Če uporabljaš Google login, v Google Cloud Console posodobi redirect URI na:
+1. V Google Cloud Console ustvari OAuth Client (Web) in dodaj redirect URI:
 ```
 https://TVOJ-PROJEKT.supabase.co/auth/v1/callback
 ```
+2. V Supabase → **Authentication → Providers → Google** vklopi provider in vnesi Client ID + Secret.
+3. V Supabase → **Authentication → URL Configuration → Redirect URLs** dodaj:
+```
+http://localhost:5174/auth/callback
+https://teachmathai.com/auth/callback
+https://www.teachmathai.com/auth/callback
+```
 
-Nato v Supabase → **Authentication → Providers → Google** vnesi Client ID in Secret.
+Podrobna navodila: `GOOGLE_OAUTH_SETUP.md`.
