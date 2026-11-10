@@ -69,10 +69,10 @@ export default define.page(function LandingPage() {
 
         <section class="px-4 sm:px-6 lg:px-8 pb-8">
           <div class="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-gray-800">∑ Matematika</div>
-            <div class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-gray-800">⚛ Fizika</div>
-            <div class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-gray-800">🧪 Kemija</div>
-            <div class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-gray-800">🧬 Biologija</div>
+            <div id="subject-math" class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-gray-800">∑ Mathematics</div>
+            <div id="subject-physics" class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-gray-800">⚛ Physics</div>
+            <div id="subject-chemistry" class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-gray-800">🧪 Chemistry</div>
+            <div id="subject-biology" class="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center font-medium text-gray-800">🧬 Biology</div>
           </div>
         </section>
 
@@ -307,6 +307,10 @@ export default define.page(function LandingPage() {
                 heroSubtitle: "Matematika, fizika, kemija in biologija — napredek ločeno po predmetih.",
                 heroCta: "Začni se učiti brezplačno",
                 trialText: "10 brezplačnih AI pomoči • Kreditna kartica ni potrebna",
+                subjectMath: "∑ Matematika",
+                subjectPhysics: "⚛ Fizika",
+                subjectChemistry: "🧪 Kemija",
+                subjectBiology: "🧬 Biologija",
                 featuresTitle: "Zakaj izbrati Pluto.si?",
                 feature1Title: "Progresivna težavnost",
                 feature1Desc: "Začni enostavno in postopoma povečuj težavnost. Naš AI se prilagaja tvojemu nivoju znanja s 5 stopnjami težavnosti.",
@@ -348,6 +352,10 @@ export default define.page(function LandingPage() {
                 heroSubtitle: "Math, physics, chemistry and biology — with progress tracked per subject.",
                 heroCta: "Start Learning Free",
                 trialText: "10 free AI helps • No credit card required",
+                subjectMath: "∑ Mathematics",
+                subjectPhysics: "⚛ Physics",
+                subjectChemistry: "🧪 Chemistry",
+                subjectBiology: "🧬 Biology",
                 featuresTitle: "Why Choose Pluto.si?",
                 feature1Title: "Progressive Difficulty",
                 feature1Desc: "Start easy and gradually increase difficulty. Our AI adapts to your skill level with 5 difficulty tiers.",
@@ -388,6 +396,10 @@ export default define.page(function LandingPage() {
                 heroSubtitle: "Tutoraggio matematico personalizzato alimentato dall'intelligenza artificiale. Difficoltà progressiva, soluzioni passo-passo e feedback istantaneo.",
                 heroCta: "Inizia a Imparare Gratis",
                 trialText: "Prova gratuita di 3 giorni • Nessuna carta di credito richiesta",
+                subjectMath: "∑ Matematica",
+                subjectPhysics: "⚛ Fisica",
+                subjectChemistry: "🧪 Chimica",
+                subjectBiology: "🧬 Biologia",
                 featuresTitle: "Perché scegliere Pluto.si?",
                 feature1Title: "Difficoltà Progressiva",
                 feature1Desc: "Inizia facilmente e aumenta gradualmente la difficoltà. La nostra AI si adatta al tuo livello con 5 livelli di difficoltà.",
@@ -428,6 +440,10 @@ export default define.page(function LandingPage() {
                 heroSubtitle: "Personalisiertes Mathe-Tutoring mit künstlicher Intelligenz. Progressive Schwierigkeit, Schritt-für-Schritt-Lösungen und sofortiges Feedback.",
                 heroCta: "Kostenlos lernen starten",
                 trialText: "3 Tage kostenlose Testversion • Keine Kreditkarte erforderlich",
+                subjectMath: "∑ Mathematik",
+                subjectPhysics: "⚛ Physik",
+                subjectChemistry: "🧪 Chemie",
+                subjectBiology: "🧬 Biologie",
                 featuresTitle: "Warum Pluto.si wählen?",
                 feature1Title: "Progressive Schwierigkeit",
                 feature1Desc: "Beginne einfach und steigere die Schwierigkeit allmählich. Unsere KI passt sich Ihrem Niveau mit 5 Schwierigkeitsstufen an.",
@@ -468,6 +484,10 @@ export default define.page(function LandingPage() {
                 heroSubtitle: "Tutorat mathématique personnalisé propulsé par l'intelligence artificielle. Difficulté progressive, solutions étape par étape et feedback instantané.",
                 heroCta: "Commencer à apprendre gratuitement",
                 trialText: "Essai gratuit de 3 jours • Aucune carte de crédit requise",
+                subjectMath: "∑ Mathématiques",
+                subjectPhysics: "⚛ Physique",
+                subjectChemistry: "🧪 Chimie",
+                subjectBiology: "🧬 Biologie",
                 featuresTitle: "Pourquoi choisir Pluto.si ?",
                 feature1Title: "Difficulté Progressive",
                 feature1Desc: "Commencez facilement et augmentez progressivement la difficulté. Notre IA s'adapte à votre niveau avec 5 niveaux de difficulté.",
@@ -508,6 +528,10 @@ export default define.page(function LandingPage() {
                 heroSubtitle: "Tutoría matemática personalizada impulsada por inteligencia artificial. Dificultad progresiva, soluciones paso a paso y retroalimentación instantánea.",
                 heroCta: "Comenzar a aprender gratis",
                 trialText: "Prueba gratuita de 3 días • No se requiere tarjeta de crédito",
+                subjectMath: "∑ Matemáticas",
+                subjectPhysics: "⚛ Física",
+                subjectChemistry: "🧪 Química",
+                subjectBiology: "🧬 Biología",
                 featuresTitle: "¿Por qué elegir Pluto.si?",
                 feature1Title: "Dificultad Progresiva",
                 feature1Desc: "Comienza fácil y aumenta gradualmente la dificultad. Nuestra IA se adapta a tu nivel con 5 niveles de dificultad.",
@@ -548,6 +572,10 @@ export default define.page(function LandingPage() {
                 heroSubtitle: "Spersonalizowane korepetycje z matematyki napędzane sztuczną inteligencją. Progresywna trudność, rozwiązania krok po kroku i natychmiastowa opinia.",
                 heroCta: "Zacznij uczyć się za darmo",
                 trialText: "3-dniowy bezpłatny okres próbny • Karta kredytowa nie jest wymagana",
+                subjectMath: "∑ Matematyka",
+                subjectPhysics: "⚛ Fizyka",
+                subjectChemistry: "🧪 Chemia",
+                subjectBiology: "🧬 Biologia",
                 featuresTitle: "Dlaczego wybrać Pluto.si?",
                 feature1Title: "Progresywna Trudność",
                 feature1Desc: "Zacznij łatwo i stopniowo zwiększaj trudność. Nasza AI dostosowuje się do Twojego poziomu z 5 poziomami trudności.",
@@ -588,6 +616,10 @@ export default define.page(function LandingPage() {
                 heroSubtitle: "Meditații matematice personalizate alimentate de inteligența artificială. Dificultate progresivă, soluții pas cu pas și feedback instant.",
                 heroCta: "Începe să înveți gratuit",
                 trialText: "Perioadă de probă gratuită de 3 zile • Nu este necesară cardul de credit",
+                subjectMath: "∑ Matematică",
+                subjectPhysics: "⚛ Fizică",
+                subjectChemistry: "🧪 Chimie",
+                subjectBiology: "🧬 Biologie",
                 featuresTitle: "De ce să alegi Pluto.si?",
                 feature1Title: "Dificultate Progresivă",
                 feature1Desc: "Începe ușor și crește gradual dificultatea. AI-ul nostru se adaptează la nivelul tău cu 5 niveluri de dificultate.",
@@ -697,6 +729,10 @@ export default define.page(function LandingPage() {
             document.getElementById('hero-subtitle').textContent = t.heroSubtitle;
             document.getElementById('hero-cta').textContent = t.heroCta;
             document.getElementById('trial-text').textContent = t.trialText;
+            document.getElementById('subject-math').textContent = t.subjectMath;
+            document.getElementById('subject-physics').textContent = t.subjectPhysics;
+            document.getElementById('subject-chemistry').textContent = t.subjectChemistry;
+            document.getElementById('subject-biology').textContent = t.subjectBiology;
             document.getElementById('features-title').textContent = t.featuresTitle;
             document.getElementById('feature1-title').textContent = t.feature1Title;
             document.getElementById('feature1-desc').textContent = t.feature1Desc;
